@@ -10,11 +10,170 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-//dummy user model
-model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
+// Here goes models
+model UserMetadata {
+  id            Int      @id @default(autoincrement())
+  userId        Int
+  teamId        Int
+  isNewEmployee Boolean
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 
-// Here goes models
+model QuestionBank {
+  id                Int      @id @default(autoincrement())
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  competencyId      Int
+  competencyLevelId String
+  question          String
+  levelId           Int
+
+  @@unique([competencyLevelId, question])
+  @@map("question_bank")
+}
+
+model SurveyConfig {
+  id           Int          @id @default(autoincrement())
+  maxQuestions Int
+  startTime    DateTime
+  endTime      DateTime
+  SurveyForm   SurveyForm[]
+
+  @@map("survey_config")
+}
+
+model SurveyParameters {
+  id                 Int           @id @default(autoincrement())
+  onboardingTime     Int
+  onboardingTimeUnit TimeUnitsEnum
+  surveyCycle        Int
+
+  @@map("survey_parameters")
+}
+
+model SurveyForm {
+  id              Int               @id @default(autoincrement())
+  userId          Int
+  questionsJson   Json
+  status          SurveyStatusEnum
+  surveyConfig    SurveyConfig      @relation(fields: [surveyConfigId], references: [id])
+  surveyConfigId  Int
+  ResponseTracker ResponseTracker[]
+  SurveyScore     SurveyScore[]
+
+  @@map("survey_form")
+}
+
+model ResponseTracker {
+  id           Int                       @id @default(autoincrement())
+  surveyFormId Int
+  surveyForm   SurveyForm                @relation(fields: [surveyFormId], references: [id])
+  assesseeId   Int
+  assessorId   Int
+  responseJson Json?
+  status       ResponseTrackerStatusEnum
+
+  @@map("response_tracker")
+}
+
+model SurveyScore {
+  id                Int        @id @default(autoincrement())
+  userId            Int
+  surveyFormId      Int
+  surveyForm        SurveyForm @relation(fields: [surveyFormId], references: [id])
+  roleId            Int?
+  competencyId      Int
+  competencyLevelId Int
+  score             Int
+
+  @@map("survey_scores")
+}
+
+enum SurveyStatusEnum {
+  CREATED
+  PUBLISHED
+}
+
+enum ResponseTrackerStatusEnum {
+  PENDING
+  COMPLETED
+}
+
+enum TimeUnitsEnum {
+  DAY
+  MONTH
+  YEAR
+}
+
+//Mock Database Models - To be removed after the app is integrated with User Service and FRAC Based Competency Tagger.
+model User {
+  id             Int           @id @default(autoincrement())
+  email          String        @unique
+  role           UserRolesEnum
+  username       String
+  password       String
+  profilePicture String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  roles          Role[]
+  Level          Level?        @relation(fields: [levelId], references: [id])
+  levelId        Int?
+  Team           Team?         @relation(fields: [teamId], references: [id])
+  teamId         Int?
+
+  @@map("users")
+}
+
+model Level {
+  id          Int     @id @default(autoincrement())
+  lable       String
+  description String?
+  users       User[]
+}
+model Team {
+  id          Int     @id @default(autoincrement())
+  name        String
+  description String?
+  users       User[]
+}
+
+model Role {
+  id           Int          @id @default(autoincrement())
+  roleName     String
+  description  String?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  users        User[]
+  competencies Competency[]
+
+  @@map("roles")
+}
+
+model Competency {
+  id             Int               @id @default(autoincrement())
+  competencyName String
+  description    String?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  roles          Role[]
+  levels         CompetencyLevel[]
+
+  @@map("competencies")
+}
+
+model CompetencyLevel {
+  id          Int          @id @default(autoincrement())
+  name        String
+  description String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  Competency  Competency[]
+
+  @@map("competency_levels")
+}
+
+enum UserRolesEnum {
+  ADMIN
+  COMSUMER
+}
