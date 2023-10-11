@@ -1,3 +1,5 @@
+import { HttpStatus } from "@nestjs/common";
+
 export const validationOptions = {
   whitelist: true,
   transform: true,
@@ -6,3 +8,26 @@ export const validationOptions = {
     enableImplicitConversion: true,
   },
 };
+
+export function getPrismaErrorStatusAndMessage(error: any): {
+  errorMessage: string | undefined;
+  statusCode: number;
+} {
+  const errorCode = error?.code || "DEFAULT_ERROR_CODE";
+
+  const errorCodeMap: Record<string, number> = {
+    P2000: HttpStatus.BAD_REQUEST,
+    P2002: HttpStatus.CONFLICT,
+    P2003: HttpStatus.CONFLICT,
+    P2025: HttpStatus.NOT_FOUND,
+    DEFAULT_ERROR_CODE:
+      error?.status ||
+      error?.response?.status ||
+      HttpStatus.INTERNAL_SERVER_ERROR,
+  };
+
+  const statusCode = errorCodeMap[errorCode];
+  const errorMessage = error.message.split("\n").pop();
+
+  return { statusCode, errorMessage };
+}
