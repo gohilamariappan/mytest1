@@ -61,7 +61,7 @@ export class SurveyConfigController {
         getPrismaErrorStatusAndMessage(error); // get error message and status code
 
       // Return an error response
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+      return res.status(statusCode).json({
         statusCode,
         message: errorMessage || `Failed to create new survey config.`,
       });
@@ -97,7 +97,7 @@ export class SurveyConfigController {
       const { errorMessage, statusCode } =
         getPrismaErrorStatusAndMessage(error); // get error message and status code
 
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+      return res.status(statusCode).json({
         statusCode,
         message: errorMessage || `Failed to Get all survey config.`,
       });
@@ -131,7 +131,7 @@ export class SurveyConfigController {
       const { errorMessage, statusCode } =
         getPrismaErrorStatusAndMessage(error); // get error message and status code
 
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+      return res.status(statusCode).json({
         statusCode,
         message: errorMessage || `Failed to update survey config for id #${id}`,
       });
@@ -167,7 +167,7 @@ export class SurveyConfigController {
       const { errorMessage, statusCode } =
         getPrismaErrorStatusAndMessage(error); // get error message and status code
 
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+      return res.status(statusCode).json({
         statusCode,
         message: errorMessage || `Failed to delete survey config for id #${id}`,
       });

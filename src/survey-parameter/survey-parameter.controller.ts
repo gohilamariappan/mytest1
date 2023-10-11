@@ -58,7 +58,7 @@ export class SurveyParameterController {
       const { errorMessage, statusCode } =
         getPrismaErrorStatusAndMessage(error);
       // Return an error response
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+      return res.status(statusCode).json({
         statusCode,
         message: errorMessage || `Failed to create new survey Parameter.`,
       });
@@ -93,7 +93,7 @@ export class SurveyParameterController {
       const { errorMessage, statusCode } =
         getPrismaErrorStatusAndMessage(error); // get error message and status code
       // Return an error response
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+      return res.status(statusCode).json({
         statusCode,
         message: errorMessage || `Failed to Get all survey parameters.`,
       });
@@ -132,7 +132,7 @@ export class SurveyParameterController {
       const { errorMessage, statusCode } =
         getPrismaErrorStatusAndMessage(error); // get error message and status code
       // Return an error response
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+      return res.status(statusCode).json({
         statusCode,
         message:
           errorMessage || `Failed to update survey parameter for id #${id}`,
