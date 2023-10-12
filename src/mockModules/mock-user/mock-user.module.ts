@@ -5,7 +5,7 @@ import { PrismaService } from "src/prisma/prisma.service";
 
 @Module({
   controllers: [MockUserController],
-  providers: [MockUserService, PrismaService],
+  providers: [MockUserService],
   exports: [MockUserService],
 })
 export class MockUserModule {}
