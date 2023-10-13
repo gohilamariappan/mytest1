@@ -22,16 +22,6 @@ export class CreateQuestionBankDto {
   @IsNotEmpty()
   @IsString()
   question: string;
-
-  // creation date-time for the question bank
-  @IsOptional()
-  @IsDate()
-  createdAt?: Date;
-
-  // update date-time for the question bank
-  @IsOptional()
-  @IsDate()
-  updatedAt?: Date;
 }
 
 // Question bank filter
