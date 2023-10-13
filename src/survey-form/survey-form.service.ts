@@ -1,23 +1,16 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { SurveyStatusEnum } from "@prisma/client";
 import { PrismaService } from "src/prisma/prisma.service";
-import { CreateSurveyFormDto } from "./dto";
+import { CreateSurveyFormDto, ResponseSurveyFormDto } from "./dto";
 
 @Injectable()
 export class SurveyFormService {
   constructor(private prisma: PrismaService) {}
 
   async createSurveyForm(createSurveyFormDto: CreateSurveyFormDto) {
-    try {
-      const surveyform = await this.prisma.surveyForm.create({
-        data: { ...createSurveyFormDto },
-      });
-      return surveyform;
-    } catch (error) {
-      console.log({error,})
-      throw new Error(error)
-    }
-
+    return await this.prisma.surveyForm.create({
+      data: { ...createSurveyFormDto },
+    });
   }
 
   async findSurveyFormById(id: number) {
@@ -31,14 +24,14 @@ export class SurveyFormService {
   }
 
   async updateSurveyForm(id: number, status: SurveyStatusEnum) {
-    return this.prisma.surveyForm.update({
+    return await this.prisma.surveyForm.update({
       where: { id },
       data: { status },
     });
   }
 
   async deleteSurveyForm(id: number) {
-    return this.prisma.surveyForm.delete({
+    return await this.prisma.surveyForm.delete({
       where: { id },
     });
   }

@@ -14,7 +14,7 @@ import { SurveyFormService } from "./survey-form.service";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import {
   CreateSurveyFormDto,
-  ResponseSurveyFormDto,
+  SurveyFormResponse,
   UpdateSurveyFormDto,
 } from "./dto";
 import { getPrismaErrorStatusAndMessage } from "src/utils/utils";
@@ -27,11 +27,11 @@ export class SurveyFormController {
 
   @Post()
   @ApiOperation({ summary: "Create a Survey-Form" })
-  @ApiResponse({ status: HttpStatus.CREATED, type: ResponseSurveyFormDto })
+  @ApiResponse({ status: HttpStatus.CREATED, type: SurveyFormResponse })
   async createSurveyForm(
     @Res() res,
     @Body() createSurveyFormDto: CreateSurveyFormDto
-  ): Promise<ResponseSurveyFormDto> {
+  ): Promise<SurveyFormResponse> {
     try {
       this.logger.log(`Initiated creating new survey form`);
 
@@ -46,9 +46,8 @@ export class SurveyFormController {
         message: "SurveyForm created successfully",
       });
     } catch (error) {
-      console.log({error,});
       this.logger.error(`Failed to create new survey form`, error);
-      // Handle and return appropriate response for errors
+
       const { errorMessage, statusCode } =
         getPrismaErrorStatusAndMessage(error);
       return res
@@ -59,11 +58,11 @@ export class SurveyFormController {
 
   @Get(":id")
   @ApiOperation({ summary: "Fetch a Survey-Form" })
-  @ApiResponse({ status: HttpStatus.FOUND, type: ResponseSurveyFormDto })
+  @ApiResponse({ status: HttpStatus.FOUND, type: SurveyFormResponse })
   async findSurveyFormById(
     @Res() res,
     @Param("id") id: number
-  ): Promise<ResponseSurveyFormDto> {
+  ): Promise<SurveyFormResponse> {
     try {
       this.logger.log(`Initiated fetching new survey form`);
 
@@ -71,7 +70,7 @@ export class SurveyFormController {
 
       this.logger.log(`Successfully fetched the survey form`);
 
-      return res.status(HttpStatus.OK).json({
+      return res.status(HttpStatus.OK).send({
         data: surveyForm,
         message: "SurveyForm fetched successfully",
       });
@@ -82,18 +81,18 @@ export class SurveyFormController {
         getPrismaErrorStatusAndMessage(error);
       return res
         .status(statusCode)
-        .json({ message: errorMessage || "Could not find survey form" });
+        .send({ message: errorMessage || "Could not find survey form" });
     }
   }
 
   @Patch(":id")
   @ApiOperation({ summary: "Update the Survey-Form" })
-  @ApiResponse({ status: HttpStatus.OK, type: ResponseSurveyFormDto })
+  @ApiResponse({ status: HttpStatus.OK, type: SurveyFormResponse })
   async updateSurveyForm(
     @Res() res,
     @Param("id") id: number,
     @Body() { status }: UpdateSurveyFormDto
-  ): Promise<ResponseSurveyFormDto> {
+  ): Promise<SurveyFormResponse> {
     try {
       this.logger.log(`Initiated updating new survey form`);
 
@@ -121,11 +120,11 @@ export class SurveyFormController {
 
   @Delete(":id")
   @ApiOperation({ summary: "Delete a Survey-Form" })
-  @ApiResponse({ status: HttpStatus.OK, type: ResponseSurveyFormDto })
+  @ApiResponse({ status: HttpStatus.OK, type: SurveyFormResponse })
   async deleteSurveyForm(
     @Res() res,
     @Param("id") id: number
-  ): Promise<ResponseSurveyFormDto> {
+  ): Promise<SurveyFormResponse> {
     try {
       this.logger.log(`Initiated deleting new survey form`);
 
