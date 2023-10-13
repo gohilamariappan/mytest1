@@ -1,5 +1,4 @@
-
-import { IsNotEmpty, IsOptional, IsString } from "class-validator";
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
 
 export class CreateMockRoleDto {
   @IsString()
@@ -10,4 +9,10 @@ export class CreateMockRoleDto {
   @IsString()
   @IsNotEmpty()
   description?: string;
+}
+
+export class AddCompetencyDto {
+  @IsNotEmpty()
+  @IsNumber()
+  competencyId: number;
 }

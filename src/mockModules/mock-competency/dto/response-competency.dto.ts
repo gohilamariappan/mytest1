@@ -11,5 +11,5 @@ export class ResponseCompetencyDto {
 
 export class ResponseAddCompetencyLevelToCompetency {
   readonly competency: ResponseCompetencyDto;
-  readonly competencyLevel: ResponseCompetencyLevelDto;
+  readonly competencyLevel?: ResponseCompetencyLevelDto;
 }

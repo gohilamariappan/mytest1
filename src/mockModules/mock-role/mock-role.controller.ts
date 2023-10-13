@@ -11,7 +11,13 @@ import {
   Res,
 } from "@nestjs/common";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
-import { CreateMockRoleDto, ResponseAddCompetencyToRoleDto, ResponseMockRoleDto, UpdateMockRoleDto } from "./dto";
+import {
+  AddCompetencyDto,
+  CreateMockRoleDto,
+  ResponseAddCompetencyToRoleDto,
+  ResponseMockRoleDto,
+  UpdateMockRoleDto,
+} from "./dto";
 import { MockRoleService } from "./mock-role.service";
 import { CreateCompetencyDto } from "../mock-competency/dto";
 
@@ -39,7 +45,7 @@ export class MockRoleController {
   @Get()
   @ApiOperation({ summary: "fetch all mock roles" })
   @ApiResponse({
-    status: HttpStatus.CREATED,
+    status: HttpStatus.OK,
     type: ResponseMockRoleDto,
     isArray: true,
   })
@@ -113,23 +119,24 @@ export class MockRoleController {
 
   @Post("addExistingCompetencyToRole/:id")
   @ApiOperation({ summary: "add competency to role" })
-  @ApiResponse({ status: HttpStatus.CREATED, type: ResponseAddCompetencyToRoleDto })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    type: ResponseAddCompetencyToRoleDto,
+  })
   async addExistingCompetencyToRole(
     @Res() res,
     @Param("id", ParseIntPipe) id: number,
-    @Body() competency: { competencyId: number }
+    @Body() competency: AddCompetencyDto
   ) {
     try {
       const role = await this.roleService.addExistingCompetencyToRole(
         id,
         competency.competencyId
       );
-      return res
-        .status(HttpStatus.OK)
-        .json({
-          data: role,
-          message: `Successfully added competency with id #${competency.competencyId} to Role with id #${id}.`,
-        });
+      return res.status(HttpStatus.OK).json({
+        data: role,
+        message: `Successfully added competency with id #${competency.competencyId} to Role with id #${id}.`,
+      });
     } catch (error) {
       return res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -146,13 +153,14 @@ export class MockRoleController {
     @Body() competency: CreateCompetencyDto
   ) {
     try {
-      const connection = await this.roleService.addNewCompetencyToRole(id, competency);
-      return res
-        .status(HttpStatus.OK)
-        .json({
-          data: connection,
-          message: `Successfully added competency with id # to Role with id #${id}.`,
-        });
+      const connection = await this.roleService.addNewCompetencyToRole(
+        id,
+        competency
+      );
+      return res.status(HttpStatus.OK).json({
+        data: connection,
+        message: `Successfully added competency with id # to Role with id #${id}.`,
+      });
     } catch (error) {
       return res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)

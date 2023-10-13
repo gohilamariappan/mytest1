@@ -146,12 +146,16 @@ export class MockCompetencyController {
         );
       return res.status(HttpStatus.OK).json({
         data: competency,
-        message: "Competency successfully deleted.",
+        message: "Competency added competency level to competency.",
       });
     } catch (error) {
       return res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ message: error.meta.cause });
+        .json({
+          message:
+            error?.meta?.cause ||
+            `Failed to add competency level to competency`,
+        });
     }
   }
 
@@ -171,12 +175,17 @@ export class MockCompetencyController {
         );
       return res.status(HttpStatus.OK).json({
         data: competency,
-        message: "Competency successfully deleted.",
+        message:
+          "Successfully created competency level and added to competency.",
       });
     } catch (error) {
       return res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ message: error.meta.cause });
+        .json({
+          message:
+            error?.meta?.cause ||
+            `Failed to create competency level and add to competency`,
+        });
     }
   }
 }
