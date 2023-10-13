@@ -1,5 +1,4 @@
-
-import { IsNotEmpty, IsOptional, IsString } from "class-validator";
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
 
 export class CreateCompetencyDto {
   @IsString()
@@ -10,4 +9,10 @@ export class CreateCompetencyDto {
   @IsString()
   @IsNotEmpty()
   description?: string;
+}
+
+export class AddCompetencyLevelDto {
+  @IsNotEmpty()
+  @IsNumber()
+  competencyLevelId: number;
 }

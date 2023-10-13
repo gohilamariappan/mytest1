@@ -12,6 +12,7 @@ import {
 } from "@nestjs/common";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import {
+  AddCompetencyLevelDto,
   CreateCompetencyDto,
   ResponseAddCompetencyLevelToCompetency,
   ResponseCompetencyDto,
@@ -111,7 +112,7 @@ export class MockCompetencyController {
 
   @Delete(":id")
   @ApiOperation({ summary: "delete mock competency by id" })
-  @ApiResponse({ status: HttpStatus.OK, type: ResponseCompetencyDto, })
+  @ApiResponse({ status: HttpStatus.OK, type: ResponseCompetencyDto })
   async removeCompetency(@Res() res, @Param("id", ParseIntPipe) id: number) {
     try {
       const competency = await this.competencyService.removeCompetency(id);
@@ -128,11 +129,14 @@ export class MockCompetencyController {
 
   @Post("addExistingCompetencyLevelToCompetency/:id")
   @ApiOperation({ summary: "add competency level to competency" })
-  @ApiResponse({ status: HttpStatus.OK, type: ResponseAddCompetencyLevelToCompetency })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: ResponseAddCompetencyLevelToCompetency,
+  })
   async addExistingCompetencyLevelToCompetency(
     @Res() res,
     @Param("id", ParseIntPipe) id: number,
-    @Body() competencyLevel: { competencyLevelId: number }
+    @Body() competencyLevel: AddCompetencyLevelDto
   ) {
     try {
       const competency =
