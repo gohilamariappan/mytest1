@@ -5,7 +5,7 @@ import { MockCompetencyLevelModule } from "./mock-competency-level/mock-competen
 import { RouterModule } from "@nestjs/core";
 import { MockUserModule } from "./mock-user/mock-user.module";
 import { MockLevelModule } from "./mock-level/mock-level.module";
-import { MockTeamModule } from "./mock-team/mock-team.module";
+import { MockDepartmentModule } from "./mock-department/mock-department.module";
 
 @Module({
   imports: [
@@ -14,14 +14,14 @@ import { MockTeamModule } from "./mock-team/mock-team.module";
     MockCompetencyLevelModule,
     MockUserModule,
     MockLevelModule,
-    MockTeamModule,
+    MockDepartmentModule,
     RouterModule.register([
       { path: "mockFracService/", module: MockRoleModule },
       { path: "mockFracService/", module: MockCompetencyModule },
       { path: "mockFracService/", module: MockCompetencyLevelModule },
       { path: "mockFracService/", module: MockUserModule },
       { path: "mockFracService/", module: MockLevelModule },
-      { path: "mockFracService/", module: MockTeamModule },
+      { path: "mockFracService/", module: MockDepartmentModule },
     ]),
   ],
 })
