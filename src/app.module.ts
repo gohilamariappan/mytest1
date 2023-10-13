@@ -4,6 +4,7 @@ import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { PrismaModule } from "./prisma/prisma.module";
 import { PrismaService } from "./prisma/prisma.service";
+import { SurveyFormModule } from "./survey-form/survey-form.module";
 import { ResponseTrackerModule } from "./response-tracker/response-tracker.module";
 import { MockFracModule } from "./mockModules/mock.module";
 
@@ -13,8 +14,9 @@ import { MockFracModule } from "./mockModules/mock.module";
       isGlobal: true,
     }),
     PrismaModule,
-    ResponseTrackerModule,
     MockFracModule,
+    SurveyFormModule,
+    ResponseTrackerModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
