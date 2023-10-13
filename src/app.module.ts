@@ -4,6 +4,7 @@ import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { PrismaModule } from "./prisma/prisma.module";
 import { PrismaService } from "./prisma/prisma.service";
+import { MockFracModule } from "./mockModules/mock.module";
 
 @Module({
   imports: [
@@ -11,6 +12,7 @@ import { PrismaService } from "./prisma/prisma.service";
       isGlobal: true,
     }),
     PrismaModule,
+    MockFracModule
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
