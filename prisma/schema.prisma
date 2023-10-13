@@ -194,5 +194,5 @@ model CompetencyToCompetencyLevel {
 
 enum UserRolesEnum {
   ADMIN
-  COMSUMER
+  CONSUMER
 }

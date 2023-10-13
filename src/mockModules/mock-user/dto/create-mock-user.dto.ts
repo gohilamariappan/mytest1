@@ -1,3 +1,4 @@
+import { ApiProperty } from "@nestjs/swagger";
 import { UserRolesEnum } from "@prisma/client";
 import {
   IsDate,
@@ -15,6 +16,7 @@ export class CreateMockUserDto {
   @IsNotEmpty()
   email: string;
 
+  @ApiProperty({ enum: UserRolesEnum, example: "CONSUMER" })
   @IsEnum(UserRolesEnum, { each: true, always: true })
   @IsNotEmpty()
   role: UserRolesEnum;
@@ -51,4 +53,10 @@ export class CreateMockUserDto {
   @IsDate()
   @IsOptional()
   updatedAt?: Date;
+}
+
+export class AddRoleDto {
+  @IsNotEmpty()
+  @IsNumber()
+  roleId: number;
 }

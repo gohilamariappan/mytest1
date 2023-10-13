@@ -11,7 +11,7 @@ import {
   ParseIntPipe,
 } from "@nestjs/common";
 import { MockUserService } from "./mock-user.service";
-import { CreateMockUserDto } from "./dto/create-mock-user.dto";
+import { AddRoleDto, CreateMockUserDto } from "./dto/create-mock-user.dto";
 import { UpdateMockUserDto } from "./dto/update-mock-user.dto";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { ResponseMockUserDto } from "./dto/response-mock-user.dto";
@@ -33,7 +33,7 @@ export class MockUserController {
     } catch (error) {
       return res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ message: error.meta.cause });
+        .json({ message: error?.meta?.cause || `Failed to create user` });
     }
   }
 
@@ -114,7 +114,7 @@ export class MockUserController {
   @ApiResponse({ status: HttpStatus.OK, type: ResponseMockUserDto })
   async addRoleToUser(
     @Param("id", ParseIntPipe) id: number,
-    @Body() { roleId }: any,
+    @Body() { roleId }: AddRoleDto,
     @Res() res
   ) {
     try {
@@ -132,9 +132,14 @@ export class MockUserController {
   @Get("getcompetencyData/:id")
   @ApiOperation({ summary: "get mock user's competency data by id" })
   @ApiResponse({ status: HttpStatus.OK, type: ResponseMockUserDto })
-  async fetchAllCompetencyDataForUserById(@Param("id", ParseIntPipe) id: number, @Res() res) {
+  async fetchAllCompetencyDataForUserById(
+    @Param("id", ParseIntPipe) id: number,
+    @Res() res
+  ) {
     try {
-      const user = await this.mockUserService.fetchAllCompetencyDataForUserById(id);
+      const user = await this.mockUserService.fetchAllCompetencyDataForUserById(
+        id
+      );
       return res
         .status(HttpStatus.OK)
         .json({ data: user, message: "Successfully done" });
