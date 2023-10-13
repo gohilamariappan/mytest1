@@ -25,9 +25,8 @@ model QuestionBank {
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
   competencyId      Int
-  competencyLevelId String
+  competencyLevelId Int
   question          String
-  levelId           Int
 
   @@unique([competencyLevelId, question])
   @@map("question_bank")

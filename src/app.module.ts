@@ -8,6 +8,7 @@ import { SurveyFormModule } from "./survey-form/survey-form.module";
 import { ResponseTrackerModule } from "./response-tracker/response-tracker.module";
 import { MockFracModule } from "./mockModules/mock.module";
 import { SurveyScoreModule } from "./survey-score/survey-score.module";
+import { QuestionBankModule } from "./question-bank/question-bank.module";
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { SurveyScoreModule } from "./survey-score/survey-score.module";
     SurveyFormModule,
     ResponseTrackerModule,
     SurveyScoreModule,
+    QuestionBankModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
