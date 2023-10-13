@@ -114,11 +114,11 @@ export class MockUserController {
   @ApiResponse({ status: HttpStatus.OK, type: ResponseMockUserDto })
   async addRoleToUser(
     @Param("id", ParseIntPipe) id: number,
-    @Body() { roleId }: AddRoleDto,
+    @Body() role: AddRoleDto,
     @Res() res
   ) {
     try {
-      const user = await this.mockUserService.addRoleToUser(id, roleId);
+      const user = await this.mockUserService.addRoleToUser(id, role.roleId);
       return res
         .status(HttpStatus.OK)
         .json({ data: user, message: "Successfully done" });
