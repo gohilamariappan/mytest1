@@ -14,7 +14,7 @@ datasource db {
 model UserMetadata {
   id            Int      @id @default(autoincrement())
   userId        Int      @unique()
-  teamId        Int
+  departmentId  Int
   isNewEmployee Boolean
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -119,22 +119,23 @@ model User {
   Roles          Role[]
   Level          Level?        @relation(fields: [levelId], references: [id])
   levelId        Int?
-  Team           Team?         @relation(fields: [teamId], references: [id])
-  teamId         Int?
+  Department     Department?   @relation(fields: [departmentId], references: [id])
+  departmentId   Int?
 
   @@map("users")
 }
 
 model Level {
-  id          Int     @id @default(autoincrement())
-  label       String
-  description String?
-  users       User[]
+  id              Int               @id @default(autoincrement())
+  label           String
+  description     String?
+  users           User[]
+  CompetencyLevel CompetencyLevel[]
 }
 
-model Team {
+model Department {
   id          Int     @id @default(autoincrement())
-  name        String
+  name        String  @unique
   description String?
   users       User[]
 }
@@ -153,7 +154,7 @@ model Role {
 
 model Competency {
   id               Int                           @id @default(autoincrement())
-  name             String
+  name             String                        @unique
   description      String?
   createdAt        DateTime                      @default(now())
   updatedAt        DateTime                      @updatedAt
@@ -174,8 +175,10 @@ model RoleToCompetency {
 
 model CompetencyLevel {
   id           Int                           @id @default(autoincrement())
-  name         String
+  name         String                        @unique
   description  String?
+  levelId      Int
+  Level        Level                        @relation(fields: [levelId], references: [id])
   createdAt    DateTime                      @default(now())
   updatedAt    DateTime                      @updatedAt
   competencies CompetencyToCompetencyLevel[]

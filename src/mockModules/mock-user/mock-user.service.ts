@@ -8,11 +8,11 @@ export class MockUserService {
   constructor(private prisma: PrismaService) {}
 
   public async create(createMockUserDto: CreateMockUserDto) {
-    return await this.prisma.user.create({ 
+    return await this.prisma.user.create({
       data: createMockUserDto,
-      select:{
+      select: {
         ...this.userSelectObj,
-      }
+      },
     });
   }
 
@@ -91,7 +91,7 @@ export class MockUserService {
             label: true,
           },
         },
-        Team: {
+        Department: {
           select: {
             id: true,
             name: true,
@@ -132,9 +132,19 @@ export class MockUserService {
     role: true,
     userName: true,
     profilePicture: true,
+    Level: {
+      select: {
+        id: true,
+        label: true,
+      },
+    },
+    Department: {
+      select: {
+        id: true,
+        name: true,
+      },
+    },
     createdAt: true,
     updatedAt: true,
-    levelId: true,
-    teamId: true,
   };
 }

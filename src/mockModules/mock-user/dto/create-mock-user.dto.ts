@@ -42,7 +42,7 @@ export class CreateMockUserDto {
   @IsOptional()
   @IsNotEmpty()
   @IsNumber()
-  teamId: number;
+  departmentId: number;
 
   // Optional creation date of the request.
   @IsDate()

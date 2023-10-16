@@ -10,23 +10,23 @@ import {
   HttpStatus,
   ParseIntPipe,
 } from "@nestjs/common";
-import { MockTeamService } from "./mock-team.service";
-import { CreateMockTeamDto } from "./dto/create-mock-team.dto";
-import { UpdateMockTeamDto } from "./dto/update-mock-team.dto";
+import { MockDepartmentService } from "./mock-department.service";
+import { CreateDepartmentDto } from "./dto/create-mock-department.dto";
+import { UpdateDepartmentDto } from "./dto/update-mock-department.dto";
 import { ApiTags } from "@nestjs/swagger";
 
-@Controller("team")
-@ApiTags("mockFracService/team")
-export class MockTeamController {
-  constructor(private readonly mockTeamService: MockTeamService) {}
+@Controller("department")
+@ApiTags("mockFracService/department")
+export class MockDepartmentController {
+  constructor(private readonly mockDepartmentService: MockDepartmentService) {}
 
   @Post()
-  async create(@Body() createMockTeamDto: CreateMockTeamDto, @Res() res) {
+  async create(@Body() createDepartmentDto: CreateDepartmentDto, @Res() res) {
     try {
-      const team = await this.mockTeamService.create(createMockTeamDto);
+      const department = await this.mockDepartmentService.create(createDepartmentDto);
       return res
         .status(HttpStatus.OK)
-        .json({ data: team, message: "Successfully done" });
+        .json({ data: department, message: "Successfully done" });
     } catch (error) {
       return res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -37,10 +37,10 @@ export class MockTeamController {
   @Get()
   async findAll(@Res() res) {
     try {
-      const team = await this.mockTeamService.findAll();
+      const department = await this.mockDepartmentService.findAll();
       return res
         .status(HttpStatus.OK)
-        .json({ data: team, message: "Successfully done" });
+        .json({ data: department, message: "Successfully done" });
     } catch (error) {
       return res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -51,11 +51,12 @@ export class MockTeamController {
   @Get(":id")
   async findOne(@Param("id", ParseIntPipe) id: number, @Res() res) {
     try {
-      const team = await this.mockTeamService.findOne(id);
+      const department = await this.mockDepartmentService.findOne(id);
       return res
         .status(HttpStatus.OK)
-        .json({ data: team, message: "Successfully done" });
+        .json({ data: department, message: "Successfully done" });
     } catch (error) {
+      
       return res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .json({ message: error.message });
@@ -65,14 +66,14 @@ export class MockTeamController {
   @Patch(":id")
   async update(
     @Param("id", ParseIntPipe) id: number,
-    @Body() updateMockTeamDto: UpdateMockTeamDto,
+    @Body() updateDepartmentDto: UpdateDepartmentDto,
     @Res() res
   ) {
     try {
-      const team = await this.mockTeamService.update(id, updateMockTeamDto);
+      const department = await this.mockDepartmentService.update(id, updateDepartmentDto);
       return res
         .status(HttpStatus.OK)
-        .json({ data: team, message: "Successfully done" });
+        .json({ data: department, message: "Successfully done" });
     } catch (error) {
       return res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -83,10 +84,10 @@ export class MockTeamController {
   @Delete(":id")
   async remove(@Param("id", ParseIntPipe) id: number, @Res() res) {
     try {
-      const team = await this.mockTeamService.remove(id);
+      const department = await this.mockDepartmentService.remove(id);
       return res
         .status(HttpStatus.OK)
-        .json({ data: team, message: "Successfully done" });
+        .json({ data: department, message: "Successfully done" });
     } catch (error) {
       return res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
