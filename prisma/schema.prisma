@@ -96,8 +96,8 @@ model SurveyForm {
   userId               String            @db.Uuid
   UserMetadata         UserMetadata      @relation(fields: [userId], references: [userId])
   questionsJson        Json //{questionId: question}
-  surveyParameterId    Int
-  surveyParameter      SurveyCycleParameters  @relation(fields: [surveyParameterId], references: [id])
+  surveyCycleParameterId    Int
+  surveyParameter      SurveyCycleParameters  @relation(fields: [surveyCycleParameterId], references: [id])
   status               SurveyStatusEnum
   overallScore         Int?
   sunbirdCredentialIds String?
@@ -106,7 +106,7 @@ model SurveyForm {
   createdAt            DateTime          @default(now())
   updatedAt            DateTime          @updatedAt
 
-  @@unique([userId, surveyParameterId])
+  @@unique([userId, surveyCycleParameterId])
   @@map("survey_form")
 }
 
