@@ -1,17 +1,10 @@
 import { IsNotEmpty, IsNumber } from "class-validator";
 
 export class CreateSurveyScoreDto {
-  @IsNotEmpty()
-  @IsNumber()
-  userId: number;
 
   @IsNotEmpty()
   @IsNumber()
   surveyFormId: number;
-
-  @IsNotEmpty()
-  @IsNumber()
-  roleId: number;
 
   @IsNotEmpty()
   @IsNumber()

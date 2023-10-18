@@ -130,42 +130,6 @@ export class SurveyScoreController {
     }
   }
 
-  @Get("user/:userId")
-  @ApiOperation({ summary: "get survey score by user Id" })
-  @ApiResponse({ status: HttpStatus.OK, type: SurveyScoreMultipleResponseDto })
-  async findByUserId(
-    @Res() res,
-    @Param("userId", ParseIntPipe) userId: number
-  ): Promise<SurveyScoreMultipleResponseDto> {
-    try {
-      this.logger.log(`Initiated fetching survey score with userId #${userId}`);
-
-      const surveyScore = await this.surveyScoreService.findByUserId(userId);
-
-      this.logger.log(
-        `Successfully fetched survey score with userId #${userId}`
-      );
-
-      return res.status(HttpStatus.OK).json({
-        data: surveyScore,
-        message: `Successfully fetched survey score with userId #${userId}`,
-      });
-    } catch (error) {
-      this.logger.error(
-        `Failed to fetch survey score for userId #${userId}`,
-        error
-      );
-
-      const { errorMessage, statusCode } =
-        getPrismaErrorStatusAndMessage(error);
-
-      return res.status(statusCode).json({
-        statusCode,
-        message:
-          errorMessage || `Failed to fetch survey score for userId #${userId}`,
-      });
-    }
-  }
 
   @Get(":id")
   @ApiOperation({ summary: "get survey score by id" })
