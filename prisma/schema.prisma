@@ -118,7 +118,7 @@ model ResponseTracker {
   surveyForm   SurveyForm                @relation(fields: [surveyFormId], references: [id])
   assesseeId   String                    @db.Uuid
   assessorId   String                    @db.Uuid
-  responseJson Json[] //{questionId: answer(yes, no and don't know)}
+  responseJson Json[]                    @default([]) //{questionId: answer(yes, no and don't know)}
   status       ResponseTrackerStatusEnum
   Assessee     UserMetadata              @relation("AssesseeResponseTrackers", fields: [assesseeId], references: [userId])
   Assessor     UserMetadata              @relation("AssessorResponseTrackers", fields: [assessorId], references: [userId])

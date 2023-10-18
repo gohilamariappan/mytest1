@@ -4,8 +4,11 @@ import {
   IsInt,
   IsNotEmpty,
   IsOptional,
-  IsObject,
   IsEnum,
+  IsArray,
+  IsUUID,
+  IsNumber,
+  IsString,
 } from "class-validator";
 
 export class CreateResponseTrackerDto {
@@ -16,21 +19,42 @@ export class CreateResponseTrackerDto {
 
   @ApiProperty({ type: "integer", example: 2 })
   @IsNotEmpty()
-  @IsInt()
-  assesseeId: number;
+  @IsUUID()
+  assesseeId: string;
 
   @ApiProperty({ type: "integer", example: 3 })
   @IsNotEmpty()
-  @IsInt()
-  assessorId: number;
+  @IsUUID()
+  assessorId: string;
 
-  @ApiProperty({ type: "object", example: { question: true || false } })
+  @ApiProperty({
+    type: "array",
+    example: [{ questionId: "integer", answer: "Yes" || "No" || "DoNotKnow" }],
+  })
+    
   @IsOptional()
-  @IsObject()
-  responseJson?: Record<string, boolean>;
+  @IsArray()
+  responseJson?: Array<{ questionId: number; answer: AnswerEnum }>;
 
   @ApiProperty({ enum: ResponseTrackerStatusEnum, example: "Pending" })
   @IsNotEmpty()
   @IsEnum(ResponseTrackerStatusEnum)
   status: ResponseTrackerStatusEnum;
+}
+
+enum AnswerEnum {
+  Yes,
+  No,
+  DoNotKnow,
+}
+
+export class responseObject {
+  @IsNumber()
+  @IsNotEmpty()
+  questionId: number;
+
+  @ApiProperty({ enum: AnswerEnum, example: "Yes" })
+  @IsString()
+  @IsNotEmpty()
+  answer: AnswerEnum;
 }
