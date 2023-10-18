@@ -31,10 +31,11 @@ export class CreateResponseTrackerDto {
     type: "array",
     example: [{ questionId: "integer", answer: "Yes" || "No" || "DoNotKnow" }],
   })
+    
   @IsOptional()
   @IsArray()
-  responses?: Array<{ questionId: number; answer: AnswerEnum }>;
-    
+  responseJson?: Array<{ questionId: number; answer: AnswerEnum }>;
+
   @ApiProperty({ enum: ResponseTrackerStatusEnum, example: "Pending" })
   @IsNotEmpty()
   @IsEnum(ResponseTrackerStatusEnum)

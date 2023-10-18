@@ -6,7 +6,7 @@ export class ResponseTracker {
   readonly assesseeId: string;
   readonly surveyFormId: number;
   readonly assessorId: string;
-  readonly responseJson?:responseObject[];
+  readonly responseJson?: responseObject[];
   readonly status: ResponseTrackerStatusEnum;
 }
 
