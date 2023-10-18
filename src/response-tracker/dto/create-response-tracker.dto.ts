@@ -6,7 +6,7 @@ import {
   IsOptional,
   IsEnum,
   IsArray,
-  IsString,
+  IsUUID,
 } from "class-validator";
 
 export class CreateResponseTrackerDto {
@@ -17,12 +17,12 @@ export class CreateResponseTrackerDto {
 
   @ApiProperty({ type: "integer", example: 2 })
   @IsNotEmpty()
-  @IsString()
+  @IsUUID()
   assesseeId: string;
 
   @ApiProperty({ type: "integer", example: 3 })
   @IsNotEmpty()
-  @IsString()
+  @IsUUID()
   assessorId: string;
 
   @ApiProperty({
@@ -31,7 +31,7 @@ export class CreateResponseTrackerDto {
   })
   @IsOptional()
   @IsArray()
-  responseJson?: Record<string, boolean>[];
+  responseJson?: Record<number, boolean>[];
 
   @ApiProperty({ enum: ResponseTrackerStatusEnum, example: "Pending" })
   @IsNotEmpty()

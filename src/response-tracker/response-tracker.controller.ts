@@ -10,6 +10,7 @@ import {
   HttpStatus,
   Logger,
   ParseIntPipe,
+  ParseUUIDPipe,
 } from "@nestjs/common";
 import { ResponseTrackerService } from "./response-tracker.service";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
@@ -171,7 +172,7 @@ export class ResponseTrackerController {
   })
   async findByAssessorId(
     @Res() res,
-    @Param("assessorId") assessorId: string
+    @Param("assessorId", ParseUUIDPipe) assessorId: string
   ): Promise<ResponseTrackerDtoMultipleResponse> {
     try {
       this.logger.log(
@@ -212,7 +213,7 @@ export class ResponseTrackerController {
   })
   async findByAssesseeId(
     @Res() res,
-    @Param("assesseeId") assesseeId: string
+    @Param("assesseeId", ParseUUIDPipe) assesseeId: string
   ): Promise<ResponseTrackerDtoMultipleResponse> {
     try {
       this.logger.log(
