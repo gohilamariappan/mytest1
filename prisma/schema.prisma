@@ -60,6 +60,7 @@ model AdminDepartment {
   id           Int            @default(autoincrement())
   departmentId Int            @unique
   name         String
+  description  String?
   UserMetadata UserMetadata[]
 
   @@id([id, departmentId])

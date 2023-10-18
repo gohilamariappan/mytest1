@@ -10,6 +10,11 @@ export class CreateAdminDepartmentDto {
   @IsNotEmpty()
   @IsString()
   name: string;
+
+  // Optional description field associated with the admin department
+  @IsOptional()
+  @IsString()
+  description?: string;
 }
 
 // Admin department filter dto
