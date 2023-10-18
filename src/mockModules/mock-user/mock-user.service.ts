@@ -24,7 +24,7 @@ export class MockUserService {
     });
   }
 
-  public async findOne(id: number) {
+  public async findOne(id: string) {
     const user = await this.prisma.user.findUnique({
       where: {
         id,
@@ -37,7 +37,7 @@ export class MockUserService {
     return user;
   }
 
-  public async update(id: number, updateMockUserDto: UpdateMockUserDto) {
+  public async update(id: string, updateMockUserDto: UpdateMockUserDto) {
     return await this.prisma.user.update({
       where: {
         id,
@@ -49,7 +49,7 @@ export class MockUserService {
     });
   }
 
-  public async remove(id: number) {
+  public async remove(id: string) {
     return await this.prisma.user.delete({
       where: {
         id,
@@ -60,72 +60,6 @@ export class MockUserService {
     });
   }
 
-  public async addRoleToUser(userId: number, roleId: number) {
-    return await this.prisma.user.update({
-      where: {
-        id: userId,
-      },
-      select: {
-        ...this.userSelectObj,
-      },
-      data: {
-        Roles: {
-          connect: { id: roleId },
-        },
-      },
-    });
-  }
-
-  public async fetchAllCompetencyDataForUserById(id: number) {
-    return await this.prisma.user.findUnique({
-      where: {
-        id,
-      },
-      select: {
-        id: true,
-        userName: true,
-        role: true,
-        Level: {
-          select: {
-            id: true,
-            label: true,
-          },
-        },
-        Department: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
-        Roles: {
-          select: {
-            id: true,
-            name: true,
-            competencies: {
-              select: {
-                competency: {
-                  select: {
-                    id: true,
-                    name: true,
-                    competencyLevels: {
-                      select: {
-                        competencyLevel: {
-                          select: {
-                            id: true,
-                            name: true,
-                          },
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    });
-  }
   userSelectObj = {
     id: true,
     email: true,
