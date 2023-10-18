@@ -38,17 +38,6 @@ export class SurveyScoreService {
     return surveyScore;
   }
 
-  public async findByUserId(userId: number) {
-    const surveyScore = await this.prisma.surveyScore.findMany({
-      where: { userId },
-    });
-    if (!surveyScore || surveyScore.length === 0)
-      throw new NotFoundException(
-        `Survey score for user id #${userId} not found`
-      );
-    return surveyScore;
-  }
-
   public async update(id: number, updateSurveyScoreDto: UpdateSurveyScoreDto) {
     return await this.prisma.surveyScore.update({
       where: { id },

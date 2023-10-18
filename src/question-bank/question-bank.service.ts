@@ -46,6 +46,7 @@ export class QuestionBankService {
     const {
       competencyId,
       competencyLevelId,
+      competencyLevelNumber,
       limit = 10,
       offset = 0,
       orderBy,
@@ -54,6 +55,7 @@ export class QuestionBankService {
       where: {
         competencyId: competencyId ?? undefined, // Optional compentencyId filter
         competencyLevelId: competencyLevelId ?? undefined, // Optional competencyLevelId filter
+        competencyLevelNumber: competencyLevelNumber ?? undefined, // Optional competencyLevelNumber
       },
       orderBy: {
         [orderBy || "createdAt"]: "asc", // Default sorting by createdAt

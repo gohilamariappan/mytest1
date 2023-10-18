@@ -22,6 +22,11 @@ export class CreateQuestionBankDto {
   @IsNotEmpty()
   @IsString()
   question: string;
+
+  // Competency Level number for the question bank
+  @IsNotEmpty()
+  @IsInt()
+  competencyLevelNumber: number;
 }
 
 // Question bank filter
@@ -36,6 +41,11 @@ export class QuestionBankFilterDto {
   @IsInt()
   competencyLevelId?: number;
 
+  // Optional competencyLevelNumber filter, validate that it's valid competency Level number or not
+  @IsOptional()
+  @IsInt()
+  competencyLevelNumber?: number;
+
   // Optional limit for pagination, validate that it's an integer.
   @IsOptional()
   @IsInt()
@@ -45,7 +55,7 @@ export class QuestionBankFilterDto {
   @IsOptional()
   @IsInt()
   offset?: number;
-
+ 
   // Optional field to specify the order of results, validate that it's a string.
   @IsOptional()
   @IsString()
