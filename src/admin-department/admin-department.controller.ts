@@ -123,9 +123,9 @@ export class AdminDepartmentController {
       );
       // Log the successful update of the admin department with the given id
       this.logger.log(`Successfully updated admin department for id #${id}`);
-      // Return response and statuscode for the successful update of the question
+      // Return response and statuscode for the successful update of the admin department
       return res.status(HttpStatus.OK).json({
-        message: `Successfully updated question for id #${id}`,
+        message: `Successfully updated admin department for id #${id}`,
         data: updateAdminDepartment,
       });
     } catch (error) {
