@@ -38,7 +38,7 @@ export class ResponseTrackerService {
     return response;
   }
 
-  public async findByAssessorId(assessorId: number) {
+  public async findByAssessorId(assessorId: string) {
     const response = await this.prisma.responseTracker.findMany({
       where: { assessorId },
     });
@@ -50,7 +50,7 @@ export class ResponseTrackerService {
     return response;
   }
 
-  public async findByAssesseeId(assesseeId: number) {
+  public async findByAssesseeId(assesseeId: string) {
     const response = await this.prisma.responseTracker.findMany({
       where: { assesseeId },
     });

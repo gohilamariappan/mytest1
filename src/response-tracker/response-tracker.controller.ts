@@ -171,7 +171,7 @@ export class ResponseTrackerController {
   })
   async findByAssessorId(
     @Res() res,
-    @Param("assessorId", ParseIntPipe) assessorId: number
+    @Param("assessorId") assessorId: string
   ): Promise<ResponseTrackerDtoMultipleResponse> {
     try {
       this.logger.log(
@@ -212,7 +212,7 @@ export class ResponseTrackerController {
   })
   async findByAssesseeId(
     @Res() res,
-    @Param("assesseeId", ParseIntPipe) assesseeId: number
+    @Param("assesseeId") assesseeId: string
   ): Promise<ResponseTrackerDtoMultipleResponse> {
     try {
       this.logger.log(

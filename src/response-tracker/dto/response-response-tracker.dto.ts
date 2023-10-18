@@ -2,10 +2,10 @@ import { ResponseTrackerStatusEnum } from "@prisma/client";
 
 export class ResponseTracker {
   readonly id: number;
-  readonly assesseeId: number;
+  readonly assesseeId: string;
   readonly surveyFormId: number;
-  readonly assessorId: number;
-  readonly responseJson?: Record<string, any>;
+  readonly assessorId: string;
+  readonly responseJson?: Record<string, any>[];
   readonly status: ResponseTrackerStatusEnum;
 }
 
