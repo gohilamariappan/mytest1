@@ -44,6 +44,10 @@ export class CreateMockUserDto {
   @IsNumber()
   departmentId: number;
 
+  @IsNotEmpty()
+  @IsString()
+  designation: string;
+
   // Optional creation date of the request.
   @IsDate()
   @IsOptional()
@@ -53,10 +57,4 @@ export class CreateMockUserDto {
   @IsDate()
   @IsOptional()
   updatedAt?: Date;
-}
-
-export class AddRoleDto {
-  @IsNotEmpty()
-  @IsNumber()
-  roleId: number;
 }

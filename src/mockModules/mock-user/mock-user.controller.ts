@@ -8,10 +8,9 @@ import {
   Delete,
   HttpStatus,
   Res,
-  ParseIntPipe,
 } from "@nestjs/common";
 import { MockUserService } from "./mock-user.service";
-import { AddRoleDto, CreateMockUserDto } from "./dto/create-mock-user.dto";
+import { CreateMockUserDto } from "./dto/create-mock-user.dto";
 import { UpdateMockUserDto } from "./dto/update-mock-user.dto";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { ResponseMockUserDto } from "./dto/response-mock-user.dto";
@@ -60,7 +59,7 @@ export class MockUserController {
   @Get(":id")
   @ApiOperation({ summary: "get mock user by id" })
   @ApiResponse({ status: HttpStatus.CREATED, type: ResponseMockUserDto })
-  async findOne(@Param("id", ParseIntPipe) id: number, @Res() res) {
+  async findOne(@Param("id") id: string, @Res() res) {
     try {
       const user = await this.mockUserService.findOne(id);
       return res
@@ -77,7 +76,7 @@ export class MockUserController {
   @ApiOperation({ summary: "update mock user by id" })
   @ApiResponse({ status: HttpStatus.CREATED, type: ResponseMockUserDto })
   async update(
-    @Param("id", ParseIntPipe) id: number,
+    @Param("id") id: string,
     @Body() updateMockUserDto: UpdateMockUserDto,
     @Res() res
   ) {
@@ -96,7 +95,7 @@ export class MockUserController {
   @Delete(":id")
   @ApiOperation({ summary: "delete mock user by id" })
   @ApiResponse({ status: HttpStatus.CREATED, type: ResponseMockUserDto })
-  async remove(@Param("id", ParseIntPipe) id: number, @Res() res) {
+  async remove(@Param("id") id: string, @Res() res) {
     try {
       const user = await this.mockUserService.remove(id);
       return res
@@ -106,47 +105,6 @@ export class MockUserController {
       return res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .json({ message: error.meta.cause });
-    }
-  }
-
-  @Patch("addRoleToUser/:id")
-  @ApiOperation({ summary: "add role to user by id" })
-  @ApiResponse({ status: HttpStatus.OK, type: ResponseMockUserDto })
-  async addRoleToUser(
-    @Param("id", ParseIntPipe) id: number,
-    @Body() role: AddRoleDto,
-    @Res() res
-  ) {
-    try {
-      const user = await this.mockUserService.addRoleToUser(id, role.roleId);
-      return res
-        .status(HttpStatus.OK)
-        .json({ data: user, message: "Successfully done" });
-    } catch (error) {
-      return res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ message: error.meta.cause });
-    }
-  }
-
-  @Get("getcompetencyData/:id")
-  @ApiOperation({ summary: "get mock user's competency data by id" })
-  @ApiResponse({ status: HttpStatus.OK, type: ResponseMockUserDto })
-  async fetchAllCompetencyDataForUserById(
-    @Param("id", ParseIntPipe) id: number,
-    @Res() res
-  ) {
-    try {
-      const user = await this.mockUserService.fetchAllCompetencyDataForUserById(
-        id
-      );
-      return res
-        .status(HttpStatus.OK)
-        .json({ data: user, message: "Successfully done" });
-    } catch (error) {
-      return res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ message: error.message });
     }
   }
 }
