@@ -18,10 +18,10 @@ export class SurveyConfigService {
   }
 
   async getAllSurveyConfig(filter: SurveyConfigFilterDto) {
-    const { maxQuestions, startTime, endTime, limit = 10, offset = 0 } = filter;
+    const { departmentId, startTime, endTime, limit = 10, offset = 0 } = filter;
     return this.prisma.surveyConfig.findMany({
       where: {
-        maxQuestions: maxQuestions ?? undefined, // Optional maxQuestions filter
+        departmentId: departmentId ?? undefined, // Optional departmentId filter
         startTime: startTime ?? undefined, // Optional startTime filter
         endTime: endTime ?? undefined, // Optional endTime filter
       },
@@ -30,7 +30,10 @@ export class SurveyConfigService {
     });
   }
 
-  async updateSurveyConfigById(surveyConfigId: number, updateSurveyConfig: UpdateSurveyConfigDto) {
+  async updateSurveyConfigById(
+    surveyConfigId: number,
+    updateSurveyConfig: UpdateSurveyConfigDto
+  ) {
     // Check the document available for the given surveyId in database to update.
     const findSurveyConfigId = await this.prisma.surveyConfig.findUnique({
       where: {
@@ -55,18 +58,20 @@ export class SurveyConfigService {
     // Find the survey config with the provided Id and check it exists or not before deleting
     const isExisted = await this.prisma.surveyConfig.findFirst({
       where: {
-        id : surveyConfigId
-      }
-    })
-    if (!isExisted) { 
-      throw new NotFoundException(`The survey Config ID ${surveyConfigId} doesn't exist.`)
+        id: surveyConfigId,
+      },
+    });
+    if (!isExisted) {
+      throw new NotFoundException(
+        `The survey Config ID ${surveyConfigId} doesn't exist.`
+      );
     }
     // Delete a single survey configuration based on its unique identifier (id).
     const deletedSurveyConfig = await this.prisma.surveyConfig.delete({
       where: {
-        id: surveyConfigId
-      }
-    })
+        id: surveyConfigId,
+      },
+    });
     return deletedSurveyConfig;
   }
 }

@@ -1,10 +1,19 @@
-import { IsDate, IsInt, IsNotEmpty, IsOptional, IsString, Min } from "class-validator";
+import { ApiProperty } from "@nestjs/swagger";
+import { TimeUnitsEnum } from "@prisma/client";
+import { IsDate, IsEnum, IsInt, IsNotEmpty, IsOptional } from "class-validator";
 
 export class CreateSurveyConfigDto {
-  // maximum number of question for the survey config
   @IsNotEmpty()
   @IsInt()
-  maxQuestions: number;
+  departmentId: number;
+
+  @IsNotEmpty()
+  @IsInt()
+  onboardingTime: number;
+
+  @ApiProperty({ enum: TimeUnitsEnum })
+  @IsEnum(TimeUnitsEnum, { each: true })
+  onboardingTimeUnit: TimeUnitsEnum;
 
   // start time for the survey config
   @IsNotEmpty()
@@ -23,7 +32,7 @@ export class SurveyConfigFilterDto {
   @IsOptional()
   @IsNotEmpty()
   @IsInt()
-  maxQuestions?: number;
+  departmentId?: number;
 
   //Optional startTime filter validate that its valid date-time value
   @IsOptional()
