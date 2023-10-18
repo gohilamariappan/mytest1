@@ -1,11 +1,12 @@
 import { ResponseTrackerStatusEnum } from "@prisma/client";
+import { responseObject } from "./create-response-tracker.dto";
 
 export class ResponseTracker {
   readonly id: number;
   readonly assesseeId: string;
   readonly surveyFormId: number;
   readonly assessorId: string;
-  readonly responseJson?: Record<string, any>[];
+  readonly responseJson?:responseObject[];
   readonly status: ResponseTrackerStatusEnum;
 }
 

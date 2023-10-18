@@ -7,6 +7,8 @@ import {
   IsEnum,
   IsArray,
   IsUUID,
+  IsNumber,
+  IsString,
 } from "class-validator";
 
 export class CreateResponseTrackerDto {
@@ -27,14 +29,31 @@ export class CreateResponseTrackerDto {
 
   @ApiProperty({
     type: "array",
-    example: [{ question: true || false || "don't know" }],
+    example: [{ questionId: "integer", answer: "Yes" || "No" || "DoNotKnow" }],
   })
   @IsOptional()
   @IsArray()
-  responseJson?: Record<number, boolean>[];
-
+  responses?: Array<{ questionId: number; answer: AnswerEnum }>;
+    
   @ApiProperty({ enum: ResponseTrackerStatusEnum, example: "Pending" })
   @IsNotEmpty()
   @IsEnum(ResponseTrackerStatusEnum)
   status: ResponseTrackerStatusEnum;
+}
+
+enum AnswerEnum {
+  Yes,
+  No,
+  DoNotKnow,
+}
+
+export class responseObject {
+  @IsNumber()
+  @IsNotEmpty()
+  questionId: number;
+
+  @ApiProperty({ enum: AnswerEnum, example: "Yes" })
+  @IsString()
+  @IsNotEmpty()
+  answer: AnswerEnum;
 }
