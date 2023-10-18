@@ -10,7 +10,7 @@ import { MockFracModule } from "./mockModules/mock.module";
 import { SurveyScoreModule } from "./survey-score/survey-score.module";
 import { QuestionBankModule } from "./question-bank/question-bank.module";
 import { SurveyConfigModule } from "./survey-config/survey-config.module";
-import { SurveyParameterModule } from "./survey-parameter/survey-parameter.module";
+import { SurveyCycleParameterModule } from "./survey-cycle-parameter/survey-cycle-parameter.module";
 
 @Module({
   imports: [
@@ -24,7 +24,7 @@ import { SurveyParameterModule } from "./survey-parameter/survey-parameter.modul
     SurveyScoreModule,
     QuestionBankModule,
     SurveyConfigModule,
-    SurveyParameterModule,
+    SurveyCycleParameterModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],

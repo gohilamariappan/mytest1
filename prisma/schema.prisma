@@ -67,14 +67,14 @@ model AdminDepartment {
 }
 
 model SurveyConfig {
-  id                 Int                    @id @default(autoincrement())
-  onboardingTime     Int
-  onboardingTimeUnit TimeUnitsEnum
+  id                    Int                    @id @default(autoincrement())
+  onboardingTime        Int
+  onboardingTimeUnit    TimeUnitsEnum
   //will be replaced with surveyCycle in phase two
-  startTime          DateTime
-  endTime            DateTime
-  departmentId       Int                    @unique
-  SurveyParameters   SurveyCycleParameter[]
+  startTime             DateTime
+  endTime               DateTime
+  departmentId          Int                    @unique
+  SurveyCycleParameters SurveyCycleParameter[]
 
   @@map("survey_config")
 }
@@ -90,7 +90,7 @@ model SurveyCycleParameter {
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
 
-  @@map("survey_parameters")
+  @@map("survey_cycle_parameters")
 }
 
 model SurveyForm {

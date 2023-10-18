@@ -1,19 +1,19 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
+  Get,
   HttpStatus,
+  Param,
+  Patch,
+  Post,
   Res,
 } from "@nestjs/common";
-import { MockUserService } from "./mock-user.service";
-import { CreateMockUserDto } from "./dto/create-mock-user.dto";
-import { UpdateMockUserDto } from "./dto/update-mock-user.dto";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { CreateMockUserDto } from "./dto/create-mock-user.dto";
 import { ResponseMockUserDto } from "./dto/response-mock-user.dto";
+import { UpdateMockUserDto } from "./dto/update-mock-user.dto";
+import { MockUserService } from "./mock-user.service";
 
 @Controller("user")
 @ApiTags("mockFracService/user")
@@ -56,12 +56,12 @@ export class MockUserController {
     }
   }
 
-  @Get(":id")
-  @ApiOperation({ summary: "get mock user by id" })
+  @Get(":userId")
+  @ApiOperation({ summary: "get mock user by userId" })
   @ApiResponse({ status: HttpStatus.CREATED, type: ResponseMockUserDto })
-  async findOne(@Param("id") id: string, @Res() res) {
+  async findOne(@Param("userId") userId: string, @Res() res) {
     try {
-      const user = await this.mockUserService.findOne(id);
+      const user = await this.mockUserService.findOne(userId);
       return res
         .status(HttpStatus.OK)
         .json({ data: user, message: "Successfully done" });
@@ -72,16 +72,16 @@ export class MockUserController {
     }
   }
 
-  @Patch(":id")
-  @ApiOperation({ summary: "update mock user by id" })
+  @Patch(":userId")
+  @ApiOperation({ summary: "update mock user by userId" })
   @ApiResponse({ status: HttpStatus.CREATED, type: ResponseMockUserDto })
   async update(
-    @Param("id") id: string,
+    @Param("userId") userId: string,
     @Body() updateMockUserDto: UpdateMockUserDto,
     @Res() res
   ) {
     try {
-      const user = await this.mockUserService.update(id, updateMockUserDto);
+      const user = await this.mockUserService.update(userId, updateMockUserDto);
       return res
         .status(HttpStatus.OK)
         .json({ data: user, message: "Successfully done" });
@@ -92,12 +92,12 @@ export class MockUserController {
     }
   }
 
-  @Delete(":id")
-  @ApiOperation({ summary: "delete mock user by id" })
+  @Delete(":userId")
+  @ApiOperation({ summary: "delete mock user by userId" })
   @ApiResponse({ status: HttpStatus.CREATED, type: ResponseMockUserDto })
-  async remove(@Param("id") id: string, @Res() res) {
+  async remove(@Param("userId") userId: string, @Res() res) {
     try {
-      const user = await this.mockUserService.remove(id);
+      const user = await this.mockUserService.remove(userId);
       return res
         .status(HttpStatus.OK)
         .json({ data: user, message: "Successfully done" });
