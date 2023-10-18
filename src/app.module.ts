@@ -11,6 +11,7 @@ import { SurveyScoreModule } from "./survey-score/survey-score.module";
 import { QuestionBankModule } from "./question-bank/question-bank.module";
 import { SurveyConfigModule } from "./survey-config/survey-config.module";
 import { SurveyCycleParameterModule } from "./survey-cycle-parameter/survey-cycle-parameter.module";
+import { AdminDepartmentModule } from './admin-department/admin-department.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { SurveyCycleParameterModule } from "./survey-cycle-parameter/survey-cycl
     QuestionBankModule,
     SurveyConfigModule,
     SurveyCycleParameterModule,
+    AdminDepartmentModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
