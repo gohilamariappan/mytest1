@@ -1,15 +1,31 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { ResponseTrackerStatusEnum } from "@prisma/client";
+import { Type } from "class-transformer";
 import {
+  IsArray,
+  IsEnum,
   IsInt,
   IsNotEmpty,
-  IsOptional,
-  IsEnum,
-  IsArray,
-  IsUUID,
   IsNumber,
-  IsString,
+  IsOptional,
+  IsUUID,
+  ValidateNested,
 } from "class-validator";
+import { AnswerEnum } from "../enums/response-tracker.enums";
+
+export class responseObject {
+  @IsNumber()
+  @IsNotEmpty()
+  questionId: number;
+
+  @ApiProperty({
+    enum: AnswerEnum,
+    example: `${AnswerEnum.YES} || ${AnswerEnum.NO} || ${AnswerEnum.DO_NOT_KNOW}`,
+  })
+  @IsEnum(AnswerEnum)
+  @IsNotEmpty()
+  answer: AnswerEnum;
+}
 
 export class CreateResponseTrackerDto {
   @ApiProperty({ type: "integer", example: 1 })
@@ -28,33 +44,27 @@ export class CreateResponseTrackerDto {
   assessorId: string;
 
   @ApiProperty({
-    type: "array",
-    example: [{ questionId: "integer", answer: "Yes" || "No" || "DoNotKnow" }],
+    type: responseObject,
+    isArray: true,
+    example: [
+      {
+        questionId: 1,
+        answer: `${AnswerEnum.YES} || ${AnswerEnum.NO} || ${AnswerEnum.DO_NOT_KNOW}`,
+      },
+    ],
   })
-    
   @IsOptional()
   @IsArray()
-  responseJson?: Array<{ questionId: number; answer: AnswerEnum }>;
+  @ValidateNested({ each: true })
+  @Type(() => responseObject)
+  responseJson?: responseObject[] = [];
 
-  @ApiProperty({ enum: ResponseTrackerStatusEnum, example: "Pending" })
+  @ApiProperty({
+    enum: ResponseTrackerStatusEnum,
+    example:
+      ResponseTrackerStatusEnum.PENDING || ResponseTrackerStatusEnum.COMPLETED,
+  })
   @IsNotEmpty()
   @IsEnum(ResponseTrackerStatusEnum)
   status: ResponseTrackerStatusEnum;
-}
-
-enum AnswerEnum {
-  Yes,
-  No,
-  DoNotKnow,
-}
-
-export class responseObject {
-  @IsNumber()
-  @IsNotEmpty()
-  questionId: number;
-
-  @ApiProperty({ enum: AnswerEnum, example: "Yes" })
-  @IsString()
-  @IsNotEmpty()
-  answer: AnswerEnum;
 }
