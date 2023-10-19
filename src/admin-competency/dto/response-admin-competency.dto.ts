@@ -1,3 +1,5 @@
+import { CompetencyLevels } from "./create-admin-competency.dto";
+
 export class AdminCompetencyResponse {
   id: number;
   competencyId: number;
@@ -6,11 +8,6 @@ export class AdminCompetencyResponse {
   competencyLevels: CompetencyLevels[];
   createdAt?: Date;
   updatedAt?: Date;
-}
-
-class CompetencyLevels {
-  competencyLevelNumber: number;
-  competencyLevelName: string;
 }
 
 export class AdminCompetencyResponseDto {

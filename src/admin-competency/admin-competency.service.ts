@@ -7,11 +7,18 @@ export class AdminCompetencyService {
   constructor(private prisma: PrismaService) {}
 
   public async create(createAdminCompetencyDto: CreateAdminCompetencyDto) {
-    console.log("createAdminCompetencyDto:", createAdminCompetencyDto);
-    const adminCompetency = await this.prisma.adminCompetency.create({
-      data: createAdminCompetencyDto,
+    const competencyLevels = JSON.stringify(
+      createAdminCompetencyDto.competencyLevels
+    );
+
+    const payload = {
+      ...createAdminCompetencyDto,
+      competencyLevels: JSON.parse(competencyLevels),
+    };
+
+    return await this.prisma.adminCompetency.create({
+      data: payload,
     });
-    return adminCompetency;
   }
 
   public async findAll() {
@@ -40,16 +47,28 @@ export class AdminCompetencyService {
     competencyId: number,
     updateAdminCompetencyDto: UpdateAdminCompetencyDto
   ) {
-    const updatedAdminCompetency = await this.prisma.adminCompetency.update({
+    const competencyLevels = JSON.stringify(
+      updateAdminCompetencyDto?.competencyLevels
+    );
+
+    let payload = {
+      ...updateAdminCompetencyDto,
+      competencyLevels: JSON.parse(competencyLevels || "[]"),
+    };
+
+    if (!competencyLevels) {
+      delete payload.competencyLevels;
+    }
+
+    return await this.prisma.adminCompetency.update({
       where: {
         id_competencyId: {
           id,
           competencyId,
         },
       },
-      data: updateAdminCompetencyDto,
+      data: payload,
     });
-    return updatedAdminCompetency;
   }
 
   public async remove(id: number, competencyId: number) {

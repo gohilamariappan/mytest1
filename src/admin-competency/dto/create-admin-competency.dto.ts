@@ -1,4 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { Type } from "class-transformer";
 import {
   IsArray,
   IsDate,
@@ -6,7 +7,18 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
+  ValidateNested,
 } from "class-validator";
+
+export class CompetencyLevels {
+  @IsInt()
+  @IsNotEmpty()
+  competencyLevelNumber: number;
+
+  @IsString()
+  @IsNotEmpty()
+  competencyLevelName: string;
+}
 
 export class CreateAdminCompetencyDto {
   @IsNotEmpty()
@@ -23,15 +35,15 @@ export class CreateAdminCompetencyDto {
   description?: string;
 
   @ApiProperty({
-    type: "array",
+    type: CompetencyLevels,
+    isArray: true,
     example: [{ competencyLevelNumber: 1, competencyLevelName: "Level-1" }],
   })
   @IsNotEmpty()
   @IsArray()
-  competencyLevels: Array<{
-    competencyLevelNumber: number;
-    competencyLevelName: string;
-  }>;
+  @ValidateNested({ each: true })
+  @Type(() => CompetencyLevels)
+  competencyLevels: CompetencyLevels[];
 
   @IsNotEmpty()
   @IsDate()
