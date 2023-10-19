@@ -1,15 +1,21 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
+import { PrismaService } from "src/prisma/prisma.service";
 import { CreateResponseTrackerDto } from "./dto/create-response-tracker.dto";
 import { UpdateResponseTrackerDto } from "./dto/update-response-tracker.dto";
-import { PrismaService } from "src/prisma/prisma.service";
 
 @Injectable()
 export class ResponseTrackerService {
   constructor(private prisma: PrismaService) {}
 
   public async create(createResponseTrackerDto: CreateResponseTrackerDto) {
+    const responseJson = JSON.stringify(createResponseTrackerDto.responseJson);
+    const payload = {
+      ...createResponseTrackerDto,
+      responseJson: JSON.parse(responseJson),
+    };
+
     return await this.prisma.responseTracker.create({
-      data: createResponseTrackerDto,
+      data: payload,
     });
   }
 
@@ -66,9 +72,18 @@ export class ResponseTrackerService {
     id: number,
     updateResponseTrackerDto: UpdateResponseTrackerDto
   ) {
+    const responseJson = JSON.stringify(updateResponseTrackerDto.responseJson);
+
+    const payload = {
+      ...updateResponseTrackerDto,
+      responseJson: JSON.parse(responseJson || "[]"),
+    };
+
+    if (!responseJson) delete payload.responseJson;
+
     return await this.prisma.responseTracker.update({
       where: { id },
-      data: updateResponseTrackerDto,
+      data: payload,
     });
   }
 
