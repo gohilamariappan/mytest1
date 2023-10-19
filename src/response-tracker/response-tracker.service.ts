@@ -73,10 +73,13 @@ export class ResponseTrackerService {
     updateResponseTrackerDto: UpdateResponseTrackerDto
   ) {
     const responseJson = JSON.stringify(updateResponseTrackerDto.responseJson);
+
     const payload = {
       ...updateResponseTrackerDto,
-      responseJson: JSON.parse(responseJson),
+      responseJson: JSON.parse(responseJson || "[]"),
     };
+
+    if (!responseJson) delete payload.responseJson;
 
     return await this.prisma.responseTracker.update({
       where: { id },
