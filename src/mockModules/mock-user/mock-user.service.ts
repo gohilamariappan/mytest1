@@ -66,6 +66,7 @@ export class MockUserService {
     role: true,
     userName: true,
     profilePicture: true,
+    designation:true,
     Level: {
       select: {
         id: true,
