@@ -1,21 +1,4 @@
-import { IsInt, IsNotEmpty, IsOptional, IsString } from "class-validator";
-
-export class CreateAdminDepartmentDto {
-  // Department Id associated with admin department
-  @IsNotEmpty()
-  @IsInt()
-  departmentId: number;
-
-  // Name field associated with the admin department
-  @IsNotEmpty()
-  @IsString()
-  name: string;
-
-  // Optional description field associated with the admin department
-  @IsOptional()
-  @IsString()
-  description?: string;
-}
+import { IsInt, IsOptional, IsString } from "class-validator";
 
 // Admin department filter dto
 export class FilterAdminDepartmentsDto {

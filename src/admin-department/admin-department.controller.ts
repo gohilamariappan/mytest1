@@ -12,7 +12,7 @@ import {
   ParseIntPipe,
 } from "@nestjs/common";
 import { AdminDepartmentService } from "./admin-department.service";
-import { CreateAdminDepartmentDto, FilterAdminDepartmentsDto } from "./dto/create-admin-department.dto";
+import { FilterAdminDepartmentsDto } from "./dto/create-admin-department.dto";
 import { UpdateAdminDepartmentDto } from "./dto/update-admin-department.dto";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { ResponseAdminDepartmentDto } from "./dto/response-admin-department.dto";
@@ -29,22 +29,20 @@ export class AdminDepartmentController {
     private readonly adminDepartmentService: AdminDepartmentService
   ) {}
 
-  // Api for creating a new admin department
-  @Post()
+  // Api for creating a new admin department using departmentId
+  @Post(":departmentId")
   @ApiOperation({ summary: "Create a new admin department" }) // Api operation for swagger
   @ApiResponse({ status: HttpStatus.CREATED, type: ResponseAdminDepartmentDto }) // Api response for the swagger
   async createAdminDepartment(
     @Res() res,
-    @Body() createAdminDepartmentDto: CreateAdminDepartmentDto
+    @Param("departmentId", ParseIntPipe) departmentId: number
   ): Promise<ResponseAdminDepartmentDto> {
     try {
       // Log the initiation for the admin department creation
       this.logger.log(`Initiate to create a admin department`);
 
       const createdAdminDepartment =
-        await this.adminDepartmentService.createAdminDepartment(
-          createAdminDepartmentDto
-        );
+        await this.adminDepartmentService.createAdminDepartment(departmentId);
       // Log the successful creation of the admin department
       this.logger.log(`Successfully created admin department.`);
       return res.status(HttpStatus.CREATED).json({
@@ -117,10 +115,11 @@ export class AdminDepartmentController {
       // Log the initiation for updating the admin department for the given id
       this.logger.log(`Initiated updating the admin department for id #${id}`);
       // Update the admin department for the id
-      const updateAdminDepartment = await this.adminDepartmentService.updateAdminDepartmentById(
-        id,
-        updateAdminDepartmentDto
-      );
+      const updateAdminDepartment =
+        await this.adminDepartmentService.updateAdminDepartmentById(
+          id,
+          updateAdminDepartmentDto
+        );
       // Log the successful update of the admin department with the given id
       this.logger.log(`Successfully updated admin department for id #${id}`);
       // Return response and statuscode for the successful update of the admin department
@@ -130,7 +129,10 @@ export class AdminDepartmentController {
       });
     } catch (error) {
       // Log the error
-      this.logger.error(`Failed to update admin department for id #${id}`, error);
+      this.logger.error(
+        `Failed to update admin department for id #${id}`,
+        error
+      );
 
       const { errorMessage, statusCode } =
         getPrismaErrorStatusAndMessage(error); // get error message and status code
@@ -138,7 +140,8 @@ export class AdminDepartmentController {
       // Return the response and status code for the failed update of the admin department
       return res.status(statusCode).json({
         statusCode,
-        message: errorMessage || `Failed to update admin department for id #${id}`,
+        message:
+          errorMessage || `Failed to update admin department for id #${id}`,
       });
     }
   }
