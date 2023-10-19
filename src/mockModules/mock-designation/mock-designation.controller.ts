@@ -5,8 +5,8 @@ import {
   Get,
   HttpStatus,
   Param,
+  Patch,
   Post,
-  Put,
   Res,
 } from "@nestjs/common";
 import { MockDesignationService } from "./mock-designation.service";
@@ -69,7 +69,7 @@ export class MockDesignationController {
     }
   }
 
-  @Put(":id")
+  @Patch(":id")
   async update(
     @Param("id") id: number,
     @Body() updateDto: UpdateDesignationDto,
@@ -98,6 +98,21 @@ export class MockDesignationController {
       return res.status(HttpStatus.OK).json({
         data: designation,
         message: "Successfully deleted the designation.",
+      });
+    } catch (error) {
+      return res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ message: error.meta.cause });
+    }
+  }
+
+  @Post("addRoleToDesignation/:id")
+  async addRoleToDesignation(@Param("id") id: number, @Res() res, @Body() {roleId}: any) {
+    try {
+      const designation = await this.designationService.addRoleToDesignation(id, roleId);
+      return res.status(HttpStatus.OK).json({
+        data: designation,
+        message: `Successfully added role with id #${roleId} to the designation with id #${id}.`,
       });
     } catch (error) {
       return res

@@ -43,4 +43,32 @@ export class MockDesignationService {
       where: { id },
     });
   }
+
+  async addRoleToDesignation(id: number, roleId: number) {
+    return await this.prisma.designation.update({
+      where: {
+        id,
+      },
+      data: {
+        Roles: {
+          connect: [{ id: roleId }],
+        },
+      },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        Roles: {
+          orderBy: {
+            createdAt: "asc",
+          },
+          select: {
+            id: true,
+            name: true,
+            description: true,
+          },
+        },
+      },
+    });
+  }
 }
