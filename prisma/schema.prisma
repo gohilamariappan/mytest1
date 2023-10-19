@@ -14,6 +14,7 @@ datasource db {
 model UserMetadata {
   id                         Int               @unique() @default(autoincrement())
   userId                     String            @unique() @db.Uuid
+  userName                   String            @unique()
   isNewEmployee              Boolean
   departmentId               Int
   Department                 AdminDepartment   @relation(fields: [departmentId], references: [departmentId])
