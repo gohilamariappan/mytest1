@@ -19,7 +19,7 @@ export class SurveyConfigService {
 
   async getAllSurveyConfig(filter: SurveyConfigFilterDto) {
     const { departmentId, startTime, endTime, limit = 10, offset = 0 } = filter;
-    return this.prisma.surveyConfig.findMany({
+    return await this.prisma.surveyConfig.findMany({
       where: {
         departmentId: departmentId ?? undefined, // Optional departmentId filter
         startTime: startTime ?? undefined, // Optional startTime filter
@@ -46,7 +46,7 @@ export class SurveyConfigService {
       );
     }
     // Update the survey config by the id
-    return this.prisma.surveyConfig.update({
+    return await this.prisma.surveyConfig.update({
       where: {
         id: surveyConfigId,
       },
