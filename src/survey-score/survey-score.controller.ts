@@ -15,6 +15,7 @@ import { SurveyScoreService } from "./survey-score.service";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import {
   CreateSurveyScoreDto,
+  GenerateSurveyScoreDto,
   SurveyScoreMultipleResponseDto,
   SurveyScoreResponseDto,
   UpdateSurveyScoreDto,
@@ -130,7 +131,6 @@ export class SurveyScoreController {
     }
   }
 
-
   @Get(":id")
   @ApiOperation({ summary: "get survey score by id" })
   @ApiResponse({ status: HttpStatus.OK, type: SurveyScoreResponseDto })
@@ -224,6 +224,49 @@ export class SurveyScoreController {
       return res.status(statusCode).json({
         message:
           errorMessage || `Failed to delete survey score with id #${id} `,
+      });
+    }
+  }
+
+  @Post("calculate-score")
+  @ApiOperation({ summary: "calculate survey score by survey form id" })
+  @ApiResponse({ status: HttpStatus.OK })
+  async generateSurveyScore(
+    @Res() res,
+    @Body() generateSurveyScoreDto: GenerateSurveyScoreDto
+  ): Promise<any> {
+    const { surveyFormId } = generateSurveyScoreDto;
+    try {
+      this.logger.log(
+        `Initiated calculating survey score for surveyFormId #${surveyFormId}`
+      );
+
+      const response =
+        await this.surveyScoreService.calculateSurveyScoreBySurveyFormId(
+          surveyFormId
+        );
+
+      this.logger.log(
+        `Successfully calculated survey score for id #${surveyFormId}`
+      );
+
+      return res.status(HttpStatus.OK).json({
+        data: response,
+        message: `Successfully calculated survey score for surveyFormId #${surveyFormId}`,
+      });
+    } catch (error) {
+      this.logger.error(
+        `Failed to calculate survey score for surveyFormId #${surveyFormId}`,
+        error
+      );
+
+      const { errorMessage, statusCode } =
+        getPrismaErrorStatusAndMessage(error);
+
+      return res.status(statusCode).json({
+        message:
+          errorMessage ||
+          `Failed to calculate survey score for surveyFormId #${surveyFormId} `,
       });
     }
   }
