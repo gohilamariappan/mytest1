@@ -44,7 +44,7 @@ export class QuestionBankController {
       this.logger.log(`Initiate to create a question`);
 
       const createdQuestion =
-        await this.questionBankService.createQuestionByCompentencyLevel(
+        await this.questionBankService.createQuestionByCompentencyId(
           createQuestionBankDto
         );
       // Log the successful creation of the question bank

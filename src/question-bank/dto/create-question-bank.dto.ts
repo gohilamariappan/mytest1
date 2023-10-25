@@ -13,11 +13,6 @@ export class CreateQuestionBankDto {
   @IsInt()
   competencyId: number;
 
-  // Compentency level id associated with the question bank
-  @IsNotEmpty()
-  @IsInt()
-  competencyLevelId: number;
-
   // Question for the question bank
   @IsNotEmpty()
   @IsString()
@@ -35,11 +30,6 @@ export class QuestionBankFilterDto {
   @IsOptional()
   @IsInt()
   competencyId?: number;
-
-  // Optional competencyLevelId filter, validated that it's valid competencyLevel Id or not
-  @IsOptional()
-  @IsInt()
-  competencyLevelId?: number;
 
   // Optional competencyLevelNumber filter, validate that it's valid competency Level number or not
   @IsOptional()

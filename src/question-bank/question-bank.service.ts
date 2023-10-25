@@ -10,7 +10,7 @@ import { PrismaService } from "src/prisma/prisma.service";
 export class QuestionBankService {
   constructor(private prisma: PrismaService) {}
 
-  async createQuestionByCompentencyLevel(
+  async createQuestionByCompentencyId(
     createQuestionBankDto: CreateQuestionBankDto
   ) {
     // check for compentencyId exist in competency model in db
@@ -20,16 +20,8 @@ export class QuestionBankService {
       },
     });
 
-    // check for competencyLevelId exist in competencyLevel model in db
-    const checkCompetencyLevelId = await this.prisma.competencyLevel.findUnique(
-      {
-        where: {
-          id: createQuestionBankDto.competencyLevelId,
-        },
-      }
-    );
     // if not found throw error
-    if (!checkCompentencyId || !checkCompetencyLevelId) {
+    if (!checkCompentencyId) {
       throw new NotFoundException(
         "Either Competency or Competency Level is not Found"
       );
@@ -45,7 +37,6 @@ export class QuestionBankService {
     // Get all questions and filter using compentencyId and compentencyLevelId
     const {
       competencyId,
-      competencyLevelId,
       competencyLevelNumber,
       limit = 10,
       offset = 0,
@@ -54,7 +45,6 @@ export class QuestionBankService {
     return this.prisma.questionBank.findMany({
       where: {
         competencyId: competencyId ?? undefined, // Optional compentencyId filter
-        competencyLevelId: competencyLevelId ?? undefined, // Optional competencyLevelId filter
         competencyLevelNumber: competencyLevelNumber ?? undefined, // Optional competencyLevelNumber
       },
       orderBy: {
