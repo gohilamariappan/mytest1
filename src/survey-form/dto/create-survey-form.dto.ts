@@ -5,8 +5,8 @@ import {
   IsEnum,
   IsNotEmpty,
   IsNumber,
-  IsOptional,
   IsString,
+  IsUUID,
 } from "class-validator";
 
 export class responseObject {
@@ -20,20 +20,23 @@ export class responseObject {
 }
 export class CreateSurveyFormDto {
   @ApiProperty({ type: "integer", example: 1 })
-  @IsNumber()
+  @IsUUID()
   @IsNotEmpty()
   userId: string;
 
   @IsNumber()
   @IsNotEmpty()
   surveyCycleParameterId: number;
-  
+
   @ApiProperty({ enum: SurveyStatusEnum, example: "CREATED" })
   @IsEnum(SurveyStatusEnum)
   @IsNotEmpty()
   status: SurveyStatusEnum;
-  
-  @ApiProperty({ type: "array", example: [{ questionId: 1, question: "Is this a dummy question?" }] })
+
+  @ApiProperty({
+    type: "array",
+    example: [{ questionId: 1, question: "Is this a dummy question?" }],
+  })
   @IsArray()
   @IsNotEmpty()
   questionsJson: responseObject[];

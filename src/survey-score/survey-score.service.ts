@@ -64,55 +64,60 @@ export class SurveyScoreService {
     return await this.prisma.surveyScore.delete({ where: { id } });
   }
 
-  public async calculateSurveyScoreBySurveyFormId(surveyFormId: number) {
-    const completedSurveyResponses =
-      await this.responseTrackerService.getAllResponseJsonBySurveyFormId(
-        surveyFormId,
-        ResponseTrackerStatusEnum.COMPLETED
+  public async calculateSurveyScoreBySurveyFormId(
+    surveyFormId: number
+  ): Promise<String> {
+    try {
+      const completedSurveyResponses =
+        await this.responseTrackerService.getAllResponseJsonBySurveyFormId(
+          surveyFormId,
+          ResponseTrackerStatusEnum.COMPLETED
+        );
+
+      const surveyResponses = completedSurveyResponses
+        .map((response) => response.responseJson)
+        .flat();
+
+      const answerScore = this.calculateAnswerScore(surveyResponses);
+
+      const answerScoreAndCompetencyGroupData: {
+        [key: string]: IGroupScoreData;
+      } = await this.getAnswerScoreAndCompetencyGroupData(answerScore);
+
+      const groupedScoreDataByCompetency = this.groupScoreDataByCompetency(
+        answerScoreAndCompetencyGroupData
       );
 
-    const surveyResponses = completedSurveyResponses
-      .map((response) => response.responseJson)
-      .flat();
+      const finalGroupedData = Object.values(groupedScoreDataByCompetency).map(
+        (group: IGroupScoreData) => ({
+          ...group,
+          scorePercentage: Number(
+            ((group.score / group.totalQuestions || 0) * 100).toFixed(2)
+          ),
+        })
+      );
 
-    const answerScore = this.calculateAnswerScore(surveyResponses);
+      const overallScore =
+        this.calculateOverAllScoreFromFinalGropedData(finalGroupedData);
 
-    const answerScoreAndCompetencyGroupData: {
-      [key: string]: IGroupScoreData;
-    } = this.getAnswerScoreAndCompetencyGroupData(answerScore);
-
-    const groupedScoreDataByCompetency = this.groupScoreDataByCompetency(
-      answerScoreAndCompetencyGroupData
-    );
-
-    const finalGroupedData = Object.values(groupedScoreDataByCompetency).map(
-      (group: IGroupScoreData) => ({
-        ...group,
-        scorePercentage: Number(
-          ((group.score / group.totalQuestions) * 100).toFixed(2)
-        ),
-      })
-    );
-
-    const overallScore =
-      this.calculateOverAllScoreFromFinalGropedData(finalGroupedData);
-
-    const updateSurveyFormScore =
       await this.surveyFormService.updateSurveyFormScore(
         surveyFormId,
         overallScore
       );
 
-    const scorePayload = this.formatScorePayloadFromFinalGroupDataAndFormId(
-      surveyFormId,
-      finalGroupedData
-    );
+      const scorePayload = this.formatScorePayloadFromFinalGroupDataAndFormId(
+        surveyFormId,
+        finalGroupedData
+      );
 
-    const surveyScores = await this.prisma.surveyScore.createMany({
-      data: scorePayload,
-    });
+      await this.prisma.surveyScore.createMany({
+        data: scorePayload,
+      });
 
-    return { surveyScores, updateSurveyFormScore };
+      return `Successfully calculated score for survey form id #${surveyFormId}`;
+    } catch (error) {
+      throw error;
+    }
   }
 
   public calculateAnswerScore(surveyResponses: responseObject[]): {
@@ -137,17 +142,20 @@ export class SurveyScoreService {
     }, {});
   }
 
-  public getAnswerScoreAndCompetencyGroupData(answerScore: {
+  public async getAnswerScoreAndCompetencyGroupData(answerScore: {
     [key: string]: IAnswerScore;
-  }): { [key: string]: IGroupScoreData } {
+  }): Promise<{ [key: string]: IGroupScoreData }> {
     const groupedData: { [key: string]: IGroupScoreData } = {};
+    const questionIds = Object.keys(answerScore);
 
-    Object.keys(answerScore).forEach(async (questionId) => {
+    // Create an array of promises for each iteration
+    const promises = questionIds.map(async (questionId) => {
       const question = await this.questionBankService.getQuestionById(
         +questionId
       );
       const { competencyId, competencyLevelId, competencyLevelNumber } =
         question;
+
       const scoreData = answerScore[questionId];
 
       groupedData[questionId] = {
@@ -159,6 +167,10 @@ export class SurveyScoreService {
         scorePercentage: 0,
       };
     });
+
+    // Wait for all promises to resolve
+    await Promise.all(promises);
+
     return groupedData;
   }
 

@@ -16,6 +16,7 @@ import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import {
   CreateSurveyScoreDto,
   GenerateSurveyScoreDto,
+  ResponseMessageDto,
   SurveyScoreMultipleResponseDto,
   SurveyScoreResponseDto,
   UpdateSurveyScoreDto,
@@ -234,24 +235,22 @@ export class SurveyScoreController {
   async generateSurveyScore(
     @Res() res,
     @Body() generateSurveyScoreDto: GenerateSurveyScoreDto
-  ): Promise<any> {
+  ): Promise<ResponseMessageDto> {
     const { surveyFormId } = generateSurveyScoreDto;
     try {
       this.logger.log(
         `Initiated calculating survey score for surveyFormId #${surveyFormId}`
       );
 
-      const response =
-        await this.surveyScoreService.calculateSurveyScoreBySurveyFormId(
-          surveyFormId
-        );
+      await this.surveyScoreService.calculateSurveyScoreBySurveyFormId(
+        surveyFormId
+      );
 
       this.logger.log(
-        `Successfully calculated survey score for id #${surveyFormId}`
+        `Successfully calculated survey score for surveyFormId #${surveyFormId}`
       );
 
       return res.status(HttpStatus.OK).json({
-        data: response,
         message: `Successfully calculated survey score for surveyFormId #${surveyFormId}`,
       });
     } catch (error) {

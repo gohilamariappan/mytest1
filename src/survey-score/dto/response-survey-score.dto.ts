@@ -6,10 +6,13 @@ export class SurveyScoreResponse {
   readonly score: number;
 }
 
-export class SurveyScoreResponseDto {
-  data?: SurveyScoreResponse;
-  message: string;
+export class ResponseMessageDto {
   statusCode?: number;
+  message: string;
+}
+
+export class SurveyScoreResponseDto extends ResponseMessageDto {
+  data?: SurveyScoreResponse;
 }
 
 export class SurveyScoreMultipleResponseDto {
