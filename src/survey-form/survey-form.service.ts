@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { SurveyStatusEnum } from "@prisma/client";
 import { PrismaService } from "src/prisma/prisma.service";
-import { CreateSurveyFormDto } from "./dto";
+import { CreateSurveyFormDto, SurveyScoresForUser } from "./dto";
 
 @Injectable()
 export class SurveyFormService {
@@ -10,8 +10,10 @@ export class SurveyFormService {
   async createSurveyForm(createSurveyFormDto: CreateSurveyFormDto) {
     const surveyFormDto = {
       ...createSurveyFormDto,
-      questionsJson: JSON.parse(JSON.stringify(createSurveyFormDto.questionsJson))
-    }
+      questionsJson: JSON.parse(
+        JSON.stringify(createSurveyFormDto.questionsJson)
+      ),
+    };
     return await this.prisma.surveyForm.create({
       data: { ...surveyFormDto },
     });
@@ -45,5 +47,68 @@ export class SurveyFormService {
     return await this.prisma.surveyForm.delete({
       where: { id },
     });
+  }
+
+  public async getAllSurveyFormScoresByUserId(
+    userId: string
+  ): Promise<SurveyScoresForUser[]> {
+    const userMetadata = await this.prisma.userMetadata.findUnique({
+      where: { userId },
+    });
+
+    if (!userMetadata)
+      throw new NotFoundException(`User with id #${userId} not found`);
+
+    const response = await this.prisma.surveyForm.findMany({
+      where: {
+        userId,
+      },
+      select: {
+        id: true,
+        userId: true,
+        status: true,
+        overallScore: true,
+        sunbirdCredentialIds: true,
+        SurveyScore: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    return response;
+  }
+
+  public async getLatestSurveyFormScoresByUserId(
+    userId: string
+  ): Promise<SurveyScoresForUser> {
+    const userMetadata = await this.prisma.userMetadata.findUnique({
+      where: { userId },
+    });
+
+    if (!userMetadata)
+      throw new NotFoundException(`User with id #${userId} not found`);
+
+    const latestSurveyForm = await this.prisma.surveyForm.findMany({
+      where: {
+        userId,
+        status: SurveyStatusEnum.CLOSED, // Get score for only closed survey form
+      },
+      orderBy: {
+        createdAt: "desc", // Order by createdAt in descending order to get the latest survey form
+      },
+      select: {
+        id: true,
+        status: true,
+        userId: true,
+        overallScore: true,
+        sunbirdCredentialIds: true,
+        SurveyScore: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+      take: 1, // Limit the query to return only one result
+    });
+
+    return latestSurveyForm[0];
   }
 }

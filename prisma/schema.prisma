@@ -143,6 +143,7 @@ model SurveyScore {
 enum SurveyStatusEnum {
   CREATED
   PUBLISHED
+  CLOSED
 }
 
 enum ResponseTrackerStatusEnum {

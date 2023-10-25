@@ -1,3 +1,6 @@
+import { ApiProperty } from "@nestjs/swagger";
+import { SurveyStatusEnum } from "@prisma/client";
+
 export class SurveyScoreResponse {
   readonly id: number;
   readonly surveyFormId: number;
@@ -19,4 +22,24 @@ export class SurveyScoreMultipleResponseDto {
   data?: SurveyScoreResponse[];
   message: string;
   statusCode?: number;
+}
+
+export class SurveyScoresForUser {
+  surveyFormId: number;
+  @ApiProperty({ enum: SurveyStatusEnum, example: SurveyStatusEnum.CLOSED })
+  status: SurveyStatusEnum;
+  userId: string;
+  overallScore: number;
+  sunbirdCredentialIds: string;
+  SurveyScore: SurveyScoreResponse[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export class SurveyScoresForUserDto extends ResponseMessageDto {
+  data?: SurveyScoresForUser;
+}
+
+export class AllSurveyScoresForUserDto extends ResponseMessageDto {
+  data?: SurveyScoresForUser[];
 }

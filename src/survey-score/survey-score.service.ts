@@ -2,16 +2,17 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { ResponseTrackerStatusEnum } from "@prisma/client";
 import { PrismaService } from "src/prisma/prisma.service";
 import { QuestionBankService } from "src/question-bank/question-bank.service";
+import { responseObject } from "src/response-tracker/dto";
+import { AnswerEnum } from "src/response-tracker/enums/response-tracker.enums";
 import { ResponseTrackerService } from "src/response-tracker/response-tracker.service";
 import { SurveyFormService } from "src/survey-form/survey-form.service";
+import { UserMetadataService } from "src/user-metadata/user-metadata.service";
 import { CreateSurveyScoreDto } from "./dto/create-survey-score.dto";
 import { UpdateSurveyScoreDto } from "./dto/update-survey-score.dto";
 import {
   IAnswerScore,
   IGroupScoreData,
 } from "./interfaces/survey-score.interfaces";
-import { AnswerEnum } from "src/response-tracker/enums/response-tracker.enums";
-import { responseObject } from "src/response-tracker/dto";
 
 @Injectable()
 export class SurveyScoreService {
@@ -19,7 +20,8 @@ export class SurveyScoreService {
     private prisma: PrismaService,
     private responseTrackerService: ResponseTrackerService,
     private questionBankService: QuestionBankService,
-    private surveyFormService: SurveyFormService
+    private surveyFormService: SurveyFormService,
+    private userMetadataService: UserMetadataService
   ) {}
 
   public async create(createSurveyScoreDto: CreateSurveyScoreDto) {
@@ -227,5 +229,35 @@ export class SurveyScoreService {
         score: scorePercentage,
       };
     });
+  }
+
+  public async getAllSurveyScoreByUserId(userId: string) {
+    const surveyScoreResponse =
+      await this.surveyFormService.getAllSurveyFormScoresByUserId(userId);
+
+    if (!surveyScoreResponse)
+      throw new NotFoundException(
+        `Survey scores not found for user id #${userId}`
+      );
+
+    const updatedSurveyScore = surveyScoreResponse.map((data) => {
+      const { id, ...rest } = data;
+      return { surveyFormId: id, ...rest };
+    });
+
+    return updatedSurveyScore;
+  }
+
+  public async getLatestSurveyScoreByUserId(userId: string) {
+    const latestSurveyScore =
+      await this.surveyFormService.getLatestSurveyFormScoresByUserId(userId);
+
+    if (!latestSurveyScore)
+      throw new NotFoundException(
+        `Survey score not found for user id #${userId}`
+      );
+
+    const { id, ...rest } = latestSurveyScore;
+    return { surveyFormId: id, ...rest };
   }
 }

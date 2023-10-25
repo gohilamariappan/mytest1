@@ -1,5 +1,4 @@
 import {
-  Body,
   Controller,
   Delete,
   Get,
@@ -11,11 +10,11 @@ import {
   Query,
   Res,
 } from "@nestjs/common";
-import { UserMetadataService } from "./user-metadata.service";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
-import { ResponseUserMetadataDto } from "./dto/user-metadata-response.dto";
-import { UserMetadataFilterDto } from "./dto";
 import { getPrismaErrorStatusAndMessage } from "src/utils/utils";
+import { UserMetadataFilterDto } from "./dto";
+import { ResponseUserMetadataDto } from "./dto/user-metadata-response.dto";
+import { UserMetadataService } from "./user-metadata.service";
 
 @Controller("user-metadata")
 @ApiTags("user-metadata")
@@ -103,7 +102,7 @@ export class UserMetadataController {
   })
   async findManyUserMetadata(
     @Res() res,
-    @Query() filter: UserMetadataFilterDto,
+    @Query() filter: UserMetadataFilterDto
   ): Promise<ResponseUserMetadataDto[]> {
     try {
       this.logger.log(`Fetching UserMetadata(s)`);
@@ -120,7 +119,6 @@ export class UserMetadataController {
       });
     } catch (error) {
       this.logger.error(`Failed to fetch UserMetadata(s).`, error);
-      console.log({error,})
 
       const { errorMessage, statusCode } =
         getPrismaErrorStatusAndMessage(error);

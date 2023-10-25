@@ -1,5 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { SurveyStatusEnum } from "@prisma/client";
+import { Type } from "class-transformer";
 import {
   IsArray,
   IsEnum,
@@ -7,6 +8,7 @@ import {
   IsNumber,
   IsString,
   IsUUID,
+  ValidateNested,
 } from "class-validator";
 
 export class responseObject {
@@ -39,5 +41,7 @@ export class CreateSurveyFormDto {
   })
   @IsArray()
   @IsNotEmpty()
+  @ValidateNested({ each: true })
+  @Type(() => responseObject)
   questionsJson: responseObject[];
 }
