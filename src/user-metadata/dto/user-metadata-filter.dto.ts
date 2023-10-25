@@ -10,28 +10,28 @@ export class UserMetadataFilterDto {
   @IsBoolean()
   @IsOptional()
   @IsNotEmpty()
-  isNewEmployee: boolean;
+  isNewEmployee?: boolean;
 
   @IsInt()
   @IsOptional()
   @IsNotEmpty()
-  departmentId: number;
+  departmentId?: number;
 
   @IsString()
   @IsOptional()
   @IsNotEmpty()
-  designation: string;
+  designation?: string;
 
   @IsBoolean()
   @IsOptional()
   @IsNotEmpty()
-  isAdmin: boolean;
+  isAdmin?: boolean;
 
-  @IsOptional()
   @IsInt()
+  @IsOptional()
   limit?: number;
 
-  @IsOptional()
   @IsInt()
+  @IsOptional()
   offset?: number;
 }
