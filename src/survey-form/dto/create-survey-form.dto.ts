@@ -9,6 +9,15 @@ import {
   IsString,
 } from "class-validator";
 
+export class responseObject {
+  @IsNumber()
+  @IsNotEmpty()
+  questionId: number;
+
+  @IsString()
+  @IsNotEmpty()
+  question: string;
+}
 export class CreateSurveyFormDto {
   @ApiProperty({ type: "integer", example: 1 })
   @IsNumber()
@@ -24,8 +33,8 @@ export class CreateSurveyFormDto {
   @IsNotEmpty()
   status: SurveyStatusEnum;
   
-  @ApiProperty({ type: "array", example: [{ number: "value" }] })
+  @ApiProperty({ type: "array", example: [{ questionId: 1, question: "Is this a dummy question?" }] })
   @IsArray()
   @IsNotEmpty()
-  questionsJson: Record<number, string>[];
+  questionsJson: responseObject[];
 }
