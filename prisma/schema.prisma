@@ -129,14 +129,14 @@ model ResponseTracker {
 }
 
 model SurveyScore {
-  id                Int        @id @default(autoincrement())
-  surveyFormId      Int
-  surveyForm        SurveyForm @relation(fields: [surveyFormId], references: [id])
-  competencyId      Int
-  competencyLevelId Int
-  score             Float
+  id                    Int        @id @default(autoincrement())
+  surveyFormId          Int
+  surveyForm            SurveyForm @relation(fields: [surveyFormId], references: [id])
+  competencyId          Int
+  competencyLevelNumber Int
+  score                 Float
 
-  @@unique([surveyFormId, competencyId, competencyLevelId])
+  @@unique([surveyFormId, competencyId, competencyLevelNumber])
   @@map("survey_scores")
 }
 

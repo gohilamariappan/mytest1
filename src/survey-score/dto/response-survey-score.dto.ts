@@ -5,7 +5,7 @@ export class SurveyScoreResponse {
   readonly id: number;
   readonly surveyFormId: number;
   readonly competencyId: number;
-  readonly competencyLevelId: number;
+  readonly competencyLevelNumber: number;
   readonly score: number;
 }
 

@@ -155,8 +155,7 @@ export class SurveyScoreService {
       const question = await this.questionBankService.getQuestionById(
         +questionId
       );
-      const { competencyId, competencyLevelId, competencyLevelNumber } =
-        question;
+      const { competencyId, competencyLevelNumber } = question;
 
       const scoreData = answerScore[questionId];
 
@@ -164,7 +163,6 @@ export class SurveyScoreService {
         score: scoreData.score,
         totalQuestions: scoreData.totalQuestions,
         competencyId,
-        competencyLevelId,
         competencyLevelNumber,
         scorePercentage: 0,
       };
@@ -180,14 +178,13 @@ export class SurveyScoreService {
     [key: string]: IGroupScoreData;
   }): { [key: string]: IGroupScoreData } {
     return Object.values(groupedData).reduce((acc, item) => {
-      const key = `${item.competencyId}-${item.competencyLevelId}-${item.competencyLevelNumber}`;
+      const key = `${item.competencyId}-${item.competencyLevelNumber}`;
 
       if (!acc[key]) {
         acc[key] = {
           score: 0,
           totalQuestions: 0,
           competencyId: item.competencyId,
-          competencyLevelId: item.competencyLevelId,
           competencyLevelNumber: item.competencyLevelNumber,
         };
       }
@@ -221,11 +218,11 @@ export class SurveyScoreService {
     finalGroupedData: IGroupScoreData[]
   ) {
     return finalGroupedData.map((data: IGroupScoreData) => {
-      const { competencyId, competencyLevelId, scorePercentage } = data;
+      const { competencyId, competencyLevelNumber, scorePercentage } = data;
       return {
         surveyFormId,
         competencyId,
-        competencyLevelId,
+        competencyLevelNumber,
         score: scorePercentage,
       };
     });

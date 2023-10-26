@@ -11,7 +11,7 @@ export class CreateSurveyScoreDto {
 
   @IsNotEmpty()
   @IsInt()
-  competencyLevelId: number;
+  competencyLevelNumber: number;
 
   @IsNotEmpty()
   @IsNumber()

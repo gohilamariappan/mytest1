@@ -5,7 +5,6 @@ export interface IAnswerScore {
 
 export interface IGroupScoreData extends IAnswerScore {
   competencyId: number;
-  competencyLevelId: number;
   competencyLevelNumber: number;
   scorePercentage: number;
 }
