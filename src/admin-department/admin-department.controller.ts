@@ -42,7 +42,10 @@ export class AdminDepartmentController {
       this.logger.log(`Initiate to create a admin department`);
 
       const createdAdminDepartment =
-        await this.adminDepartmentService.createAdminDepartment(departmentId);
+        await this.adminDepartmentService.createOrUpdateAdminDepartment(
+          departmentId,
+          "post"
+        );
       // Log the successful creation of the admin department
       this.logger.log(`Successfully created admin department.`);
       return res.status(HttpStatus.CREATED).json({
@@ -108,17 +111,16 @@ export class AdminDepartmentController {
   @ApiResponse({ status: HttpStatus.OK, type: ResponseAdminDepartmentDto }) // Api response for the swagger
   async updateAdminDepartmentById(
     @Res() res,
-    @Param("id", ParseIntPipe) id: number,
-    @Body() updateAdminDepartmentDto: UpdateAdminDepartmentDto
+    @Param("id", ParseIntPipe) id: number
   ): Promise<ResponseAdminDepartmentDto> {
     try {
       // Log the initiation for updating the admin department for the given id
       this.logger.log(`Initiated updating the admin department for id #${id}`);
       // Update the admin department for the id
       const updateAdminDepartment =
-        await this.adminDepartmentService.updateAdminDepartmentById(
+        await this.adminDepartmentService.createOrUpdateAdminDepartment(
           id,
-          updateAdminDepartmentDto
+          "patch"
         );
       // Log the successful update of the admin department with the given id
       this.logger.log(`Successfully updated admin department for id #${id}`);
