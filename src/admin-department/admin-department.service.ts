@@ -15,7 +15,7 @@ export class AdminDepartmentService {
     private departmentService: MockDepartmentService
   ) {}
 
-  public async createOrUpdateAdminDepartment(id: number, requestType: string) {
+  public async createOrUpdateAdminDepartment(id: number) {
     // Check the admin department exist for admin department db or not
     const checkExistingAdminDepartment =
       await this.prisma.adminDepartment.findUnique({
@@ -31,32 +31,18 @@ export class AdminDepartmentService {
         `The Mock Admin Department for the #${id} not found.`
       );
     }
-    // If admin department exist in db then update the existing admin department
-    if (!checkExistingAdminDepartment && requestType === "patch") {
-      throw new NotFoundException(
-        `The Admin Department for the #${id} not found.`
-      );
-    }
-    if (
-      checkExistingAdminDepartment &&
-      adminDepartment &&
-      requestType === "patch"
-    ) {
-      const updatedAdminDepartment =
-        await this.prisma.adminDepartment.updateMany({
-          where: {
-            departmentId: id,
-          },
-          data: {
-            name: adminDepartment.name,
-            description: adminDepartment.description,
-          },
-        });
+    // If it is existing admin department then update the admin department
+    if (checkExistingAdminDepartment) {
+      const updatedAdminDepartment = await this.prisma.adminDepartment.update({
+        where: {
+          departmentId: id,
+        },
+        data: {
+          name: adminDepartment.name,
+          description: adminDepartment.description,
+        },
+      });
       return updatedAdminDepartment;
-    }
-    // If department exist and we are trying to create a new admin department.
-    if (checkExistingAdminDepartment && requestType === "post") {
-      throw new ForbiddenException("Admin Department already exists.");
     }
     return this.prisma.adminDepartment.create({
       data: {

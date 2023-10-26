@@ -29,11 +29,11 @@ export class AdminDepartmentController {
     private readonly adminDepartmentService: AdminDepartmentService
   ) {}
 
-  // Api for creating a new admin department using departmentId
+  // Api for creating or updating a admin department using departmentId
   @Post(":departmentId")
-  @ApiOperation({ summary: "Create a new admin department" }) // Api operation for swagger
+  @ApiOperation({ summary: "Create or update admin department" }) // Api operation for swagger
   @ApiResponse({ status: HttpStatus.CREATED, type: ResponseAdminDepartmentDto }) // Api response for the swagger
-  async createAdminDepartment(
+  async createOrUpdateAdminDepartment(
     @Res() res,
     @Param("departmentId", ParseIntPipe) departmentId: number
   ): Promise<ResponseAdminDepartmentDto> {
@@ -41,26 +41,25 @@ export class AdminDepartmentController {
       // Log the initiation for the admin department creation
       this.logger.log(`Initiate to create a admin department`);
 
-      const createdAdminDepartment =
+      const createdOrUpdatedAdminDepartment =
         await this.adminDepartmentService.createOrUpdateAdminDepartment(
-          departmentId,
-          "post"
+          departmentId
         );
       // Log the successful creation of the admin department
       this.logger.log(`Successfully created admin department.`);
       return res.status(HttpStatus.CREATED).json({
-        message: "Admin department created sucessfully.",
-        data: createdAdminDepartment,
+        message: "Admin department created or updated sucessfully.",
+        data: createdOrUpdatedAdminDepartment,
       });
     } catch (error) {
-      this.logger.error(`Failed to create new admin department.`, error);
+      this.logger.error(`Failed to create or update admin department.`, error);
       // get error message and status code
       const { errorMessage, statusCode } =
         getPrismaErrorStatusAndMessage(error);
       // Return an error response
       return res.status(statusCode).json({
         statusCode,
-        message: errorMessage || `Failed to create new admin department.`,
+        message: errorMessage || `Failed to create or update admin department.`,
       });
     }
   }
@@ -101,49 +100,6 @@ export class AdminDepartmentController {
       return res.status(statusCode).json({
         statusCode,
         message: errorMessage || `Failed to get all admin department.`,
-      });
-    }
-  }
-
-  // Api for updating the admin department
-  @Patch("update/:id")
-  @ApiOperation({ summary: "Update the admin department by Id." }) // Api operation for the swagger
-  @ApiResponse({ status: HttpStatus.OK, type: ResponseAdminDepartmentDto }) // Api response for the swagger
-  async updateAdminDepartmentById(
-    @Res() res,
-    @Param("id", ParseIntPipe) id: number
-  ): Promise<ResponseAdminDepartmentDto> {
-    try {
-      // Log the initiation for updating the admin department for the given id
-      this.logger.log(`Initiated updating the admin department for id #${id}`);
-      // Update the admin department for the id
-      const updateAdminDepartment =
-        await this.adminDepartmentService.createOrUpdateAdminDepartment(
-          id,
-          "patch"
-        );
-      // Log the successful update of the admin department with the given id
-      this.logger.log(`Successfully updated admin department for id #${id}`);
-      // Return response and statuscode for the successful update of the admin department
-      return res.status(HttpStatus.OK).json({
-        message: `Successfully updated admin department for id #${id}`,
-        data: updateAdminDepartment,
-      });
-    } catch (error) {
-      // Log the error
-      this.logger.error(
-        `Failed to update admin department for id #${id}`,
-        error
-      );
-
-      const { errorMessage, statusCode } =
-        getPrismaErrorStatusAndMessage(error); // get error message and status code
-
-      // Return the response and status code for the failed update of the admin department
-      return res.status(statusCode).json({
-        statusCode,
-        message:
-          errorMessage || `Failed to update admin department for id #${id}`,
       });
     }
   }
