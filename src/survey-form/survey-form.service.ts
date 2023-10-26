@@ -8,8 +8,12 @@ export class SurveyFormService {
   constructor(private prisma: PrismaService) {}
 
   async createSurveyForm(createSurveyFormDto: CreateSurveyFormDto) {
+    const surveyFormDto = {
+      ...createSurveyFormDto,
+      questionsJson: JSON.parse(JSON.stringify(createSurveyFormDto.questionsJson))
+    }
     return await this.prisma.surveyForm.create({
-      data: { ...createSurveyFormDto },
+      data: { ...surveyFormDto },
     });
   }
 

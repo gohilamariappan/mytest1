@@ -12,6 +12,8 @@ import { QuestionBankModule } from "./question-bank/question-bank.module";
 import { SurveyConfigModule } from "./survey-config/survey-config.module";
 import { SurveyCycleParameterModule } from "./survey-cycle-parameter/survey-cycle-parameter.module";
 import { AdminDepartmentModule } from './admin-department/admin-department.module';
+import { UserMetadataModule } from './user-metadata/user-metadata.module';
+import { AdminCompetencyModule } from "./admin-competency/admin-competency.module";
 
 @Module({
   imports: [
@@ -27,6 +29,8 @@ import { AdminDepartmentModule } from './admin-department/admin-department.modul
     SurveyConfigModule,
     SurveyCycleParameterModule,
     AdminDepartmentModule,
+    UserMetadataModule,
+    AdminCompetencyModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
