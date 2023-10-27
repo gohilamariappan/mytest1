@@ -5,10 +5,18 @@ import {
 } from "./dto/create-question-bank.dto";
 import { UpdateQuestionBankDto } from "./dto/update-question-bank.dto";
 import { PrismaService } from "src/prisma/prisma.service";
+import { MockUserService } from "src/mockModules/mock-user/mock-user.service";
+import { MockRoleService } from "./../mockModules/mock-role/mock-role.service";
+import { MockDesignationService } from "src/mockModules/mock-designation/mock-designation.service";
 
 @Injectable()
 export class QuestionBankService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private mockUserService: MockUserService,
+    private mockDesignationService: MockDesignationService,
+    private mockRoleService: MockRoleService
+  ) {}
 
   async createQuestionByCompentencyLevel(
     createQuestionBankDto: CreateQuestionBankDto
@@ -90,7 +98,7 @@ export class QuestionBankService {
     });
   }
 
-  async deleteQuestionById(questionId : number) {
+  async deleteQuestionById(questionId: number) {
     // Check the question is there in db for the given questionId and competencyLevelId
     const findQuestion = await this.prisma.questionBank.findUnique({
       where: {
@@ -107,7 +115,64 @@ export class QuestionBankService {
     return this.prisma.questionBank.delete({
       where: {
         id: questionId,
+      },
+    });
+  }
+
+  async getAllQuestionsForUser(userId: string) {
+    const user = await this.mockUserService.findOne(userId);
+    if (!user) {
+      // Handle the case when the user is not found.
+      throw new Error("User not found");
+    }
+
+    // Get the user's designation
+    const designation = user.designation;
+
+    // Get all the roles for a designation
+    const userRoles =
+      await this.mockDesignationService.findAllRolesForDesignation(designation);
+
+    // Get roleId of each role of the user
+    const roleIds = userRoles?.Roles.map((item) => {
+      return item.id;
+    });
+
+    // unique competencyId associated with the roles of the user
+    const competencyIds: any = [];
+    if (roleIds?.length) {
+      for (let i = 0; i < roleIds.length; i++) {
+        const competency = (await this.mockRoleService.findRoleById(roleIds[i]))
+          .competencies;
+        competencyIds.push(
+          ...competency.filter((item) => {
+            if (!competencyIds.includes(item.competencyId)) {
+              competencyIds.push(item.competencyId);
+            }
+          })
+        );
       }
-    })
+    }
+
+    // Get competencyLevel for an user
+    let competencyLevelNumber = user.Level?.levelNumber;
+
+    const questionLists: any = [];
+    if (competencyIds?.length && competencyLevelNumber) {
+      for (let i = 0; i < competencyIds.length; i++) {
+        while (competencyLevelNumber) {
+          let question = await this.getAllQuestions({
+            competencyId: competencyIds[i],
+            competencyLevelNumber: competencyLevelNumber,
+          });
+          questionLists.push(...question);
+          competencyLevelNumber--;
+        }
+      }
+    }
+    if (!questionLists.length) {
+      throw new NotFoundException(`No Question Found for user with #${userId}`);
+    }
+    return questionLists;
   }
 }
