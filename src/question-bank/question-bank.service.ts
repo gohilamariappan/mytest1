@@ -90,7 +90,7 @@ export class QuestionBankService {
     });
   }
 
-  async deleteQuestionById(questionId : number) {
+  async deleteQuestionById(questionId: number) {
     // Check the question is there in db for the given questionId and competencyLevelId
     const findQuestion = await this.prisma.questionBank.findUnique({
       where: {
@@ -107,7 +107,17 @@ export class QuestionBankService {
     return this.prisma.questionBank.delete({
       where: {
         id: questionId,
-      }
-    })
+      },
+    });
+  }
+
+  public async getQuestionById(id: number) {
+    const question = await this.prisma.questionBank.findUnique({
+      where: { id },
+    });
+
+    if (!question)
+      throw new NotFoundException(`question with id #${id} not found`);
+    return question;
   }
 }

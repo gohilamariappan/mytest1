@@ -1,11 +1,12 @@
-import { Module } from '@nestjs/common';
-import { UserMetadataController } from './user-metadata.controller';
-import { UserMetadataService } from './user-metadata.service';
-import { SurveyConfigService } from 'src/survey-config/survey-config.service';
-import { MockUserService } from 'src/mockModules/mock-user/mock-user.service';
+import { Module } from "@nestjs/common";
+import { MockUserService } from "src/mockModules/mock-user/mock-user.service";
+import { SurveyConfigService } from "src/survey-config/survey-config.service";
+import { UserMetadataController } from "./user-metadata.controller";
+import { UserMetadataService } from "./user-metadata.service";
 
 @Module({
   controllers: [UserMetadataController],
-  providers: [UserMetadataService, SurveyConfigService, MockUserService]
+  providers: [UserMetadataService, SurveyConfigService, MockUserService],
+  exports: [UserMetadataService],
 })
 export class UserMetadataModule {}
