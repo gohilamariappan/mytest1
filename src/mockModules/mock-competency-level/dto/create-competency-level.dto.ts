@@ -13,5 +13,5 @@ export class CreateCompetencyLevelDto {
 
   @IsNumber()
   @IsNotEmpty()
-  levelId: number;
+  levelNumber: number;
 }

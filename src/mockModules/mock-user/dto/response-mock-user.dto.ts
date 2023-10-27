@@ -7,8 +7,8 @@ export class ResponseMockUserDto {
   readonly role: string;
   readonly userName: string;
   readonly profilePicture?: string;
-  readonly levelId?: number;
-  readonly Level?: ResponseMockLevelDto;
+  readonly levelNumber: number;
+  readonly Level: ResponseMockLevelDto;
   readonly departmentId?: number;
   readonly Department?: ResponseDepartmentDto;
   readonly designation: String;

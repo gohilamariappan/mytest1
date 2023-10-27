@@ -1,5 +1,4 @@
 export class ResponseMockLevelDto {
-  readonly id: number;
-  readonly label: string;
+  readonly levelNumber: number;
   readonly description?: string;
 }
