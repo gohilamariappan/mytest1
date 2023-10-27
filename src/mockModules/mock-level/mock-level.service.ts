@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { CreateMockLevelDto } from "./dto/create-mock-level.dto";
 import { UpdateMockLevelDto } from "./dto/update-mock-level.dto";
-import { PrismaService } from "src/prisma/prisma.service";
+import { PrismaService } from "../../prisma/prisma.service";
 
 @Injectable()
 export class MockLevelService {
