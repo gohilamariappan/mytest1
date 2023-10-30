@@ -48,13 +48,7 @@ export class FileUploadController {
     // Log the initiaton for csv file upload
     this.logger.log(`Initiate to upload a csv file.`);
     try {
-      // Parsed the uploaded data
-      const parsedData = await this.fileUploadService.parseCSV(file.path);
-      // Store the parsedData in the db
-      await this.fileUploadService.storeData(parsedData);
-      // Clean up after the sucessful upload of csv data
-      await this.fileUploadService.deleteUploadedFile(file.path);
-      // Log the successful upload of the question bank.
+      this.fileUploadService.uploadCsvFile(file.path);
       this.logger.log(`Successfully uploaded question bank.`);
       return res.status(HttpStatus.CREATED).json({
         message: "Question bank uploaded sucessfully.",

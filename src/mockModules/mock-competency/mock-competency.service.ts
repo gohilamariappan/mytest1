@@ -129,4 +129,12 @@ export class MockCompetencyService {
       },
     });
   }
+
+  public async findCompetencyByName(competencyName: string) {
+    return this.prisma.competency.findUnique({
+      where: {
+        name: competencyName
+      }
+    })
+  }
 }

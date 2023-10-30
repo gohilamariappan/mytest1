@@ -3,14 +3,29 @@ import { CreateFileUploadDto } from "./dto/create-file-upload.dto";
 import { PrismaService } from "src/prisma/prisma.service";
 import * as fs from "fs";
 import csvParser = require("csv-parser");
+import { MockCompetencyService } from "src/mockModules/mock-competency/mock-competency.service";
+import { QuestionBankService } from "src/question-bank/question-bank.service";
+import path = require("path");
 
 @Injectable()
 export class FileUploadService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private competencyService: MockCompetencyService,
+    private questionBankService: QuestionBankService
+  ) {}
 
+  public async uploadCsvFile(filepath) {
+    // Parsed the uploaded data
+    const parsedData = await this.parseCSV(filepath);
+    // Store the parsedData in the db
+    await this.storeData(parsedData);
+    // Clean up after the sucessful upload of csv data
+    await this.deleteUploadedFile(filepath);
+  }
   public async storeData(data: CreateFileUploadDto[]) {
     // Check if the competency Existed or not the given csv data if not then filter and throw error
-    const allCompetencies = await this.prisma.competency.findMany();
+    const allCompetencies = await this.competencyService.findAllCompetencies();
 
     // Extract an array of competency names from the fetched competencies
     const competencyNames = allCompetencies.map(
@@ -46,7 +61,9 @@ export class FileUploadService {
         `The following competency level numbers are not numeric : ${dataWithNonNumericCompetencyLevelNumber
           .map(
             (item) =>
-              `Competency ${item?.competency} with competency value #${item?.competencyLevelNumber || "Empty"}.`
+              `Competency ${item?.competency} with competency value #${
+                item?.competencyLevelNumber || "Empty"
+              }.`
           )
           .join(",")}`
       );
@@ -67,16 +84,14 @@ export class FileUploadService {
     }
 
     const createManyDataPromises: Promise<void>[] = data.map(async (item) => {
-      const getCompetencyId = await this.prisma.competency.findUnique({
-        where: {
-          name: item["competency"],
-        },
-      });
-      if (getCompetencyId && getCompetencyId.id) {
+      const getCompetency = await this.competencyService.findCompetencyByName(
+        item.competency
+      );
+      if (getCompetency && getCompetency.id) {
         // Check if a question with the same competencyId exists in the database
         const existingQuestion = await this.prisma.questionBank.findFirst({
           where: {
-            competencyId: getCompetencyId.id,
+            competencyId: getCompetency.id,
             competencyLevelNumber: Number(item["competencyLevelNumber"]),
           },
         });
@@ -93,12 +108,10 @@ export class FileUploadService {
           });
         } else {
           // If it doesn't exist, create a new entry
-          await this.prisma.questionBank.create({
-            data: {
-              question: item["question"],
-              competencyId: getCompetencyId.id,
-              competencyLevelNumber: Number(item["competencyLevelNumber"]),
-            },
+          await this.questionBankService.createQuestionByCompentencyId({
+            question: item["question"],
+            competencyId: getCompetency.id,
+            competencyLevelNumber: Number(item["competencyLevelNumber"]),
           });
         }
       } else {
@@ -132,9 +145,9 @@ export class FileUploadService {
   }
   public async deleteUploadedFile(filePath: string): Promise<void> {
     try {
-      await fs.promises.unlink(filePath);
+      fs.unlinkSync(filePath)
     } catch (error) {
-      console.error("Error deleting the file:", error);
+      throw new Error("Error unlinking the file.",);
     }
   }
 }
