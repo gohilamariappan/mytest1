@@ -5,10 +5,15 @@ import {
 } from "./dto/create-question-bank.dto";
 import { UpdateQuestionBankDto } from "./dto/update-question-bank.dto";
 import { PrismaService } from "src/prisma/prisma.service";
+import { CreateFileUploadDto } from "src/file-upload/dto/create-file-upload.dto";
+import { MockCompetencyService } from "src/mockModules/mock-competency/mock-competency.service";
 
 @Injectable()
 export class QuestionBankService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private competencyService: MockCompetencyService
+  ) {}
 
   async createQuestionByCompentencyId(
     createQuestionBankDto: CreateQuestionBankDto
@@ -80,7 +85,7 @@ export class QuestionBankService {
     });
   }
 
-  async deleteQuestionById(questionId : number) {
+  async deleteQuestionById(questionId: number) {
     // Check the question is there in db for the given questionId and competencyLevelId
     const findQuestion = await this.prisma.questionBank.findUnique({
       where: {
@@ -97,7 +102,110 @@ export class QuestionBankService {
     return this.prisma.questionBank.delete({
       where: {
         id: questionId,
+      },
+    });
+  }
+
+  public async bulkUploadQuestions(data: CreateFileUploadDto[]) {
+    // Check if the competency Existed or not the given csv data if not then filter and throw error
+    const allCompetencies = await this.competencyService.findAllCompetencies();
+
+    // Extract an array of competency names from the fetched competencies
+    const competencyNames = allCompetencies.map(
+      (competency) => competency.name
+    );
+
+    // check for the data that is not in the competency model
+    const dataNotInCompetencyModel = data.filter(
+      (item) => !competencyNames.includes(item["competency"])
+    );
+
+    // If there is data not in the competency model, you can throw an error or handle it as needed.
+    if (dataNotInCompetencyModel.length > 0) {
+      throw new Error(
+        `Some data is not in the competency model #${dataNotInCompetencyModel
+          .map((item) => item.competency)
+          .join(",")}`
+      );
+    }
+
+    // Check for the non-numeric competencyLevelNumber which is not a number in the csv data
+    const dataWithNonNumericCompetencyLevelNumber = data.filter((item) => {
+      const competencyLevelNumber = Number(item.competencyLevelNumber);
+      return (
+        isNaN(competencyLevelNumber) ||
+        competencyLevelNumber < 1 ||
+        competencyLevelNumber > 7
+      ); // Check if it's not a number and value should b/w 1 to 7
+    });
+    // Throw an error for the dataWithNonNumericCompetencyLevelNumber
+    if (dataWithNonNumericCompetencyLevelNumber.length > 0) {
+      throw new Error(
+        `The following competency level numbers are not numeric : ${dataWithNonNumericCompetencyLevelNumber
+          .map(
+            (item) =>
+              `Competency ${item?.competency} with competency value #${
+                item?.competencyLevelNumber || "Empty"
+              }.`
+          )
+          .join(",")}`
+      );
+    }
+
+    // Filter for the empty question in the csv data
+    const dataEmptyQuestion = data.filter((item) => !item.question);
+    // Throw an error for the dataEmptyQuestion
+    if (dataEmptyQuestion.length > 0) {
+      throw new Error(
+        `The following questions are empty: ${dataEmptyQuestion
+          .map(
+            (item) =>
+              `Competency ${item?.competency} with competency value#${item?.competencyLevelNumber}.`
+          )
+          .join(",")}`
+      );
+    }
+
+    const createManyDataPromises: Promise<void>[] = data.map(async (item) => {
+      const getCompetency = await this.competencyService.findCompetencyByName(
+        item.competency
+      );
+      if (getCompetency && getCompetency.id) {
+        // Check if a question with the same competencyId exists in the database
+        const existingQuestion = await this.prisma.questionBank.findFirst({
+          where: {
+            competencyId: getCompetency.id,
+            competencyLevelNumber: Number(item["competencyLevelNumber"]),
+          },
+        });
+        if (existingQuestion) {
+          // If it exists, update the existing question
+          await this.prisma.questionBank.update({
+            where: {
+              id: existingQuestion.id,
+            },
+            data: {
+              question: item["question"],
+              competencyLevelNumber: Number(item["competencyLevelNumber"]),
+            },
+          });
+        } else {
+          // If it doesn't exist, create a new entry
+          await this.createQuestionByCompentencyId({
+            question: item["question"],
+            competencyId: getCompetency.id,
+            competencyLevelNumber: Number(item["competencyLevelNumber"]),
+          });
+        }
+      } else {
+        throw new Error("Competency Id not found");
       }
-    })
+    });
+    try {
+      await Promise.all(createManyDataPromises);
+    } catch (error) {
+      console.error("Error storing data in the database:", error);
+      throw new Error("Failed to store data in the database");
+    }
   }
 }
