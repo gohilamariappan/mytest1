@@ -60,6 +60,7 @@ model AdminDepartment {
   id           Int            @default(autoincrement())
   departmentId Int            @unique
   name         String
+  description  String?
   UserMetadata UserMetadata[]
 
   @@id([id, departmentId])
@@ -101,7 +102,7 @@ model SurveyForm {
   surveyCycleParameterId Int
   surveyCycleParameter   SurveyCycleParameter @relation(fields: [surveyCycleParameterId], references: [id])
   status                 SurveyStatusEnum
-  overallScore           Int?
+  overallScore           Float?
   sunbirdCredentialIds   String?
   ResponseTracker        ResponseTracker[]
   SurveyScore            SurveyScore[]
@@ -118,7 +119,7 @@ model ResponseTracker {
   surveyForm   SurveyForm                @relation(fields: [surveyFormId], references: [id])
   assesseeId   String                    @db.Uuid
   assessorId   String                    @db.Uuid
-  responseJson Json[]                    @default([]) //{questionId: answer(yes, no and don't know)}
+  responseJson Json[]                    @default([]) //{questionId: number, answer: (Yes, No and DoNotKnow)}
   status       ResponseTrackerStatusEnum
   Assessee     UserMetadata              @relation("AssesseeResponseTrackers", fields: [assesseeId], references: [userId])
   Assessor     UserMetadata              @relation("AssessorResponseTrackers", fields: [assessorId], references: [userId])
@@ -128,20 +129,21 @@ model ResponseTracker {
 }
 
 model SurveyScore {
-  id                Int        @id @default(autoincrement())
-  surveyFormId      Int
-  surveyForm        SurveyForm @relation(fields: [surveyFormId], references: [id])
-  competencyId      Int
-  competencyLevelId Int
-  score             Float
+  id                    Int        @id @default(autoincrement())
+  surveyFormId          Int
+  surveyForm            SurveyForm @relation(fields: [surveyFormId], references: [id])
+  competencyId          Int
+  competencyLevelNumber Int
+  score                 Float
 
-  @@unique([surveyFormId, competencyId, competencyLevelId])
+  @@unique([surveyFormId, competencyId, competencyLevelNumber])
   @@map("survey_scores")
 }
 
 enum SurveyStatusEnum {
   CREATED
   PUBLISHED
+  CLOSED
 }
 
 enum ResponseTrackerStatusEnum {
@@ -166,8 +168,8 @@ model User {
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
   designation    String
-  Level          Level?        @relation(fields: [levelId], references: [id])
-  levelId        Int?
+  Level          Level?        @relation(fields: [levelNumber], references: [levelNumber])
+  levelNumber    Int?
   Department     Department?   @relation(fields: [departmentId], references: [id])
   departmentId   Int?
 
@@ -175,8 +177,7 @@ model User {
 }
 
 model Level {
-  id              Int               @id @default(autoincrement())
-  label           String
+  levelNumber     Int               @id @unique
   description     String?
   users           User[]
   CompetencyLevel CompetencyLevel[]
@@ -234,8 +235,8 @@ model CompetencyLevel {
   id           Int                           @id @default(autoincrement())
   name         String                        @unique
   description  String?
-  levelId      Int
-  Level        Level                         @relation(fields: [levelId], references: [id])
+  levelNumber  Int
+  Level        Level                         @relation(fields: [levelNumber], references: [levelNumber])
   createdAt    DateTime                      @default(now())
   updatedAt    DateTime                      @updatedAt
   competencies CompetencyToCompetencyLevel[]

@@ -1,10 +1,11 @@
-import { NotFoundException } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { TimeUnitsEnum, UserRolesEnum } from "@prisma/client";
 import { MockUserService } from "src/mockModules/mock-user/mock-user.service";
 import { PrismaService } from "src/prisma/prisma.service";
 import { SurveyConfigService } from "src/survey-config/survey-config.service";
 import { UserMetadataFilterDto } from "./dto";
 
+@Injectable()
 export class UserMetadataService {
   constructor(
     private prisma: PrismaService,

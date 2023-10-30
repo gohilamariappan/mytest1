@@ -185,6 +185,7 @@ export class QuestionBankController {
       });
     }
   }
+  // API to upload csv file question bank
   @Post("upload")
   @UseInterceptors(FileInterceptor("file", multerOptions))
   @ApiConsumes("multipart/form-data") // Specify content type as multipart/form-data
@@ -217,6 +218,46 @@ export class QuestionBankController {
       return res.status(statusCode).json({
         statusCode,
         message: errorMessage || `Failed to upload question bank.`,
+      })
+    }
+  }
+
+
+  // Get all the mapped questions for the user
+  @Get("user/:id")
+  @ApiOperation({
+    summary: "Get all the questions for a user in the survey form.",
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: ResponseQuestionBankDto,
+    isArray: true,
+  })
+  async getAllQuestionsForUser(
+    @Res() res,
+    @Param("id") id: string
+  ): Promise<ResponseQuestionBankDto[]> {
+    try {
+      this.logger.log(
+        `Initiating the fetching of all the question for user with id#${id}`
+      );
+
+      const getAllQuestionsForUser =
+        await this.questionBankService.getAllQuestionsForUser(id);
+
+      return res.status(HttpStatus.OK).json({
+        message: `Successfully get all the question for id #${id}`,
+        data: getAllQuestionsForUser,
+      });
+    } catch (error) {
+      this.logger.error(`Failed to get all questions for id #${id}`, error);
+
+      const { errorMessage, statusCode } =
+        getPrismaErrorStatusAndMessage(error); // get error message and status code
+
+      return res.status(statusCode).json({
+        statusCode,
+        message: errorMessage || `Failed to get all questions for id #${id}`,
       });
     }
   }

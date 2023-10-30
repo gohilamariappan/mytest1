@@ -90,4 +90,39 @@ export class ResponseTrackerService {
   public async remove(id: number) {
     return await this.prisma.responseTracker.delete({ where: { id } });
   }
+
+  async getAllResponseJsonBySurveyFormId(
+    surveyFormId: number,
+    status?: string
+  ) {
+    const whereClause: any = {
+      surveyFormId: surveyFormId,
+    };
+
+    if (status) {
+      whereClause.status = status; // Filter by status if provided
+    }
+
+    const responseTrackers = await this.prisma.responseTracker.findMany({
+      where: whereClause,
+      select: {
+        responseJson: true,
+        status: true,
+        assessorId: true,
+        assesseeId: true,
+      },
+    });
+
+    const result = responseTrackers.map((response) => {
+      const { assesseeId, assessorId, responseJson, status } = response;
+      return {
+        assesseeId,
+        assessorId,
+        status,
+        responseJson: JSON.parse(JSON.stringify(responseJson) || "[]"),
+      };
+    });
+
+    return result;
+  }
 }
