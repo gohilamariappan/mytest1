@@ -1,13 +1,14 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import {
+  CreateFileUploadDto,
   CreateQuestionBankDto,
   QuestionBankFilterDto,
 } from "./dto/create-question-bank.dto";
 import { UpdateQuestionBankDto } from "./dto/update-question-bank.dto";
 import { PrismaService } from "src/prisma/prisma.service";
-import { CreateFileUploadDto } from "src/file-upload/dto/create-file-upload.dto";
 import { MockCompetencyService } from "src/mockModules/mock-competency/mock-competency.service";
-
+import * as fs from "fs";
+import csvParser = require("csv-parser");
 @Injectable()
 export class QuestionBankService {
   constructor(
@@ -104,6 +105,15 @@ export class QuestionBankService {
         id: questionId,
       },
     });
+  }
+
+  public async uploadCsvFile(filepath) {
+    // Parsed the uploaded data
+    const parsedData = await this.parseCSV(filepath);
+    // Store the parsedData in the db
+    await this.bulkUploadQuestions(parsedData);
+    // Clean up after the sucessful upload of csv data
+    await this.deleteUploadedFile(filepath);
   }
 
   public async bulkUploadQuestions(data: CreateFileUploadDto[]) {
@@ -206,6 +216,31 @@ export class QuestionBankService {
     } catch (error) {
       console.error("Error storing data in the database:", error);
       throw new Error("Failed to store data in the database");
+    }
+  }
+
+  public async parseCSV(filePath: string): Promise<any[]> {
+    const results: any[] = [];
+
+    return new Promise((resolve, reject) => {
+      fs.createReadStream(filePath)
+        .pipe(csvParser())
+        .on("data", (row) => {
+          results.push(row);
+        })
+        .on("end", () => {
+          resolve(results);
+        })
+        .on("error", (error) => {
+          reject(error);
+        });
+    });
+  }
+  public async deleteUploadedFile(filePath: string): Promise<void> {
+    try {
+      fs.unlinkSync(filePath);
+    } catch (error) {
+      throw new Error("Error unlinking the file.");
     }
   }
 }

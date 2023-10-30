@@ -11,6 +11,8 @@ import {
   Res,
   Query,
   ParseIntPipe,
+  UseInterceptors,
+  UploadedFile,
 } from "@nestjs/common";
 import { QuestionBankService } from "./question-bank.service";
 import {
@@ -18,9 +20,11 @@ import {
   QuestionBankFilterDto,
 } from "./dto/create-question-bank.dto";
 import { UpdateQuestionBankDto } from "./dto/update-question-bank.dto";
-import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { ApiBody, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { ResponseQuestionBankDto } from "./dto/response-question-bank.dto";
 import { getPrismaErrorStatusAndMessage } from "src/utils/utils";
+import { FileInterceptor } from "@nestjs/platform-express";
+import { multerOptions } from "src/config/multer-options.config";
 
 @Controller("question-bank")
 @ApiTags("question-bank")
@@ -161,8 +165,9 @@ export class QuestionBankController {
     try {
       this.logger.log(`Initiating deleting of a question with an id ${id}`);
 
-      const deletedQuestion =
-        await this.questionBankService.deleteQuestionById(id);
+      const deletedQuestion = await this.questionBankService.deleteQuestionById(
+        id
+      );
 
       return res.status(HttpStatus.OK).json({
         message: `Successfully deleted question for id #${id}`,
@@ -177,6 +182,41 @@ export class QuestionBankController {
       return res.status(statusCode).json({
         statusCode,
         message: errorMessage || `Failed to delete question for id #${id}`,
+      });
+    }
+  }
+  @Post("upload")
+  @UseInterceptors(FileInterceptor("file", multerOptions))
+  @ApiConsumes("multipart/form-data") // Specify content type as multipart/form-data
+  @ApiBody({
+    schema: {
+      type: "object",
+      properties: {
+        file: {
+          type: "string" || "number",
+          format: "binary",
+        },
+      },
+    },
+  })
+  async uploadQuestions(@UploadedFile() file, @Res() res) {
+    // Log the initiaton for csv file upload
+    this.logger.log(`Initiate to upload a csv file.`);
+    try {
+      this.questionBankService.uploadCsvFile(file.path);
+      this.logger.log(`Successfully uploaded question bank.`);
+      return res.status(HttpStatus.CREATED).json({
+        message: "Question bank uploaded sucessfully.",
+      });
+    } catch (error) {
+      this.logger.error(`Failed to upload question bank.`, error);
+      // get error message and status code
+      const { errorMessage, statusCode } =
+        getPrismaErrorStatusAndMessage(error);
+      // Return an error response
+      return res.status(statusCode).json({
+        statusCode,
+        message: errorMessage || `Failed to upload question bank.`,
       });
     }
   }
