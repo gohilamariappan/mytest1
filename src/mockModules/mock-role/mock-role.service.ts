@@ -37,6 +37,7 @@ export class MockRoleService {
         competencies: {
           select: {
             competency: true,
+            competencyId: true
           },
         },
       },

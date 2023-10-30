@@ -19,7 +19,7 @@ export class MockLevelService {
   public async findOne(id: number) {
     const level = await this.prisma.level.findUnique({
       where: {
-        id,
+        levelNumber : id,
       },
     });
     if (!level) throw new NotFoundException(`Level with id #${id} not found`);
@@ -29,7 +29,7 @@ export class MockLevelService {
   public async update(id: number, updateMockLevelDto: UpdateMockLevelDto) {
     return await this.prisma.level.update({
       where: {
-        id,
+        levelNumber: id,
       },
       data: updateMockLevelDto,
     });
@@ -38,7 +38,7 @@ export class MockLevelService {
   public async remove(id: number) {
     return await this.prisma.level.delete({
       where: {
-        id,
+        levelNumber: id,
       },
     });
   }
