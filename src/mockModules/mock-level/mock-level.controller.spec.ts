@@ -26,13 +26,13 @@ describe("MockLevelController", () => {
   describe("create", () => {
     it("should create a new mock level", async () => {
       const createMockLevelDto: CreateMockLevelDto = {
-        label: "Test Level",
+        levelNumber: 1,
         description: "Test Description",
       };
 
       const mockLevel = {
         id: 1,
-        label: "Label 1",
+        levelNumber: 1,
         description: "Test description",
       }; // Define a mock response from the service
 
@@ -72,8 +72,8 @@ describe("MockLevelController", () => {
       const mockLevelId = 1;
       const mockLevel = {
         /* Define one or more properties for this object*/
-        id: 111,
-        label: "Label 1",
+        id: 1,
+        levelNumber: 1,
         description: "this is test description",
       }; // Define a mock response from the service
 
@@ -82,7 +82,7 @@ describe("MockLevelController", () => {
       // Create mock request objects
       const req = {} as Request;
 
-      const result = await controller.findOne(req,mockLevelId);
+      const result = await controller.findOne(req, mockLevelId);
 
       expect(result).toEqual({ data: mockLevel, message: "Successfully done" });
     });
@@ -96,7 +96,7 @@ describe("MockLevelController", () => {
       // Create mock request objects
       const req = {} as Request;
 
-      const result = await controller.findOne(req,mockLevelId);
+      const result = await controller.findOne(req, mockLevelId);
 
       expect(result).toEqual({ message: "Level with id #999 not found" });
     });
@@ -106,13 +106,13 @@ describe("MockLevelController", () => {
     it("should update a mock level by ID", async () => {
       const mockLevelId = 1;
       const updateMockLevelDto: UpdateMockLevelDto = {
-        label: "Updated Label",
+        levelNumber: 1,
         description: "Updated Description",
       };
 
       const mockLevel = {
         id: mockLevelId,
-        label: "Label 1",
+        levelNumber: 1,
         description: "this is test description",
       }; // Define a mock response from the service
 
@@ -134,13 +134,14 @@ describe("MockLevelController", () => {
       const mockLevelId = 1;
       const mockLevel = {
         id: mockLevelId,
-        label:"test",description:'test'
+        levelNumber: 1,
+        description: "test",
       }; // Define a mock response from the service
 
       jest.spyOn(mockLevelService, "remove").mockResolvedValue(mockLevel);
       // Create mock request objects
       const req = {} as Request;
-      const result = await controller.remove(req,mockLevelId);
+      const result = await controller.remove(req, mockLevelId);
 
       expect(result).toEqual({ data: mockLevel, message: "Successfully done" });
     });

@@ -18,7 +18,7 @@ import {
   UpdateSurveyFormDto,
   UpdateSurveyFormStatusDto,
 } from "./dto";
-import { getPrismaErrorStatusAndMessage } from "src/utils/utils";
+import { getPrismaErrorStatusAndMessage } from "../utils/utils";
 
 @Controller("survey-form")
 @ApiTags("survey-form")

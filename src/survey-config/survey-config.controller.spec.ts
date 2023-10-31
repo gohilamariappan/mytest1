@@ -1,28 +1,37 @@
 import * as pactum from "pactum";
 import { INestApplication, ValidationPipe } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
-import { Test } from "@nestjs/testing";
+import { Test, TestingModule } from "@nestjs/testing";
 import { SurveyConfigModule } from "./survey-config.module";
+import { ConfigService } from "@nestjs/config";
 
 describe("SurveyConfig e2e", () => {
   let app: INestApplication;
   let prisma: PrismaService;
+  let module: TestingModule;
 
   beforeAll(async () => {
-    const moduleRef = await Test.createTestingModule({
-        imports: [SurveyConfigModule],
-      }).compile();
-      app = moduleRef.createNestApplication();
-      app.useGlobalPipes(
-        new ValidationPipe({
-          whitelist: true,
-        }),
-      );
-      await app.init();
-      await app.listen(3000);
-  
-      prisma = app.get(PrismaService);
-      pactum.request.setBaseUrl('http://localhost:3000');
+    module = await Test.createTestingModule({
+      imports: [SurveyConfigModule],
+    }).compile();
+
+    app = module.createNestApplication();
+    app.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true,
+      })
+    );
+
+    const configService = app.get<ConfigService>(ConfigService);
+    const apiPrefix = configService.get<string>("API_PREFIX") || "api";
+    const PORT = configService.get<number>("APP_PORT") || 4010;
+    app.setGlobalPrefix(apiPrefix);
+
+    await app.init();
+    await app.listen(PORT);
+
+    prisma = app.get(PrismaService);
+    pactum.request.setBaseUrl(`http://localhost:${PORT}/${apiPrefix}`);
   });
 
   afterAll(async () => {
