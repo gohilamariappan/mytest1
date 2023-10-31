@@ -7,20 +7,20 @@ import {
 import { UpdateQuestionBankDto } from "./dto/update-question-bank.dto";
 import { PrismaService } from "src/prisma/prisma.service";
 import { MockCompetencyService } from "src/mockModules/mock-competency/mock-competency.service";
-import * as fs from "fs";
-import csvParser = require("csv-parser");
 import { MockUserService } from "src/mockModules/mock-user/mock-user.service";
 import { MockRoleService } from "./../mockModules/mock-role/mock-role.service";
 import { MockDesignationService } from "src/mockModules/mock-designation/mock-designation.service";
+import { FileUploadService } from "src/file-upload/file-upload.service";
 
 @Injectable()
 export class QuestionBankService {
   constructor(
     private prisma: PrismaService,
-    private competencyService: MockCompetencyService
+    private competencyService: MockCompetencyService,
     private mockUserService: MockUserService,
     private mockDesignationService: MockDesignationService,
-    private mockRoleService: MockRoleService
+    private mockRoleService: MockRoleService,
+    private fileUploadService: FileUploadService
   ) {}
 
   async createQuestionByCompentencyId(
@@ -116,11 +116,11 @@ export class QuestionBankService {
 
   public async uploadCsvFile(filepath) {
     // Parsed the uploaded data
-    const parsedData = await this.parseCSV(filepath);
+    const parsedData = await this.fileUploadService.parseCSV(filepath);
     // Store the parsedData in the db
     await this.bulkUploadQuestions(parsedData);
     // Clean up after the sucessful upload of csv data
-    await this.deleteUploadedFile(filepath);
+    await this.fileUploadService.deleteUploadedFile(filepath);
   }
 
   public async bulkUploadQuestions(data: CreateFileUploadDto[]) {
@@ -226,30 +226,7 @@ export class QuestionBankService {
     }
   }
 
-  public async parseCSV(filePath: string): Promise<any[]> {
-    const results: any[] = [];
-
-    return new Promise((resolve, reject) => {
-      fs.createReadStream(filePath)
-        .pipe(csvParser())
-        .on("data", (row) => {
-          results.push(row);
-        })
-        .on("end", () => {
-          resolve(results);
-        })
-        .on("error", (error) => {
-          reject(error);
-        });
-    });
-  }
-  public async deleteUploadedFile(filePath: string): Promise<void> {
-    try {
-      fs.unlinkSync(filePath);
-    } catch (error) {
-      throw new Error("Error unlinking the file.");
-    }
-  }
+  
   
   async getAllQuestionsForUser(userId: string) {
     const user = await this.mockUserService.findOne(userId);
