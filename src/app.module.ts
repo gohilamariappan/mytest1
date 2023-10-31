@@ -17,6 +17,7 @@ import { AdminCompetencyModule } from "./admin-competency/admin-competency.modul
 import { ScheduledTasksModule } from './scheduled-tasks/scheduled-tasks.module';
 import { ScheduleModule } from "@nestjs/schedule";
 import { SurveyModule } from './survey/survey.module';
+import { FileUploadModule } from './file-upload/file-upload.module';
 
 @Module({
   imports: [
@@ -36,7 +37,8 @@ import { SurveyModule } from './survey/survey.module';
     AdminCompetencyModule,
     ScheduledTasksModule,
     ScheduleModule.forRoot(),
-    SurveyModule
+    SurveyModule,
+    FileUploadModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
