@@ -14,6 +14,9 @@ import { SurveyCycleParameterModule } from "./survey-cycle-parameter/survey-cycl
 import { AdminDepartmentModule } from './admin-department/admin-department.module';
 import { UserMetadataModule } from './user-metadata/user-metadata.module';
 import { AdminCompetencyModule } from "./admin-competency/admin-competency.module";
+import { ScheduledTasksModule } from './scheduled-tasks/scheduled-tasks.module';
+import { ScheduleModule } from "@nestjs/schedule";
+import { SurveyModule } from './survey/survey.module';
 
 @Module({
   imports: [
@@ -31,6 +34,9 @@ import { AdminCompetencyModule } from "./admin-competency/admin-competency.modul
     AdminDepartmentModule,
     UserMetadataModule,
     AdminCompetencyModule,
+    ScheduledTasksModule,
+    ScheduleModule.forRoot(),
+    SurveyModule
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
