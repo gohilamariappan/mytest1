@@ -69,8 +69,7 @@ export class MockUserService {
     designation:true,
     Level: {
       select: {
-        id: true,
-        label: true,
+        levelNumber : true
       },
     },
     Department: {

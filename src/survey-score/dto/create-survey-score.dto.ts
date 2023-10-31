@@ -1,20 +1,25 @@
-import { IsNotEmpty, IsNumber } from "class-validator";
+import { IsInt, IsNotEmpty, IsNumber } from "class-validator";
 
 export class CreateSurveyScoreDto {
-
   @IsNotEmpty()
-  @IsNumber()
+  @IsInt()
   surveyFormId: number;
 
   @IsNotEmpty()
-  @IsNumber()
+  @IsInt()
   competencyId: number;
 
   @IsNotEmpty()
-  @IsNumber()
-  competencyLevelId: number;
+  @IsInt()
+  competencyLevelNumber: number;
 
   @IsNotEmpty()
   @IsNumber()
   score: number;
+}
+
+export class GenerateSurveyScoreDto {
+  @IsNotEmpty()
+  @IsInt()
+  surveyFormId: number;
 }

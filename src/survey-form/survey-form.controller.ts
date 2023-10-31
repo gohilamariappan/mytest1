@@ -88,7 +88,7 @@ export class SurveyFormController {
   @Patch(":id")
   @ApiOperation({ summary: "Update the Survey-Form" })
   @ApiResponse({ status: HttpStatus.OK, type: SurveyFormResponse })
-  async updateSurveyForm(
+  async updateSurveyFormStatus(
     @Res() res,
     @Param("id") id: number,
     @Body() { status }: UpdateSurveyFormDto
@@ -96,7 +96,7 @@ export class SurveyFormController {
     try {
       this.logger.log(`Initiated updating new survey form`);
 
-      const surveyForm = await this.surveyFormService.updateSurveyForm(
+      const surveyForm = await this.surveyFormService.updateSurveyFormStatus(
         id,
         status
       );

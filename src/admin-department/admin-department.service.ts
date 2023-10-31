@@ -1,0 +1,68 @@
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
+import { FilterAdminDepartmentsDto } from "./dto/create-admin-department.dto";
+import { UpdateAdminDepartmentDto } from "./dto/update-admin-department.dto";
+import { PrismaService } from "src/prisma/prisma.service";
+import { MockDepartmentService } from "src/mockModules/mock-department/mock-department.service";
+
+@Injectable()
+export class AdminDepartmentService {
+  constructor(
+    private prisma: PrismaService,
+    private departmentService: MockDepartmentService
+  ) {}
+
+  public async createOrUpdateAdminDepartment(id: number) {
+    // Check the admin department exist for admin department db or not
+    const checkExistingAdminDepartment =
+      await this.prisma.adminDepartment.findUnique({
+        where: {
+          departmentId: id,
+        },
+      });
+    // Check if the department exist in mock department module or not
+    const adminDepartment = await this.departmentService.findOne(id);
+    // If department does not exist in the department module then throw an error
+    if (!adminDepartment) {
+      throw new NotFoundException(
+        `The Mock Admin Department for the #${id} not found.`
+      );
+    }
+    // If it is existing admin department then update the admin department
+    if (checkExistingAdminDepartment) {
+      const updatedAdminDepartment = await this.prisma.adminDepartment.update({
+        where: {
+          departmentId: id,
+        },
+        data: {
+          name: adminDepartment.name,
+          description: adminDepartment.description,
+        },
+      });
+      return updatedAdminDepartment;
+    }
+    return this.prisma.adminDepartment.create({
+      data: {
+        departmentId: adminDepartment.id,
+        name: adminDepartment.name,
+        description: adminDepartment.description,
+      },
+    });
+  }
+
+  public async getAllAdminDepartment(filter: FilterAdminDepartmentsDto) {
+    const { departmentId, name, limit = 10, offset = 0 } = filter;
+    // Get all the admin department and filter using department Id and name.
+    return this.prisma.adminDepartment.findMany({
+      where: {
+        departmentId: departmentId ?? undefined, // Optional departmentId filter
+        name: name ?? undefined, // Optional filter by Name
+      },
+      skip: offset,
+      take: limit,
+    });
+  }
+}

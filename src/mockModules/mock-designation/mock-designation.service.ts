@@ -71,4 +71,16 @@ export class MockDesignationService {
       },
     });
   }
+
+  async findAllRolesForDesignation(designation: string) {
+    return this.prisma.designation.findUnique({
+      where: {
+        name: designation,
+      },
+      select: {
+        Roles: true,
+      },
+    });
+    
+  }
 }

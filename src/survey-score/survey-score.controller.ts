@@ -1,25 +1,29 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
-  Res,
+  Get,
   HttpStatus,
   Logger,
+  Param,
   ParseIntPipe,
+  Patch,
+  Post,
+  Res,
 } from "@nestjs/common";
-import { SurveyScoreService } from "./survey-score.service";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { getPrismaErrorStatusAndMessage } from "src/utils/utils";
 import {
+  AllSurveyScoresForUserDto,
   CreateSurveyScoreDto,
+  GenerateSurveyScoreDto,
+  ResponseMessageDto,
   SurveyScoreMultipleResponseDto,
   SurveyScoreResponseDto,
+  SurveyScoresForUserDto,
   UpdateSurveyScoreDto,
 } from "./dto";
-import { getPrismaErrorStatusAndMessage } from "src/utils/utils";
+import { SurveyScoreService } from "./survey-score.service";
 
 @Controller("survey-score")
 @ApiTags("survey-score")
@@ -130,7 +134,6 @@ export class SurveyScoreController {
     }
   }
 
-
   @Get(":id")
   @ApiOperation({ summary: "get survey score by id" })
   @ApiResponse({ status: HttpStatus.OK, type: SurveyScoreResponseDto })
@@ -190,10 +193,13 @@ export class SurveyScoreController {
       const { errorMessage, statusCode } =
         getPrismaErrorStatusAndMessage(error);
 
-      return res.status(statusCode).json({
-        message:
-          errorMessage || `Failed to update survey score with id #${id} `,
-      });
+      return res
+        .status(statusCode)
+        .json({
+          statusCode,
+          message:
+            errorMessage || `Failed to update survey score with id #${id} `,
+        });
     }
   }
 
@@ -222,8 +228,134 @@ export class SurveyScoreController {
         getPrismaErrorStatusAndMessage(error);
 
       return res.status(statusCode).json({
+        statusCode,
         message:
           errorMessage || `Failed to delete survey score with id #${id} `,
+      });
+    }
+  }
+
+  @Post("calculate-score")
+  @ApiOperation({ summary: "calculate survey score by survey form id" })
+  @ApiResponse({ status: HttpStatus.OK })
+  async generateSurveyScore(
+    @Res() res,
+    @Body() generateSurveyScoreDto: GenerateSurveyScoreDto
+  ): Promise<ResponseMessageDto> {
+    const { surveyFormId } = generateSurveyScoreDto;
+    try {
+      this.logger.log(
+        `Initiated calculating survey score for surveyFormId #${surveyFormId}`
+      );
+
+      await this.surveyScoreService.calculateSurveyScoreBySurveyFormId(
+        surveyFormId
+      );
+
+      this.logger.log(
+        `Successfully calculated survey score for surveyFormId #${surveyFormId}`
+      );
+
+      return res.status(HttpStatus.OK).json({
+        message: `Successfully calculated survey score for surveyFormId #${surveyFormId}`,
+      });
+    } catch (error) {
+      this.logger.error(
+        `Failed to calculate survey score for surveyFormId #${surveyFormId}`,
+        error
+      );
+
+      const { errorMessage, statusCode } =
+        getPrismaErrorStatusAndMessage(error);
+
+      return res.status(statusCode).json({
+        statusCode,
+        message:
+          errorMessage ||
+          `Failed to calculate survey score for surveyFormId #${surveyFormId} `,
+      });
+    }
+  }
+
+  @Get("latest-survey-score/:userId")
+  @ApiOperation({ summary: "get latest survey score for user by user id" })
+  @ApiResponse({ status: HttpStatus.OK, type: SurveyScoresForUserDto })
+  async getLatestSurveyScoreByUserId(
+    @Res() res,
+    @Param("userId") userId: string
+  ): Promise<SurveyScoresForUserDto> {
+    try {
+      this.logger.log(
+        `Initiated fetching latest survey score for userId #${userId}`
+      );
+
+      const response =
+        await this.surveyScoreService.getLatestSurveyScoreByUserId(userId);
+
+      this.logger.log(
+        `Successfully fetched latest survey score for userId #${userId}`
+      );
+
+      return res.status(HttpStatus.OK).json({
+        data: response,
+        message: `Successfully fetched latest survey score for userId #${userId}`,
+      });
+    } catch (error) {
+      this.logger.error(
+        `Failed to fetch latest survey score for userId #${userId}`,
+        error
+      );
+
+      const { errorMessage, statusCode } =
+        getPrismaErrorStatusAndMessage(error);
+
+      return res.status(statusCode).json({
+        statusCode,
+        message:
+          errorMessage ||
+          `Failed to fetch latest survey score for userId #${userId} `,
+      });
+    }
+  }
+
+  @Get("all-survey-score/:userId")
+  @ApiOperation({ summary: "get all surveys score for user by user id" })
+  @ApiResponse({ status: HttpStatus.OK, type: AllSurveyScoresForUserDto })
+  async getAllSurveyScoreByUserId(
+    @Res() res,
+    @Param("userId") userId: string
+  ): Promise<AllSurveyScoresForUserDto> {
+    try {
+      this.logger.log(
+        `Initiated fetching all survey score for userId #${userId}`
+      );
+
+      const response = await this.surveyScoreService.getAllSurveyScoreByUserId(
+        userId
+      );
+
+      this.logger.log(
+        `Successfully fetched all survey score for userId #${userId}`
+      );
+
+      return res.status(HttpStatus.OK).json({
+        data: response,
+        message: `Successfully fetched all survey score for userId #${userId}`,
+      });
+    } catch (error) {
+      this.logger.error(
+        `Failed to fetch all survey score for userId #${userId}`,
+        error
+      );
+
+      const { errorMessage, statusCode } =
+        getPrismaErrorStatusAndMessage(error);
+
+      return res.status(statusCode).json({
+        statusCode,
+        message:
+          errorMessage ||
+          `Failed to fetch all survey score for userId #${userId} `,
       });
     }
   }
