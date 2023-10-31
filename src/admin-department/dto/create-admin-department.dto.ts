@@ -1,4 +1,4 @@
-import { IsInt, IsOptional, IsString } from "class-validator";
+import { IsBoolean, IsInt, IsOptional, IsString } from "class-validator";
 
 // Admin department filter dto
 export class FilterAdminDepartmentsDto {
@@ -21,4 +21,8 @@ export class FilterAdminDepartmentsDto {
   @IsOptional()
   @IsInt()
   offset?: number = 0;
+
+  @IsOptional()
+  @IsBoolean()
+  surveyConfig?: boolean
 }

@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
-import { CreateSurveyCycleParameterDto } from "./dto/create-survey-cycle-parameter.dto";
+import { CreateSurveyCycleParameterDto, SurveyCycleParameterFilterDto } from "./dto/create-survey-cycle-parameter.dto";
 import { UpdateSurveyCycleParameterDto } from "./dto/update-survey-cycle-parameter.dto";
 
 @Injectable()
@@ -32,8 +32,22 @@ export class SurveyCycleParameterService {
     return newSurveyParameter;
   }
 
-  async getAllSurveyParameter() {
-    return this.prisma.surveyCycleParameter.findMany();
+  async getAllSurveyParameter(filter: SurveyCycleParameterFilterDto) {
+    const {departmentId, surveyConfigId, isActive} = filter;
+    return this.prisma.surveyCycleParameter.findMany({
+      where:{
+        isActive: isActive ?? undefined,
+        SurveyConfig:{
+          id: surveyConfigId ?? undefined,
+          AdminDepartment:{
+            id: departmentId ??undefined
+          }
+        }
+      },
+      orderBy: {
+        createdAt: "desc",
+      }
+    });
   }
 
   async updateSurveyParameterById(

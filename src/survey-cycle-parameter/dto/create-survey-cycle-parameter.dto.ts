@@ -3,6 +3,7 @@ import {
   IsDate,
   IsInt,
   IsNotEmpty,
+  IsNumber,
   IsOptional,
 } from "class-validator";
 
@@ -33,4 +34,21 @@ export class CreateSurveyCycleParameterDto {
   @IsNotEmpty()
   @IsDate()
   updatedAt?: Date;
+}
+
+export class SurveyCycleParameterFilterDto {
+  @IsNumber()
+  @IsOptional()
+  @IsNotEmpty()
+  departmentId?: number;
+
+  @IsNumber()
+  @IsOptional()
+  @IsNotEmpty()
+  surveyConfigId?: number;
+
+  @IsBoolean()
+  @IsOptional()
+  @IsNotEmpty()
+  isActive? : boolean;
 }

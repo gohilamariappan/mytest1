@@ -174,7 +174,9 @@ export class QuestionBankService {
       throw new NotFoundException(`No Question Found for user with #${userId}`);
     }
     return questionLists;
-  public async getQuestionById(id: number) {
+  }
+  
+    public async getQuestionById(id: number) {
     const question = await this.prisma.questionBank.findUnique({
       where: { id },
     });

@@ -20,7 +20,7 @@ import {
 import { UpdateSurveyConfigDto } from "./dto/update-survey-config.dto";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { ResponseSurveyConfigDto } from "./dto/response-survey-config.dto";
-import { getPrismaErrorStatusAndMessage } from "src/utils/utils";
+import { getPrismaErrorStatusAndMessage } from "../utils/utils";
 
 @Controller("survey-config")
 @ApiTags("survey-config")

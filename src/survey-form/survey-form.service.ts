@@ -36,6 +36,18 @@ export class SurveyFormService {
     });
   }
 
+  async findSurveyFormBySurveyCycleParameterId(paramId: number){
+    const surveyForms = await this.prisma.surveyForm.findMany({
+      where:{
+        surveyCycleParameterId: paramId
+      }
+    });
+    if(!surveyForms || surveyForms.length==0){
+      throw new NotFoundException(`Survey Forms not found for SurveyCycleParameter with id #${paramId}`);
+    }
+    return surveyForms;
+  }
+
   async updateSurveyFormScore(id: number, overallScore: number) {
     return await this.prisma.surveyForm.update({
       where: { id },

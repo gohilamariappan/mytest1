@@ -63,6 +63,7 @@ model AdminDepartment {
   name         String
   description  String?
   UserMetadata UserMetadata[]
+  SurveyConfig SurveyConfig?
 
   @@id([id, departmentId])
   @@map("admin_department")
@@ -76,6 +77,7 @@ model SurveyConfig {
   startTime             DateTime
   endTime               DateTime
   departmentId          Int                    @unique
+  AdminDepartment       AdminDepartment        @relation(fields: [departmentId], references: [departmentId])
   SurveyCycleParameters SurveyCycleParameter[]
 
   @@map("survey_config")

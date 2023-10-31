@@ -4,7 +4,7 @@ import {
   SurveyConfigFilterDto,
 } from "./dto/create-survey-config.dto";
 import { UpdateSurveyConfigDto } from "./dto/update-survey-config.dto";
-import { PrismaService } from "src/prisma/prisma.service";
+import { PrismaService } from "../prisma/prisma.service";
 
 @Injectable()
 export class SurveyConfigService {
