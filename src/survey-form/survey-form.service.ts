@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { SurveyStatusEnum } from "@prisma/client";
-import { PrismaService } from "src/prisma/prisma.service";
+import { PrismaService } from "../prisma/prisma.service";
 import { CreateSurveyFormDto, SurveyScoresForUser } from "./dto";
 
 @Injectable()
@@ -36,14 +36,16 @@ export class SurveyFormService {
     });
   }
 
-  async findSurveyFormBySurveyCycleParameterId(paramId: number){
+  async findSurveyFormBySurveyCycleParameterId(paramId: number) {
     const surveyForms = await this.prisma.surveyForm.findMany({
-      where:{
-        surveyCycleParameterId: paramId
-      }
+      where: {
+        surveyCycleParameterId: paramId,
+      },
     });
-    if(!surveyForms || surveyForms.length==0){
-      throw new NotFoundException(`Survey Forms not found for SurveyCycleParameter with id #${paramId}`);
+    if (!surveyForms || surveyForms.length == 0) {
+      throw new NotFoundException(
+        `Survey Forms not found for SurveyCycleParameter with id #${paramId}`
+      );
     }
     return surveyForms;
   }
