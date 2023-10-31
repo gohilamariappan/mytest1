@@ -4,13 +4,12 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { ResponseTrackerStatusEnum, SurveyStatusEnum } from "@prisma/client";
-import { PrismaService } from "src/prisma/prisma.service";
-import { QuestionBankService } from "src/question-bank/question-bank.service";
-import { responseObject } from "src/response-tracker/dto";
-import { AnswerEnum } from "src/response-tracker/enums/response-tracker.enums";
-import { ResponseTrackerService } from "src/response-tracker/response-tracker.service";
-import { SurveyFormService } from "src/survey-form/survey-form.service";
-import { UserMetadataService } from "src/user-metadata/user-metadata.service";
+import { PrismaService } from "../prisma/prisma.service";
+import { QuestionBankService } from "../question-bank/question-bank.service";
+import { responseObject } from "../response-tracker/dto";
+import { AnswerEnum } from "../response-tracker/enums/response-tracker.enums";
+import { ResponseTrackerService } from "../response-tracker/response-tracker.service";
+import { SurveyFormService } from "../survey-form/survey-form.service";
 import { CreateSurveyScoreDto } from "./dto/create-survey-score.dto";
 import { UpdateSurveyScoreDto } from "./dto/update-survey-score.dto";
 import {
