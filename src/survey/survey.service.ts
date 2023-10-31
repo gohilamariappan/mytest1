@@ -115,9 +115,3 @@ export class SurveyService {
     return surveyForms;
   }
 }
-
-
-
-// ScheduledTasksModule,
-// ScheduleModule.forRoot(),
-// SurveyModule
