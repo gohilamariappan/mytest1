@@ -7,7 +7,7 @@ import { PrismaService } from "../prisma/prisma.service";
 @Module({
   imports: [PrismaModule],
   controllers: [SurveyConfigController],
-  providers: [SurveyConfigService, PrismaService],
+  providers: [SurveyConfigService],
   exports: [SurveyConfigService],
 })
 export class SurveyConfigModule {}
