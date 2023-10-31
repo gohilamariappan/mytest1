@@ -14,6 +14,7 @@ import { SurveyCycleParameterModule } from "./survey-cycle-parameter/survey-cycl
 import { AdminDepartmentModule } from './admin-department/admin-department.module';
 import { UserMetadataModule } from './user-metadata/user-metadata.module';
 import { AdminCompetencyModule } from "./admin-competency/admin-competency.module";
+import { FileUploadModule } from './file-upload/file-upload.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { AdminCompetencyModule } from "./admin-competency/admin-competency.modul
     AdminDepartmentModule,
     UserMetadataModule,
     AdminCompetencyModule,
+    FileUploadModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],

@@ -1,5 +1,4 @@
 import {
-  IsDate,
   IsInt,
   IsNotEmpty,
   IsOptional,
@@ -13,11 +12,6 @@ export class CreateQuestionBankDto {
   @IsInt()
   competencyId: number;
 
-  // Compentency level id associated with the question bank
-  @IsNotEmpty()
-  @IsInt()
-  competencyLevelId: number;
-
   // Question for the question bank
   @IsNotEmpty()
   @IsString()
@@ -28,6 +22,22 @@ export class CreateQuestionBankDto {
   @IsInt()
   competencyLevelNumber: number;
 }
+export class CreateFileUploadDto {
+  // Competency associated with Question bank csv file
+  @IsNotEmpty()
+  @IsString()
+  competency: string;
+
+  // competencyLevel number of the uploaded question bank csv file
+  @IsNotEmpty()
+  @IsInt()
+  competencyLevelNumber: number;
+
+  // Questions of the uploaded question bank csv file
+  @IsNotEmpty()
+  @IsString()
+  question: string;
+}
 
 // Question bank filter
 export class QuestionBankFilterDto {
@@ -35,11 +45,6 @@ export class QuestionBankFilterDto {
   @IsOptional()
   @IsInt()
   competencyId?: number;
-
-  // Optional competencyLevelId filter, validated that it's valid competencyLevel Id or not
-  @IsOptional()
-  @IsInt()
-  competencyLevelId?: number;
 
   // Optional competencyLevelNumber filter, validate that it's valid competency Level number or not
   @IsOptional()
