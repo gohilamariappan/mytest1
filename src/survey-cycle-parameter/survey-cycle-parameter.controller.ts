@@ -8,12 +8,13 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
   Res,
 } from "@nestjs/common";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { getPrismaErrorStatusAndMessage } from "src/utils/utils";
 import { ResponseSurveyCycleParameterDto } from "./dto/response-survey-cycle-parameter.dto";
-import { CreateSurveyCycleParameterDto } from "./dto/create-survey-cycle-parameter.dto";
+import { CreateSurveyCycleParameterDto, SurveyCycleParameterFilterDto } from "./dto/create-survey-cycle-parameter.dto";
 import { UpdateSurveyCycleParameterDto } from "./dto/update-survey-cycle-parameter.dto";
 import { SurveyCycleParameterService } from "./survey-cycle-parameter.service";
 
@@ -76,12 +77,13 @@ export class SurveyCycleParameterController {
     isArray: true,
   }) // Api response for swagger
   async getAllSurveyParameter(
-    @Res() res
+    @Res() res,
+    @Query() filter: SurveyCycleParameterFilterDto
   ): Promise<ResponseSurveyCycleParameterDto[]> {
     try {
       this.logger.log(`Initiated fetching all the survey cycle parameter.`);
       const surveyParameters =
-        await this.surveyParameterService.getAllSurveyParameter();
+        await this.surveyParameterService.getAllSurveyParameter(filter);
 
       if (!surveyParameters.length) throw Error("No record found");
       this.logger.log(`Fetched successfully all the survey cycle parameter.`);

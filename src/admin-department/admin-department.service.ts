@@ -54,15 +54,33 @@ export class AdminDepartmentService {
   }
 
   public async getAllAdminDepartment(filter: FilterAdminDepartmentsDto) {
-    const { departmentId, name, limit = 10, offset = 0 } = filter;
+    const { departmentId, name, limit = 10, offset = 0, surveyConfig } = filter;
     // Get all the admin department and filter using department Id and name.
-    return this.prisma.adminDepartment.findMany({
+    return await this.prisma.adminDepartment.findMany({
       where: {
         departmentId: departmentId ?? undefined, // Optional departmentId filter
         name: name ?? undefined, // Optional filter by Name
       },
       skip: offset,
       take: limit,
+      select: {
+        id: true,
+        departmentId: true,
+        name: true,
+        description: true,
+        SurveyConfig:
+          surveyConfig == true
+            ? {
+                select: {
+                  id: true,
+                  startTime: true,
+                  endTime: true,
+                  onboardingTime: true,
+                  onboardingTimeUnit: true,
+                },
+              }
+            : {},
+      },
     });
   }
 }

@@ -21,7 +21,6 @@ export class SurveyScoreService {
     private responseTrackerService: ResponseTrackerService,
     private questionBankService: QuestionBankService,
     private surveyFormService: SurveyFormService,
-    private userMetadataService: UserMetadataService
   ) {}
 
   public async create(createSurveyScoreDto: CreateSurveyScoreDto) {

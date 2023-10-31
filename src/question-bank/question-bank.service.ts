@@ -284,7 +284,7 @@ export class QuestionBankService {
     }
     return questionLists;
   }
-  
+
   public async getQuestionById(id: number) {
     const question = await this.prisma.questionBank.findUnique({
       where: { id },

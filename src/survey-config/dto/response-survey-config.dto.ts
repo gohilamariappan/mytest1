@@ -8,5 +8,6 @@ export class ResponseSurveyConfigDto {
   readonly onboardingTimeUnit: TimeUnitsEnum;
   readonly startTime: Date;
   readonly endTime: Date;
+  readonly isActive: boolean;
   readonly SurveyCycleParameters?: ResponseSurveyCycleParameterDto[];
 }
