@@ -53,8 +53,7 @@ describe("AdminCompetencyController e2e", () => {
         .spec()
         .post("/admin-competency")
         .withBody(createAdminCompetencyDto)
-        .expectStatus(201)
-        .stores("createdAt", "updatedAt");
+        .expectStatus(201);
 
       const createdAdminCompetency = JSON.parse(response.body);
       expect(createdAdminCompetency).not.toBeNull();
@@ -96,12 +95,16 @@ describe("AdminCompetencyController e2e", () => {
         name: "Updated Test Competency Name",
         description: "Updated Test Description",
       };
+      const testData = {
+        id: 1,
+        competencyId: 55,
+      };
       const response = await pactum
         .spec()
-        .patch(`/admin-competency/{id}/{competencyId}`)
+        .patch(`/admin-competency/${testData.id}/${testData.competencyId}`)
         .withPathParams({
-          id: 1,
-          competencyId: 1,
+          id: testData.id,
+          competencyId: testData.competencyId,
         })
         .withBody(updatedAdminCompetencyDto)
         .expectStatus(200);
@@ -119,17 +122,22 @@ describe("AdminCompetencyController e2e", () => {
 
   describe("AdminCompetencyController  remove()", () => {
     it("should delete an admin competency by id", async () => {
+      const testData = {
+        id: 1,
+        competencyId: 55,
+      };
       const response = await pactum
         .spec()
-        .delete("/admin-competency//{id}/{competencyId}")
+        .delete(`/admin-competency/${testData.id}/${testData.competencyId}`)
         .withPathParams({
-          id: 1,
-          competencyId: 1,
+          id: testData.id,
+          competencyId: testData.competencyId,
         })
         .expectStatus(200);
       const deletedAdminCompetency = JSON.parse(response.body);
       expect(deletedAdminCompetency).not.toBeNull();
-      expect(deletedAdminCompetency.id).toEqual(3);
+      expect(deletedAdminCompetency.id).toEqual(1);
+      expect(deletedAdminCompetency.competencyId).toEqual(55);
       expect(deletedAdminCompetency.name).toBeDefined();
       expect(deletedAdminCompetency.competencyLevels).toBeDefined();
       expect(deletedAdminCompetency?.description).toBeDefined();
