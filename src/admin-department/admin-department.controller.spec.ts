@@ -38,10 +38,13 @@ describe("AdminDepartment e2e", () => {
 
   describe("AdminDepartmentController createOrUpdateAdminDepartment()", () => {
     it("should return created or updated admin department", async function () {
+      const testData = {
+        departmentId: 1,
+      };
       const response = await pactum
         .spec()
-        .post("/admin-department/{departmentId}")
-        .withPathParams({ departmentId: 1 })
+        .post(`/admin-department/${testData.departmentId}`)
+        .withPathParams({ departmentId: testData.departmentId })
         .expectStatus(201);
       const createdAdminDepartment = JSON.parse(response);
       expect(createdAdminDepartment).toMatchObject(ResponseAdminDepartmentDto);
