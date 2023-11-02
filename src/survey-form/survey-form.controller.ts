@@ -16,6 +16,7 @@ import {
   CreateSurveyFormDto,
   SurveyFormResponse,
   UpdateSurveyFormDto,
+  UpdateSurveyFormStatusDto,
 } from "./dto";
 import { getPrismaErrorStatusAndMessage } from "src/utils/utils";
 
@@ -85,20 +86,20 @@ export class SurveyFormController {
     }
   }
 
-  @Patch(":id")
+  @Patch("status/:id")
   @ApiOperation({ summary: "Update the Survey-Form" })
   @ApiResponse({ status: HttpStatus.OK, type: SurveyFormResponse })
   async updateSurveyFormStatus(
     @Res() res,
     @Param("id") id: number,
-    @Body() { status }: UpdateSurveyFormDto
+    @Body() updateSurveyFormDto: UpdateSurveyFormStatusDto
   ): Promise<SurveyFormResponse> {
     try {
       this.logger.log(`Initiated updating new survey form`);
 
       const surveyForm = await this.surveyFormService.updateSurveyFormStatus(
         id,
-        status
+        updateSurveyFormDto.status
       );
 
       this.logger.log(`Successfully updated the survey form`);

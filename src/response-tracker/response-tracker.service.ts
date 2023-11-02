@@ -29,7 +29,7 @@ export class ResponseTrackerService {
       where: { id },
     });
     if (!response)
-      throw new NotFoundException(`Response tracer with id #${id} not found`);
+      throw new NotFoundException(`Response tracker with id #${id} not found`);
     return response;
   }
 
@@ -40,7 +40,7 @@ export class ResponseTrackerService {
 
     if (!response || response.length === 0)
       throw new NotFoundException(
-        `Response tracer with surveyFormId #${surveyFormId} not found`
+        `Response tracker with surveyFormId #${surveyFormId} not found`
       );
     return response;
   }
@@ -52,7 +52,7 @@ export class ResponseTrackerService {
 
     if (!response || response.length === 0)
       throw new NotFoundException(
-        `Response tracer with assessorId #${assessorId} not found`
+        `Response tracker with assessorId #${assessorId} not found`
       );
     return response;
   }
@@ -64,7 +64,7 @@ export class ResponseTrackerService {
 
     if (!response || response.length === 0)
       throw new NotFoundException(
-        `Response tracer with assesseeId #${assesseeId} not found`
+        `Response tracker with assesseeId #${assesseeId} not found`
       );
     return response;
   }
@@ -76,25 +76,25 @@ export class ResponseTrackerService {
           isActive: true,
         },
         userId,
-        ResponseTracker:{
-          every:{
-            assesseeId: userId
-          }
-        }
+        ResponseTracker: {
+          every: {
+            assesseeId: userId,
+          },
+        },
       },
       orderBy: {
         createdAt: "desc",
       },
       select: {
-        ResponseTracker:{
-          select:{
+        ResponseTracker: {
+          select: {
             id: true,
             status: true,
-            Assessor:{
-              select:{
+            Assessor: {
+              select: {
                 userId: true,
-                userName: true
-              }
+                userName: true,
+              },
             },
           },
         },
@@ -103,7 +103,7 @@ export class ResponseTrackerService {
     const responses: IResponseTracker[] = surveyForms.flatMap(
       (form) => form.ResponseTracker
     );
-    return responses; 
+    return responses;
   }
 
   public async update(

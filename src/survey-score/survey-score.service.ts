@@ -1,5 +1,9 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
-import { ResponseTrackerStatusEnum } from "@prisma/client";
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
+import { ResponseTrackerStatusEnum, SurveyStatusEnum } from "@prisma/client";
 import { PrismaService } from "src/prisma/prisma.service";
 import { QuestionBankService } from "src/question-bank/question-bank.service";
 import { responseObject } from "src/response-tracker/dto";
@@ -20,7 +24,7 @@ export class SurveyScoreService {
     private prisma: PrismaService,
     private responseTrackerService: ResponseTrackerService,
     private questionBankService: QuestionBankService,
-    private surveyFormService: SurveyFormService,
+    private surveyFormService: SurveyFormService
   ) {}
 
   public async create(createSurveyScoreDto: CreateSurveyScoreDto) {
@@ -69,6 +73,16 @@ export class SurveyScoreService {
     surveyFormId: number
   ): Promise<String> {
     try {
+      const surveyForm = await this.surveyFormService.findSurveyFormById(
+        surveyFormId
+      );
+
+      if (surveyForm && surveyForm.status !== SurveyStatusEnum.CLOSED) {
+        throw new BadRequestException(
+          `Status for Survey form with id #${surveyFormId} is not ${SurveyStatusEnum.CLOSED}.`
+        );
+      }
+
       const completedSurveyResponses =
         await this.responseTrackerService.getAllResponseJsonBySurveyFormId(
           surveyFormId,

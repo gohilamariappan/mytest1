@@ -31,14 +31,14 @@ export class ResponseTrackerController {
   ) {}
 
   @Post()
-  @ApiOperation({ summary: "create new response tracer" })
+  @ApiOperation({ summary: "create new response tracker" })
   @ApiResponse({ status: HttpStatus.CREATED, type: ResponseTrackerDtoResponse })
   async create(
     @Res() res,
     @Body() createResponseTrackerDto: CreateResponseTrackerDto
   ): Promise<ResponseTrackerDtoResponse> {
     try {
-      this.logger.log(`Initiated creating response tracer`);
+      this.logger.log(`Initiated creating response tracker`);
 
       const response = await this.responseTrackerService.create(
         createResponseTrackerDto
@@ -46,69 +46,69 @@ export class ResponseTrackerController {
 
       return res.status(HttpStatus.CREATED).json({
         data: response,
-        message: "Successfully created response tracer",
+        message: "Successfully created response tracker",
       });
     } catch (error) {
-      this.logger.error(`Failed to create response tracer`, error);
+      this.logger.error(`Failed to create response tracker`, error);
 
       const { errorMessage, statusCode } =
         getPrismaErrorStatusAndMessage(error);
 
       return res.status(statusCode).json({
         statusCode,
-        message: errorMessage || `Failed to create response tracer`,
+        message: errorMessage || `Failed to create response tracker`,
       });
     }
   }
 
   @Get()
-  @ApiOperation({ summary: "get all response tracers" })
+  @ApiOperation({ summary: "get all response trackers" })
   @ApiResponse({
     status: HttpStatus.OK,
     type: ResponseTrackerDtoMultipleResponse,
   })
   async findAll(@Res() res): Promise<ResponseTrackerDtoMultipleResponse> {
     try {
-      this.logger.log(`Initiated fetching all response tracers`);
+      this.logger.log(`Initiated fetching all response trackers`);
 
       const responses = await this.responseTrackerService.findAll();
 
       return res.status(HttpStatus.OK).json({
         data: responses,
-        message: `Successfully fetched all response tracers`,
+        message: `Successfully fetched all response trackers`,
       });
     } catch (error) {
-      this.logger.error(`Failed to fetch all response tracers`, error);
+      this.logger.error(`Failed to fetch all response trackers`, error);
 
       const { errorMessage, statusCode } =
         getPrismaErrorStatusAndMessage(error);
 
       return res.status(statusCode).json({
         statusCode,
-        message: errorMessage || `Failed to fetch all response tracers`,
+        message: errorMessage || `Failed to fetch all response trackers`,
       });
     }
   }
 
   @Get(":id")
-  @ApiOperation({ summary: "get response tracer by id" })
+  @ApiOperation({ summary: "get response tracker by id" })
   @ApiResponse({ status: HttpStatus.OK, type: ResponseTrackerDtoResponse })
   async findOne(
     @Res() res,
     @Param("id", ParseIntPipe) id: number
   ): Promise<ResponseTrackerDtoResponse> {
     try {
-      this.logger.log(`Initiated fetching response tracer with id#${id}`);
+      this.logger.log(`Initiated fetching response tracker with id#${id}`);
 
       const response = await this.responseTrackerService.findOne(id);
 
       return res.status(HttpStatus.OK).json({
         data: response,
-        message: `Successfully fetched response tracer for id #${id}`,
+        message: `Successfully fetched response tracker for id #${id}`,
       });
     } catch (error) {
       this.logger.error(
-        `Failed to fetch response tracer with id #${id}`,
+        `Failed to fetch response tracker with id #${id}`,
         error
       );
 
@@ -118,13 +118,13 @@ export class ResponseTrackerController {
       return res.status(statusCode).json({
         statusCode,
         message:
-          errorMessage || `Failed to fetch response tracer for id #${id}`,
+          errorMessage || `Failed to fetch response tracker for id #${id}`,
       });
     }
   }
 
   @Get("survey-form/:surveyFormId")
-  @ApiOperation({ summary: "get response tracers by surveyFormId" })
+  @ApiOperation({ summary: "get response trackers by surveyFormId" })
   @ApiResponse({
     status: HttpStatus.OK,
     type: ResponseTrackerDtoMultipleResponse,
@@ -135,7 +135,7 @@ export class ResponseTrackerController {
   ): Promise<ResponseTrackerDtoMultipleResponse> {
     try {
       this.logger.log(
-        `Initiated fetching response tracer with surveyFormId#${surveyFormId}`
+        `Initiated fetching response tracker with surveyFormId#${surveyFormId}`
       );
 
       const response = await this.responseTrackerService.findBySurveyFormId(
@@ -144,11 +144,11 @@ export class ResponseTrackerController {
 
       return res.status(HttpStatus.OK).json({
         data: response,
-        message: `Successfully fetched response tracer for surveyFormId #${surveyFormId}`,
+        message: `Successfully fetched response tracker for surveyFormId #${surveyFormId}`,
       });
     } catch (error) {
       this.logger.error(
-        `Failed to fetch response tracer with surveyFormId #${surveyFormId}`,
+        `Failed to fetch response tracker with surveyFormId #${surveyFormId}`,
         error
       );
 
@@ -159,13 +159,13 @@ export class ResponseTrackerController {
         statusCode,
         message:
           errorMessage ||
-          `Failed to fetch response tracer for surveyFormId #${surveyFormId}`,
+          `Failed to fetch response tracker for surveyFormId #${surveyFormId}`,
       });
     }
   }
 
   @Get("assessor/:assessorId")
-  @ApiOperation({ summary: "get response tracer by assessorId" })
+  @ApiOperation({ summary: "get response tracker by assessorId" })
   @ApiResponse({
     status: HttpStatus.OK,
     type: ResponseTrackerDtoMultipleResponse,
@@ -176,7 +176,7 @@ export class ResponseTrackerController {
   ): Promise<ResponseTrackerDtoMultipleResponse> {
     try {
       this.logger.log(
-        `Initiated fetching response tracer with assessorId#${assessorId}`
+        `Initiated fetching response tracker with assessorId#${assessorId}`
       );
 
       const response = await this.responseTrackerService.findByAssessorId(
@@ -185,11 +185,11 @@ export class ResponseTrackerController {
 
       return res.status(HttpStatus.OK).json({
         data: response,
-        message: `Successfully fetched response tracer for assessorId #${assessorId}`,
+        message: `Successfully fetched response tracker for assessorId #${assessorId}`,
       });
     } catch (error) {
       this.logger.error(
-        `Failed to fetch response tracer with assessorId #${assessorId}`,
+        `Failed to fetch response tracker with assessorId #${assessorId}`,
         error
       );
 
@@ -200,13 +200,13 @@ export class ResponseTrackerController {
         statusCode,
         message:
           errorMessage ||
-          `Failed to fetch response tracer for assessorId #${assessorId}`,
+          `Failed to fetch response tracker for assessorId #${assessorId}`,
       });
     }
   }
 
   @Get("assessee/:assesseeId")
-  @ApiOperation({ summary: "get response tracer by assesseeId" })
+  @ApiOperation({ summary: "get response tracker by assesseeId" })
   @ApiResponse({
     status: HttpStatus.OK,
     type: ResponseTrackerDtoMultipleResponse,
@@ -217,7 +217,7 @@ export class ResponseTrackerController {
   ): Promise<ResponseTrackerDtoMultipleResponse> {
     try {
       this.logger.log(
-        `Initiated fetching response tracer with assesseeId#${assesseeId}`
+        `Initiated fetching response tracker with assesseeId#${assesseeId}`
       );
 
       const response = await this.responseTrackerService.findByAssesseeId(
@@ -226,11 +226,11 @@ export class ResponseTrackerController {
 
       return res.status(HttpStatus.OK).json({
         data: response,
-        message: `Successfully fetched response tracer for assesseeId #${assesseeId}`,
+        message: `Successfully fetched response tracker for assesseeId #${assesseeId}`,
       });
     } catch (error) {
       this.logger.error(
-        `Failed to fetch response tracer with assesseeId #${assesseeId}`,
+        `Failed to fetch response tracker with assesseeId #${assesseeId}`,
         error
       );
 
@@ -241,13 +241,13 @@ export class ResponseTrackerController {
         statusCode,
         message:
           errorMessage ||
-          `Failed to fetch response tracer for assesseeId #${assesseeId}`,
+          `Failed to fetch response tracker for assesseeId #${assesseeId}`,
       });
     }
   }
 
   @Patch(":id")
-  @ApiOperation({ summary: "update response tracer by id" })
+  @ApiOperation({ summary: "update response tracker by id" })
   @ApiResponse({ status: HttpStatus.OK, type: ResponseTrackerDtoResponse })
   async update(
     @Res() res,
@@ -255,7 +255,7 @@ export class ResponseTrackerController {
     @Body() updateResponseTrackerDto: UpdateResponseTrackerDto
   ): Promise<ResponseTrackerDtoResponse> {
     try {
-      this.logger.log(`Initiated updating response tracer with id #${id}`);
+      this.logger.log(`Initiated updating response tracker with id #${id}`);
 
       const updatedResponse = await this.responseTrackerService.update(
         id,
@@ -264,11 +264,11 @@ export class ResponseTrackerController {
 
       return res.status(HttpStatus.OK).json({
         data: updatedResponse,
-        message: `Successfully updated response tracer with id ${id}`,
+        message: `Successfully updated response tracker with id ${id}`,
       });
     } catch (error) {
       this.logger.error(
-        `Failed to update response tracer with id #${id}`,
+        `Failed to update response tracker with id #${id}`,
         error
       );
 
@@ -278,29 +278,29 @@ export class ResponseTrackerController {
       return res.status(statusCode).json({
         statusCode,
         message:
-          errorMessage || `Failed to update response tracer with id #${id}`,
+          errorMessage || `Failed to update response tracker with id #${id}`,
       });
     }
   }
 
   @Delete(":id")
-  @ApiOperation({ summary: "delete response tracer by id" })
+  @ApiOperation({ summary: "delete response tracker by id" })
   @ApiResponse({ status: HttpStatus.OK, type: ResponseTrackerDtoResponse })
   async remove(
     @Res() res,
     @Param("id", ParseIntPipe) id: number
   ): Promise<ResponseTrackerDtoResponse> {
     try {
-      this.logger.log(`Initiated deleting response tracer with id #${id}`);
+      this.logger.log(`Initiated deleting response tracker with id #${id}`);
 
       await this.responseTrackerService.remove(id);
 
       return res.status(HttpStatus.OK).json({
-        message: `Successfully deleted response tracer with id ${id}`,
+        message: `Successfully deleted response tracker with id ${id}`,
       });
     } catch (error) {
       this.logger.error(
-        `Failed to delete response tracer with id #${id}`,
+        `Failed to delete response tracker with id #${id}`,
         error
       );
 
@@ -310,7 +310,7 @@ export class ResponseTrackerController {
       return res.status(statusCode).json({
         statusCode,
         message:
-          errorMessage || `Failed to delete response tracer with id #${id}`,
+          errorMessage || `Failed to delete response tracker with id #${id}`,
       });
     }
   }
