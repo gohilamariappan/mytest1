@@ -30,7 +30,7 @@ export class AdminDepartmentController {
   ) {}
 
   // Api to sync department with user org
-  @Post("sync-data")
+  @Post("sync-department-data")
   @ApiOperation({ summary: "sync department with user org" }) // Api operation for swagger
   @ApiResponse({ status: HttpStatus.CREATED, type: ResponseAdminDepartmentDto }) // Api response for the swagger
   async syncDepartmentData(@Res() res): Promise<ResponseAdminDepartmentDto> {

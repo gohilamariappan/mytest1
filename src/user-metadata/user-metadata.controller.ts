@@ -25,7 +25,7 @@ export class UserMetadataController {
   constructor(private readonly userMetadataService: UserMetadataService) {}
   private readonly logger = new Logger(UserMetadataController.name);
 
-  @Post("sync-data")
+  @Post("sync-user-metadata")
   @ApiOperation({ summary: "Sync userMetadata with user org" })
   @ApiResponse({ status: HttpStatus.OK, type: UserResponseMessage })
   async SyncUserDataWithFrac(@Res() res): Promise<UserResponseMessage> {

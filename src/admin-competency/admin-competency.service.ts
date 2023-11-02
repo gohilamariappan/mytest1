@@ -24,17 +24,20 @@ export class AdminCompetencyService {
     const response = await Promise.all(
       _.map(competenciesData, async (data) => {
         const { competencyLevels, description, id, name } = data;
+
         const competencyLevelData = _.map(
           competencyLevels,
           (competencyLevelData) => {
             const { levelNumber, name } =
               competencyLevelData?.competencyLevel || {};
+
             return {
               competencyLevelNumber: levelNumber,
               competencyLevelName: name,
             };
           }
         );
+
         const adminCompetencyPayload = {
           id,
           competencyLevels: JSON.parse(JSON.stringify(competencyLevelData)),
@@ -45,16 +48,14 @@ export class AdminCompetencyService {
 
         return await this.prisma.adminCompetency.upsert({
           where: {
-            id_competencyId: {
-              id: adminCompetencyPayload.id,
-              competencyId: adminCompetencyPayload.competencyId,
-            },
+            competencyId: adminCompetencyPayload.competencyId,
           },
           update: adminCompetencyPayload,
           create: adminCompetencyPayload,
         });
       })
     );
+
     return response;
   }
 

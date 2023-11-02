@@ -148,9 +148,6 @@ export class UserMetadataService {
     });
 
     if (surveyConfig.length == 0) return true;
-    // throw new NotFoundException(
-    //   `Survey Config for the department with Id #${departmentId} not found.`
-    // );
 
     let dateToBeCompared = new Date(dateOfJoining);
     const today = new Date();

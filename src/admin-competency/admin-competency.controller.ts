@@ -30,7 +30,7 @@ export class AdminCompetencyController {
     private readonly adminCompetencyService: AdminCompetencyService
   ) {}
 
-  @Post("sync-data")
+  @Post("sync-competency-data")
   @ApiOperation({ summary: "sync competency data" })
   @ApiResponse({ status: HttpStatus.CREATED, type: AdminCompetencyResponseDto })
   async syncCompetencyData(@Res() res): Promise<AdminCompetencyResponseDto> {
