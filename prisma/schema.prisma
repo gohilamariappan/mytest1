@@ -44,7 +44,7 @@ model QuestionBank {
 
 model AdminCompetency {
   id               Int      @default(autoincrement())
-  competencyId     Int
+  competencyId     Int      @unique
   name             String
   description      String?
   createdAt        DateTime @default(now())
@@ -52,7 +52,6 @@ model AdminCompetency {
   competencyLevels Json[] //{competencyLevelNumber, competencyLevelName}
 
   @@id([id, competencyId])
-  @@unique([id, competencyId])
   @@map("admin_competencies")
 }
 

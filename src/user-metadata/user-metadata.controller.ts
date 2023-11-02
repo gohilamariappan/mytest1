@@ -13,7 +13,10 @@ import {
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { getPrismaErrorStatusAndMessage } from "src/utils/utils";
 import { UserMetadataFilterDto } from "./dto";
-import { ResponseUserMetadataDto } from "./dto/user-metadata-response.dto";
+import {
+  ResponseUserMetadataDto,
+  UserResponseMessage,
+} from "./dto/user-metadata-response.dto";
 import { UserMetadataService } from "./user-metadata.service";
 
 @Controller("user-metadata")
@@ -21,6 +24,34 @@ import { UserMetadataService } from "./user-metadata.service";
 export class UserMetadataController {
   constructor(private readonly userMetadataService: UserMetadataService) {}
   private readonly logger = new Logger(UserMetadataController.name);
+
+  @Post("sync-user-metadata")
+  @ApiOperation({ summary: "Sync userMetadata with user org" })
+  @ApiResponse({ status: HttpStatus.OK, type: UserResponseMessage })
+  async SyncUserDataWithFrac(@Res() res): Promise<UserResponseMessage> {
+    try {
+      this.logger.log(`Initiated sync of userMetadata with user org`);
+
+      const userMetadata =
+        await this.userMetadataService.syncUserDataWithFrac();
+
+      this.logger.log(`Successfully sync userMetadata with user org.`);
+
+      return res.status(HttpStatus.OK).json({
+        message: "Successfully sync userMetadata with user org.",
+      });
+    } catch (error) {
+      this.logger.error(`Failed to sync userMetadata with user org.`, error);
+
+      const { errorMessage, statusCode } =
+        getPrismaErrorStatusAndMessage(error);
+
+      return res.status(statusCode).json({
+        statusCode,
+        message: errorMessage || `Failed sync userMetadata with user org.`,
+      });
+    }
+  }
 
   @Post(":userId")
   @ApiOperation({ summary: "Create or Update User Metadata" })
