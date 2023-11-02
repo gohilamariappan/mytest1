@@ -1,7 +1,7 @@
 import { Module } from "@nestjs/common";
 import { ResponseTrackerService } from "./response-tracker.service";
 import { ResponseTrackerController } from "./response-tracker.controller";
-import { PrismaService } from "src/prisma/prisma.service";
+import { PrismaService } from "..//prisma/prisma.service";
 
 @Module({
   controllers: [ResponseTrackerController],

@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
-import { PrismaService } from "src/prisma/prisma.service";
+import { PrismaService } from "..//prisma/prisma.service";
 import { CreateResponseTrackerDto } from "./dto/create-response-tracker.dto";
 import { UpdateResponseTrackerDto } from "./dto/update-response-tracker.dto";
 import { IResponseTracker } from "./interfaces/response-tracker.interface";
@@ -76,25 +76,25 @@ export class ResponseTrackerService {
           isActive: true,
         },
         userId,
-        ResponseTracker:{
-          every:{
-            assesseeId: userId
-          }
-        }
+        ResponseTracker: {
+          every: {
+            assesseeId: userId,
+          },
+        },
       },
       orderBy: {
         createdAt: "desc",
       },
       select: {
-        ResponseTracker:{
-          select:{
+        ResponseTracker: {
+          select: {
             id: true,
             status: true,
-            Assessor:{
-              select:{
+            Assessor: {
+              select: {
                 userId: true,
-                userName: true
-              }
+                userName: true,
+              },
             },
           },
         },
@@ -103,7 +103,7 @@ export class ResponseTrackerService {
     const responses: IResponseTracker[] = surveyForms.flatMap(
       (form) => form.ResponseTracker
     );
-    return responses; 
+    return responses;
   }
 
   public async update(

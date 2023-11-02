@@ -12,7 +12,7 @@ import {
   Res,
 } from "@nestjs/common";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
-import { getPrismaErrorStatusAndMessage } from "src/utils/utils";
+import { getPrismaErrorStatusAndMessage } from "../utils/utils";
 import {
   AllSurveyScoresForUserDto,
   CreateSurveyScoreDto,
@@ -193,13 +193,11 @@ export class SurveyScoreController {
       const { errorMessage, statusCode } =
         getPrismaErrorStatusAndMessage(error);
 
-      return res
-        .status(statusCode)
-        .json({
-          statusCode,
-          message:
-            errorMessage || `Failed to update survey score with id #${id} `,
-        });
+      return res.status(statusCode).json({
+        statusCode,
+        message:
+          errorMessage || `Failed to update survey score with id #${id} `,
+      });
     }
   }
 
