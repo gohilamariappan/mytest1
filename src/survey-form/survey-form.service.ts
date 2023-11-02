@@ -125,4 +125,26 @@ export class SurveyFormService {
 
     return latestSurveyForm[0];
   }
+
+  async fetchLatestSurveyFormByUserId(userId: string) {
+    return await this.prisma.surveyForm.findFirst({
+      where: {
+        userId,
+        status: SurveyStatusEnum.PUBLISHED,
+        surveyCycleParameter: {
+          isActive: true,
+        },
+      },
+      select: {
+        id: true,
+        questionsJson: true,
+        UserMetadata: {
+          select: {
+            userId: true,
+            designation: true,
+          },
+        },
+      },
+    });
+  }
 }

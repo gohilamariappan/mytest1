@@ -147,4 +147,43 @@ export class SurveyFormController {
         .json({ message: errorMessage || "Could not delete survey form." });
     }
   }
+
+  @Get("latest-survey-form/:userId")
+  @ApiOperation({ summary: "Fetch latest Survey-Form by userId" })
+  @ApiResponse({ status: HttpStatus.FOUND, type: SurveyFormResponse })
+  async fetchLatestSurveyFormByUserId(
+    @Res() res,
+    @Param("userId") userId: string
+  ): Promise<SurveyFormResponse> {
+    try {
+      this.logger.log(
+        `Initiated fetching latest Survey-Form by userId #${userId}`
+      );
+
+      const surveyForm =
+        await this.surveyFormService.fetchLatestSurveyFormByUserId(userId);
+
+      this.logger.log(
+        `Successfully fetched latest Survey-Form by userId #${userId}`
+      );
+
+      return res.status(HttpStatus.OK).send({
+        data: surveyForm,
+        message: `Successfully fetched latest Survey-Form by userId #${userId}`,
+      });
+    } catch (error) {
+      this.logger.error(
+        `Failed to fetch latest Survey-Form by userId #${userId}`,
+        error
+      );
+
+      const { errorMessage, statusCode } =
+        getPrismaErrorStatusAndMessage(error);
+      return res.status(statusCode).send({
+        message:
+          errorMessage ||
+          `Could not find latest Survey-Form by userId #${userId}`,
+      });
+    }
+  }
 }

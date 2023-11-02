@@ -55,6 +55,11 @@ export class SurveyService {
         surveyCycleParameter: {
           isActive: true,
         },
+        ResponseTracker: {
+          every: {
+            assesseeId: userId,
+          },
+        },
       },
       orderBy: {
         createdAt: "desc",
@@ -65,8 +70,13 @@ export class SurveyService {
             id: true,
             surveyFormId: true,
             assesseeId: true,
-            assessorId: true,
-            responseJson: true,
+            Assessor: {
+              select: {
+                userId: true,
+                userName: true,
+                designation: true,
+              },
+            },
             status: true,
           },
         },
@@ -89,7 +99,9 @@ export class SurveyService {
     });
     for (const user of users) {
       //get questions for the user according to their designation
-      const questions = await this.questionBank.getAllQuestionsForUser(user.userId);
+      const questions = await this.questionBank.getAllQuestionsForUser(
+        user.userId
+      );
       //create the CreateSurveyFormDto for the user
       const surveyFormDto: CreateSurveyFormDto = {
         userId: user.userId,
