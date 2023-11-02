@@ -1,12 +1,11 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { TimeUnitsEnum, UserRolesEnum } from "@prisma/client";
 import _ from "lodash";
-import { MockUserService } from "src/mockModules/mock-user/mock-user.service";
-import { PrismaService } from "src/prisma/prisma.service";
-import { SurveyConfigService } from "src/survey-config/survey-config.service";
+import { MockUserService } from "../mockModules/mock-user/mock-user.service";
+import { PrismaService } from "../prisma/prisma.service";
+import { SurveyConfigService } from "../survey-config/survey-config.service";
 import { UserMetadataFilterDto } from "./dto";
-import { AdminCompetencyService } from "src/admin-competency/admin-competency.service";
-import { AdminDepartmentService } from "src/admin-department/admin-department.service";
+import { AdminDepartmentService } from "../admin-department/admin-department.service";
 
 @Injectable()
 export class UserMetadataService {

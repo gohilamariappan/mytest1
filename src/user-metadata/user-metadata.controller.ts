@@ -11,7 +11,7 @@ import {
   Res,
 } from "@nestjs/common";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
-import { getPrismaErrorStatusAndMessage } from "src/utils/utils";
+import { getPrismaErrorStatusAndMessage } from "../utils/utils";
 import { UserMetadataFilterDto } from "./dto";
 import {
   ResponseUserMetadataDto,

@@ -1,6 +1,6 @@
 import { Module } from "@nestjs/common";
-import { MockDepartmentService } from "src/mockModules/mock-department/mock-department.service";
-import { PrismaModule } from "src/prisma/prisma.module";
+import { MockDepartmentService } from "../mockModules/mock-department/mock-department.service";
+import { PrismaModule } from "../prisma/prisma.module";
 import { AdminDepartmentController } from "./admin-department.controller";
 import { AdminDepartmentService } from "./admin-department.service";
 
