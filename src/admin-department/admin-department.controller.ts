@@ -13,9 +13,10 @@ import {
 } from "@nestjs/common";
 import { AdminDepartmentService } from "./admin-department.service";
 import { FilterAdminDepartmentsDto } from "./dto/create-admin-department.dto";
+import { UpdateAdminDepartmentDto } from "./dto/update-admin-department.dto";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { ResponseAdminDepartmentDto } from "./dto/response-admin-department.dto";
-import { getPrismaErrorStatusAndMessage } from "../utils/utils";
+import { getPrismaErrorStatusAndMessage } from "src/utils/utils";
 
 @Controller("admin-department")
 @ApiTags("admin-department")

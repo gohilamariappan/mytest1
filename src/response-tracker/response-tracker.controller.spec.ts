@@ -8,7 +8,7 @@ import { CreateResponseTrackerDto } from "./dto";
 import { AnswerEnum } from "./enums/response-tracker.enums";
 import { ResponseTrackerStatusEnum } from "@prisma/client";
 
-describe("ResponseTrackerController e2e", () => {
+describe("SurveyFormController e2e", () => {
   let app: INestApplication;
   let prisma: PrismaService;
   let module: TestingModule;

@@ -1,11 +1,11 @@
 import { Module } from "@nestjs/common";
 import { SurveyFormController } from "./survey-form.controller";
 import { SurveyFormService } from "./survey-form.service";
-import { PrismaModule } from "../prisma/prisma.module";
+import { PrismaService } from "../prisma/prisma.service";
+import { ConfigService } from "@nestjs/config";
 
 @Module({
-  imports:[PrismaModule],
   controllers: [SurveyFormController],
-  providers: [SurveyFormService],
+  providers: [SurveyFormService, PrismaService, ConfigService],
 })
 export class SurveyFormModule {}
