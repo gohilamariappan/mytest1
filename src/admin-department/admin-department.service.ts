@@ -1,12 +1,8 @@
-import {
-  ForbiddenException,
-  Injectable,
-  NotFoundException,
-} from "@nestjs/common";
-import { FilterAdminDepartmentsDto } from "./dto/create-admin-department.dto";
-import { UpdateAdminDepartmentDto } from "./dto/update-admin-department.dto";
-import { PrismaService } from "src/prisma/prisma.service";
+import { Injectable, NotFoundException } from "@nestjs/common";
+import _ from "lodash";
 import { MockDepartmentService } from "src/mockModules/mock-department/mock-department.service";
+import { PrismaService } from "src/prisma/prisma.service";
+import { FilterAdminDepartmentsDto } from "./dto/create-admin-department.dto";
 
 @Injectable()
 export class AdminDepartmentService {
@@ -14,6 +10,30 @@ export class AdminDepartmentService {
     private prisma: PrismaService,
     private departmentService: MockDepartmentService
   ) {}
+
+  public async syncDepartmentData() {
+    const departments = await this.departmentService.findAll();
+
+    const response = await Promise.all(
+      _.map(departments, async (department) => {
+        const { description, id, name } = department;
+        const adminDepartmentPayload = {
+          id,
+          departmentId: id,
+          name,
+          description,
+        };
+
+        return await this.prisma.adminDepartment.upsert({
+          where: { departmentId: adminDepartmentPayload.departmentId },
+          update: adminDepartmentPayload,
+          create: adminDepartmentPayload,
+        });
+      })
+    );
+
+    return response;
+  }
 
   public async createOrUpdateAdminDepartment(id: number) {
     // Check the admin department exist for admin department db or not

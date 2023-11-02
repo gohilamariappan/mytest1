@@ -1,24 +1,61 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import {
+  Inject,
+  Injectable,
+  NotFoundException,
+  forwardRef,
+} from "@nestjs/common";
+import _ from "lodash";
 import { PrismaService } from "src/prisma/prisma.service";
-import { CreateAdminCompetencyDto, UpdateAdminCompetencyDto } from "./dto";
+import { MockCompetencyService } from "../mockModules/mock-competency/mock-competency.service";
+import { UpdateAdminCompetencyDto } from "./dto";
 
 @Injectable()
 export class AdminCompetencyService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    @Inject(forwardRef(() => MockCompetencyService))
+    private mockCompetencyService: MockCompetencyService
+  ) {}
 
-  public async create(createAdminCompetencyDto: CreateAdminCompetencyDto) {
-    const competencyLevels = JSON.stringify(
-      createAdminCompetencyDto.competencyLevels
+  public async syncCompetencyData() {
+    const competenciesData =
+      await this.mockCompetencyService.findAllCompetenciesWithLevelNames();
+
+    const response = await Promise.all(
+      _.map(competenciesData, async (data) => {
+        const { competencyLevels, description, id, name } = data;
+        const competencyLevelData = _.map(
+          competencyLevels,
+          (competencyLevelData) => {
+            const { levelNumber, name } =
+              competencyLevelData?.competencyLevel || {};
+            return {
+              competencyLevelNumber: levelNumber,
+              competencyLevelName: name,
+            };
+          }
+        );
+        const adminCompetencyPayload = {
+          id,
+          competencyLevels: JSON.parse(JSON.stringify(competencyLevelData)),
+          competencyId: id,
+          name,
+          description,
+        };
+
+        return await this.prisma.adminCompetency.upsert({
+          where: {
+            id_competencyId: {
+              id: adminCompetencyPayload.id,
+              competencyId: adminCompetencyPayload.competencyId,
+            },
+          },
+          update: adminCompetencyPayload,
+          create: adminCompetencyPayload,
+        });
+      })
     );
-
-    const payload = {
-      ...createAdminCompetencyDto,
-      competencyLevels: JSON.parse(competencyLevels),
-    };
-
-    return await this.prisma.adminCompetency.create({
-      data: payload,
-    });
+    return response;
   }
 
   public async findAll() {

@@ -30,35 +30,31 @@ export class AdminCompetencyController {
     private readonly adminCompetencyService: AdminCompetencyService
   ) {}
 
-  @Post()
-  @ApiOperation({ summary: "create new admin-competency" })
+  @Post("sync-data")
+  @ApiOperation({ summary: "sync competency data" })
   @ApiResponse({ status: HttpStatus.CREATED, type: AdminCompetencyResponseDto })
-  async create(
-    @Res() res,
-    @Body() createAdminCompetencyDto: CreateAdminCompetencyDto
-  ): Promise<AdminCompetencyResponseDto> {
+  async syncCompetencyData(@Res() res): Promise<AdminCompetencyResponseDto> {
     try {
-      this.logger.log(`Initiated creating new admin-competency`);
+      this.logger.log(`Initiated sync competency data`);
 
-      const adminCompetency = await this.adminCompetencyService.create(
-        createAdminCompetencyDto
-      );
+      const adminCompetency =
+        await this.adminCompetencyService.syncCompetencyData();
 
-      this.logger.log(`Successfully created new admin-competency`);
+      this.logger.log(`Successfully sync competency data`);
 
       return res.status(HttpStatus.CREATED).send({
-        message: `Successfully created new admin-competency`,
+        message: `Successfully sync competency data`,
         data: adminCompetency,
       });
     } catch (error) {
-      this.logger.error("Failed to create new admin-competency", error);
+      this.logger.error("Failed to sync competency data", error);
 
       const { errorMessage, statusCode } =
         getPrismaErrorStatusAndMessage(error);
 
       return res.status(statusCode).json({
         statusCode,
-        message: errorMessage || "Failed to create new admin-competency",
+        message: errorMessage || "Failed to sync competency data",
       });
     }
   }

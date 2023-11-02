@@ -1,17 +1,59 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { TimeUnitsEnum, UserRolesEnum } from "@prisma/client";
+import _ from "lodash";
 import { MockUserService } from "src/mockModules/mock-user/mock-user.service";
 import { PrismaService } from "src/prisma/prisma.service";
 import { SurveyConfigService } from "src/survey-config/survey-config.service";
 import { UserMetadataFilterDto } from "./dto";
+import { AdminCompetencyService } from "src/admin-competency/admin-competency.service";
+import { AdminDepartmentService } from "src/admin-department/admin-department.service";
 
 @Injectable()
 export class UserMetadataService {
   constructor(
     private prisma: PrismaService,
     private mockUser: MockUserService,
-    private surveyConfig: SurveyConfigService
+    private surveyConfig: SurveyConfigService,
+    private adminDepartmentService: AdminDepartmentService
   ) {}
+
+  public async syncUserDataWithFrac() {
+    // sync department data first before users because of table relation
+    await this.adminDepartmentService.syncDepartmentData();
+
+    // fetch all users
+    const users = await this.mockUser.findAll();
+
+    // update or create data in user metadata table
+    const usersMetaDataPayload = await Promise.all(
+      users.map(async (user) => {
+        const { Department, createdAt, designation, id, role, userName } = user;
+
+        const isNewEmployee = await this.isEmployeeNew(
+          user.createdAt,
+          user.Department!.id
+        );
+
+        const userMetadataPayload = {
+          userId: id,
+          userName: `${userName}_${id}`,
+          departmentId: _.get(Department, "id", 0),
+          designation,
+          isNewEmployee,
+          dateOfJoining: createdAt,
+          isAdmin: role == _.get(UserRolesEnum, "ADMIN", "") ? true : false,
+        };
+
+        return await this.prisma.userMetadata.upsert({
+          where: { userId: userMetadataPayload.userId },
+          create: userMetadataPayload,
+          update: userMetadataPayload,
+        });
+      })
+    );
+
+    return usersMetaDataPayload;
+  }
 
   async createOrUpdateUserMetadata(userId: string) {
     let userMetadata = await this.prisma.userMetadata.findUnique({
@@ -97,7 +139,7 @@ export class UserMetadataService {
     });
   }
 
-  async isEmployeeNew(
+  public async isEmployeeNew(
     dateOfJoining: Date,
     departmentId: number
   ): Promise<boolean> {
@@ -105,10 +147,10 @@ export class UserMetadataService {
       departmentId,
     });
 
-    if (surveyConfig.length == 0)
-      throw new NotFoundException(
-        `Survey Config for the department with Id #${departmentId} not found.`
-      );
+    if (surveyConfig.length == 0) return true;
+    // throw new NotFoundException(
+    //   `Survey Config for the department with Id #${departmentId} not found.`
+    // );
 
     let dateToBeCompared = new Date(dateOfJoining);
     const today = new Date();
@@ -140,7 +182,7 @@ export class UserMetadataService {
         isNewEmployee: true,
         SurveyForm: {
           orderBy: {
-            createdAt: "asc"
+            createdAt: "asc",
           },
           select: {
             id: true,
@@ -153,10 +195,10 @@ export class UserMetadataService {
               select: {
                 id: true,
                 Assessor: {
-                    select:{
-                        userId: true,
-                        userName: true,
-                    }
+                  select: {
+                    userId: true,
+                    userName: true,
+                  },
                 },
                 responseJson: true,
                 status: true,

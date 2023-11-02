@@ -1,13 +1,8 @@
-import {
-  ForbiddenException,
-  Injectable,
-  NotFoundException,
-} from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
-import { CreateCompetencyDto, UpdateCompetencyDto } from "./dto";
-import { MockCompetencyLevelService } from "../mock-competency-level/mock-competency-level.service";
 import { CreateCompetencyLevelDto } from "../mock-competency-level/dto";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
+import { MockCompetencyLevelService } from "../mock-competency-level/mock-competency-level.service";
+import { CreateCompetencyDto, UpdateCompetencyDto } from "./dto";
 
 @Injectable()
 export class MockCompetencyService {
@@ -133,8 +128,20 @@ export class MockCompetencyService {
   public async findCompetencyByName(competencyName: string) {
     return this.prisma.competency.findUnique({
       where: {
-        name: competencyName
-      }
-    })
+        name: competencyName,
+      },
+    });
+  }
+
+  public async findAllCompetenciesWithLevelNames() {
+    return this.prisma.competency.findMany({
+      include: {
+        competencyLevels: {
+          include: {
+            competencyLevel: true,
+          },
+        },
+      },
+    });
   }
 }

@@ -52,7 +52,7 @@ model AdminCompetency {
   competencyLevels Json[] //{competencyLevelNumber, competencyLevelName}
 
   @@id([id, competencyId])
-  @@unique([id, competencyId])
+  @@unique([competencyId])
   @@map("admin_competencies")
 }
 
