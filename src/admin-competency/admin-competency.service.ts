@@ -23,40 +23,48 @@ export class AdminCompetencyService {
 
     const response = await Promise.all(
       _.map(competenciesData, async (data) => {
-        const { competencyLevels, description, id, name } = data;
+        const adminCompetencyPayload = this.createAdminCompetencyPayload(data);
 
-        const competencyLevelData = _.map(
-          competencyLevels,
-          (competencyLevelData) => {
-            const { levelNumber, name } =
-              competencyLevelData?.competencyLevel || {};
-
-            return {
-              competencyLevelNumber: levelNumber,
-              competencyLevelName: name,
-            };
-          }
-        );
-
-        const adminCompetencyPayload = {
-          id,
-          competencyLevels: JSON.parse(JSON.stringify(competencyLevelData)),
-          competencyId: id,
-          name,
-          description,
-        };
-
-        return await this.prisma.adminCompetency.upsert({
-          where: {
-            competencyId: adminCompetencyPayload.competencyId,
-          },
-          update: adminCompetencyPayload,
-          create: adminCompetencyPayload,
-        });
+        return await this.createOrUpdateQuery(adminCompetencyPayload);
       })
     );
 
     return response;
+  }
+
+  public createAdminCompetencyPayload(competency) {
+    const { competencyLevels, description, id, name } = competency;
+
+    const competencyLevelData = _.map(
+      competencyLevels,
+      (competencyLevelData) => {
+        const { levelNumber, name } =
+          competencyLevelData?.competencyLevel || {};
+
+        return {
+          competencyLevelNumber: levelNumber,
+          competencyLevelName: name,
+        };
+      }
+    );
+
+    return {
+      id,
+      competencyLevels: JSON.parse(JSON.stringify(competencyLevelData)),
+      competencyId: id,
+      name,
+      description,
+    };
+  }
+
+  public async createOrUpdateQuery(adminCompetencyPayload) {
+    return this.prisma.adminCompetency.upsert({
+      where: {
+        competencyId: adminCompetencyPayload.competencyId,
+      },
+      update: adminCompetencyPayload,
+      create: adminCompetencyPayload,
+    });
   }
 
   public async findAll() {
@@ -64,58 +72,59 @@ export class AdminCompetencyService {
     return adminCompetency;
   }
 
-  public async findOne(id: number, competencyId: number) {
+  public async findOne(competencyId: number) {
     const adminCompetency = await this.prisma.adminCompetency.findUnique({
       where: {
-        id_competencyId: {
-          id,
-          competencyId,
-        },
+        competencyId,
       },
     });
+
     if (!adminCompetency)
       throw new NotFoundException(
-        `Admin competency with id #${id} and competency id #${competencyId} not found `
+        `Admin competency with competency id #${competencyId} not found `
       );
     return adminCompetency;
   }
 
-  public async update(
-    id: number,
-    competencyId: number,
-    updateAdminCompetencyDto: UpdateAdminCompetencyDto
-  ) {
-    const competencyLevels = JSON.stringify(
-      updateAdminCompetencyDto?.competencyLevels
-    );
+  public async update(competencyId: number) {
+    const adminCompetencyData = await this.prisma.adminCompetency.findUnique({
+      where: { competencyId },
+    });
 
-    let payload = {
-      ...updateAdminCompetencyDto,
-      competencyLevels: JSON.parse(competencyLevels || "[]"),
-    };
-
-    if (!competencyLevels) {
-      delete payload.competencyLevels;
-    }
-
-    return await this.prisma.adminCompetency.update({
-      where: {
-        id_competencyId: {
-          id,
-          competencyId,
+    const competencyData = await this.prisma.competency.findUnique({
+      where: { id: competencyId },
+      include: {
+        competencyLevels: {
+          include: {
+            competencyLevel: true,
+          },
         },
       },
-      data: payload,
     });
+
+    if (!adminCompetencyData && !competencyData) {
+      throw new Error(
+        `Competency not found with competency Id #${competencyId}`
+      );
+    }
+
+    if (adminCompetencyData && !competencyData) {
+      await this.prisma.adminCompetency.delete({ where: { competencyId } });
+      return;
+    }
+
+    if (competencyData) {
+      const adminCompetencyPayload =
+        this.createAdminCompetencyPayload(competencyData);
+
+      return await this.createOrUpdateQuery(adminCompetencyPayload);
+    }
   }
 
-  public async remove(id: number, competencyId: number) {
+  public async remove(competencyId: number) {
     const adminCompetency = await this.prisma.adminCompetency.delete({
       where: {
-        id_competencyId: {
-          id,
-          competencyId,
-        },
+        competencyId,
       },
     });
     return adminCompetency;

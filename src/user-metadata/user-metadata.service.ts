@@ -36,7 +36,7 @@ export class UserMetadataService {
 
         const userMetadataPayload = {
           userId: id,
-          userName: `${userName}_${id}`,
+          userName,
           departmentId: _.get(Department, "id", 0),
           designation,
           isNewEmployee,

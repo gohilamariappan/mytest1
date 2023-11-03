@@ -1,5 +1,4 @@
 import {
-  Body,
   Controller,
   Get,
   HttpStatus,
@@ -9,11 +8,12 @@ import {
   Post,
   Res,
 } from "@nestjs/common";
-import { SurveyService } from "./survey.service";
-import { ApiOperation, ApiResponse } from "@nestjs/swagger";
+import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { getPrismaErrorStatusAndMessage } from "src/utils/utils";
+import { SurveyService } from "./survey.service";
 
 @Controller("survey")
+@ApiTags("survey")
 export class SurveyController {
   private readonly logger = new Logger(SurveyController.name);
   constructor(private readonly surveyService: SurveyService) {}
@@ -55,9 +55,9 @@ export class SurveyController {
     }
   }
 
-  @Get()
+  @Get("user-filled-survey/:userId")
   @ApiOperation({ summary: "Get number of surveys to be filled by User." })
-  @ApiResponse({ status: HttpStatus.CREATED, type: "number" })
+  @ApiResponse({ status: HttpStatus.OK, type: "number" })
   async getSurveysToBeFilledByUser(
     @Res() res,
     @Param("userId", ParseUUIDPipe) userId: string
@@ -75,7 +75,7 @@ export class SurveyController {
         `Successfully fetched the number of surveys to be filled by user with id #${userId}.`
       );
 
-      return res.status(HttpStatus.CREATED).json({
+      return res.status(HttpStatus.OK).json({
         data: surveyForms,
         message: `Successfully fetched the number of surveys to be filled by user with id #${userId}.`,
       });
