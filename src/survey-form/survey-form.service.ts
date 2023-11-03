@@ -14,8 +14,9 @@ export class SurveyFormService {
         JSON.stringify(createSurveyFormDto.questionsJson)
       ),
     };
+
     return await this.prisma.surveyForm.create({
-      data: { ...surveyFormDto },
+      data: surveyFormDto,
     });
   }
 
