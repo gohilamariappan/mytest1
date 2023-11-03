@@ -4,7 +4,10 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
-import { CreateSurveyCycleParameterDto, SurveyCycleParameterFilterDto } from "./dto/create-survey-cycle-parameter.dto";
+import {
+  CreateSurveyCycleParameterDto,
+  SurveyCycleParameterFilterDto,
+} from "./dto/create-survey-cycle-parameter.dto";
 import { UpdateSurveyCycleParameterDto } from "./dto/update-survey-cycle-parameter.dto";
 
 @Injectable()
@@ -33,43 +36,42 @@ export class SurveyCycleParameterService {
   }
 
   async getAllSurveyParameter(filter: SurveyCycleParameterFilterDto) {
-    const {departmentId, surveyConfigId, isActive} = filter;
+    const { departmentId, surveyConfigId, isActive } = filter;
     return this.prisma.surveyCycleParameter.findMany({
-      where:{
+      where: {
         isActive: isActive ?? undefined,
-        SurveyConfig:{
+        SurveyConfig: {
           id: surveyConfigId ?? undefined,
-          AdminDepartment:{
-            id: departmentId ??undefined
-          }
-        }
+          AdminDepartment: {
+            id: departmentId ?? undefined,
+          },
+        },
       },
       orderBy: {
         createdAt: "desc",
-      }
+      },
     });
   }
 
   async updateSurveyParameterById(
-    surveyParameterId: number,
+    id: number,
     updateSurveyCycleParameter: UpdateSurveyCycleParameterDto
   ) {
     // check if for the given id, data is available in db or not
     const findSurveyParameterId =
       await this.prisma.surveyCycleParameter.findUnique({
         where: {
-          id: surveyParameterId,
+          id,
         },
       });
+
     if (!findSurveyParameterId) {
-      throw new NotFoundException(
-        `Survey parameter with ID ${findSurveyParameterId} not found.`
-      );
+      throw new NotFoundException(`Survey parameter with ID ${id} not found.`);
     }
     // update an existing survey parameter by its unique identifier (id).
     return this.prisma.surveyCycleParameter.update({
       where: {
-        id: surveyParameterId,
+        id,
       },
       data: updateSurveyCycleParameter,
     });

@@ -1,16 +1,17 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
+import _ from "lodash";
+import { FileUploadService } from "src/file-upload/file-upload.service";
+import { MockCompetencyService } from "src/mockModules/mock-competency/mock-competency.service";
+import { MockDesignationService } from "src/mockModules/mock-designation/mock-designation.service";
+import { MockUserService } from "src/mockModules/mock-user/mock-user.service";
+import { PrismaService } from "src/prisma/prisma.service";
+import { MockRoleService } from "./../mockModules/mock-role/mock-role.service";
 import {
   CreateFileUploadDto,
   CreateQuestionBankDto,
   QuestionBankFilterDto,
 } from "./dto/create-question-bank.dto";
 import { UpdateQuestionBankDto } from "./dto/update-question-bank.dto";
-import { PrismaService } from "src/prisma/prisma.service";
-import { MockCompetencyService } from "src/mockModules/mock-competency/mock-competency.service";
-import { MockUserService } from "src/mockModules/mock-user/mock-user.service";
-import { MockRoleService } from "./../mockModules/mock-role/mock-role.service";
-import { MockDesignationService } from "src/mockModules/mock-designation/mock-designation.service";
-import { FileUploadService } from "src/file-upload/file-upload.service";
 
 @Injectable()
 export class QuestionBankService {
@@ -85,7 +86,7 @@ export class QuestionBankService {
       );
     }
     // Otherwise update it's details
-    return this.prisma.questionBank.updateMany({
+    return this.prisma.questionBank.update({
       where: {
         id: questionId,
       },
@@ -226,8 +227,6 @@ export class QuestionBankService {
     }
   }
 
-  
-  
   async getAllQuestionsForUser(userId: string) {
     const user = await this.mockUserService.findOne(userId);
     if (!user) {
@@ -270,15 +269,31 @@ export class QuestionBankService {
     if (competencyIds?.length && competencyLevelNumber) {
       for (let i = 0; i < competencyIds.length; i++) {
         while (competencyLevelNumber) {
-          let question = await this.getAllQuestions({
-            competencyId: competencyIds[i],
-            competencyLevelNumber: competencyLevelNumber,
+          const questions = await this.prisma.questionBank.findMany({
+            where: {
+              competencyId: competencyIds[i],
+              competencyLevelNumber,
+            },
+            select: {
+              id: true,
+              question: true,
+            },
           });
-          questionLists.push(...question);
+
+          const mappedQuestions = _.map(questions, (data) => {
+            const { id, question } = data;
+            return {
+              question,
+              questionId: id,
+            };
+          });
+
+          questionLists.push(...mappedQuestions);
           competencyLevelNumber--;
         }
       }
     }
+
     if (!questionLists.length) {
       throw new NotFoundException(`No Question Found for user with #${userId}`);
     }

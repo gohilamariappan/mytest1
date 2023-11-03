@@ -1,5 +1,10 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { ResponseTrackerStatusEnum, SurveyStatusEnum } from "@prisma/client";
+import _ from "lodash";
 import { PrismaService } from "src/prisma/prisma.service";
 import {
   CreateSurveyFormDto,
@@ -97,6 +102,35 @@ export class SurveyService {
         departmentId,
       },
     });
+
+    const surveyCycleParameter = await this.prisma.surveyConfig.findFirst({
+      where: {
+        departmentId,
+        SurveyCycleParameters: {
+          every: { isActive: true },
+        },
+      },
+      select: {
+        SurveyCycleParameters: {
+          select: {
+            id: true,
+          },
+        },
+      },
+    });
+
+    const surveyCycleParameterId = _.get(
+      surveyCycleParameter,
+      "SurveyCycleParameters.[0].id",
+      0
+    );
+
+    if (!surveyCycleParameterId || _.isEqual(surveyCycleParameterId, 0)) {
+      throw new BadRequestException(
+        `No any active survey cycle found for department id #${departmentId}`
+      );
+    }
+
     for (const user of users) {
       //get questions for the user according to their designation
       const questions = await this.questionBank.getAllQuestionsForUser(
@@ -105,7 +139,7 @@ export class SurveyService {
       //create the CreateSurveyFormDto for the user
       const surveyFormDto: CreateSurveyFormDto = {
         userId: user.userId,
-        surveyCycleParameterId: 1,
+        surveyCycleParameterId,
         status: SurveyStatusEnum.PUBLISHED,
         questionsJson: questions,
       };

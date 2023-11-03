@@ -18,12 +18,12 @@ export class SurveyController {
   private readonly logger = new Logger(SurveyController.name);
   constructor(private readonly surveyService: SurveyService) {}
 
-  @Post()
+  @Post(":departmentId")
   @ApiOperation({ summary: "Create Survey-Forms for a department." })
   @ApiResponse({ status: HttpStatus.CREATED })
   async generateSurveyFormsForDepartment(
     @Res() res,
-    @Param() departmentId: number
+    @Param("departmentId") departmentId: number
   ) {
     try {
       this.logger.log(`Initiated creating new survey forms for a department.`);
