@@ -27,7 +27,7 @@ export class UserMetadataController {
 
   @Post("sync-user-metadata")
   @ApiOperation({ summary: "Sync userMetadata with user org" })
-  @ApiResponse({ status: HttpStatus.OK, type: UserResponseMessage })
+  @ApiResponse({ status: HttpStatus.CREATED, type: UserResponseMessage })
   async SyncUserDataWithFrac(@Res() res): Promise<UserResponseMessage> {
     try {
       this.logger.log(`Initiated sync of userMetadata with user org`);
@@ -37,8 +37,9 @@ export class UserMetadataController {
 
       this.logger.log(`Successfully sync userMetadata with user org.`);
 
-      return res.status(HttpStatus.OK).json({
+      return res.status(HttpStatus.CREATED).json({
         message: "Successfully sync userMetadata with user org.",
+        data: userMetadata,
       });
     } catch (error) {
       this.logger.error(`Failed to sync userMetadata with user org.`, error);

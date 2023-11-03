@@ -36,14 +36,16 @@ export class SurveyFormService {
     });
   }
 
-  async findSurveyFormBySurveyCycleParameterId(paramId: number){
+  async findSurveyFormBySurveyCycleParameterId(paramId: number) {
     const surveyForms = await this.prisma.surveyForm.findMany({
-      where:{
-        surveyCycleParameterId: paramId
-      }
+      where: {
+        surveyCycleParameterId: paramId,
+      },
     });
-    if(!surveyForms || surveyForms.length==0){
-      throw new NotFoundException(`Survey Forms not found for SurveyCycleParameter with id #${paramId}`);
+    if (!surveyForms || surveyForms.length == 0) {
+      throw new NotFoundException(
+        `Survey Forms not found for SurveyCycleParameter with id #${paramId}`
+      );
     }
     return surveyForms;
   }
@@ -122,5 +124,27 @@ export class SurveyFormService {
     });
 
     return latestSurveyForm[0];
+  }
+
+  async fetchLatestSurveyFormByUserId(userId: string) {
+    return await this.prisma.surveyForm.findFirst({
+      where: {
+        userId,
+        status: SurveyStatusEnum.PUBLISHED,
+        surveyCycleParameter: {
+          isActive: true,
+        },
+      },
+      select: {
+        id: true,
+        questionsJson: true,
+        UserMetadata: {
+          select: {
+            userId: true,
+            designation: true,
+          },
+        },
+      },
+    });
   }
 }

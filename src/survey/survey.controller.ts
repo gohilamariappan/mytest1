@@ -1,11 +1,21 @@
-import { Body, Controller, Get, HttpStatus, Logger, Param, ParseUUIDPipe, Post, Res } from '@nestjs/common';
-import { SurveyService } from './survey.service';
-import { ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { getPrismaErrorStatusAndMessage } from 'src/utils/utils';
+import {
+  Controller,
+  Get,
+  HttpStatus,
+  Logger,
+  Param,
+  ParseUUIDPipe,
+  Post,
+  Res,
+} from "@nestjs/common";
+import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { getPrismaErrorStatusAndMessage } from "src/utils/utils";
+import { SurveyService } from "./survey.service";
 
-@Controller('survey')
+@Controller("survey")
+@ApiTags("survey")
 export class SurveyController {
-    private readonly logger = new Logger(SurveyController.name);
+  private readonly logger = new Logger(SurveyController.name);
   constructor(private readonly surveyService: SurveyService) {}
 
   @Post()
@@ -13,54 +23,114 @@ export class SurveyController {
   @ApiResponse({ status: HttpStatus.CREATED })
   async generateSurveyFormsForDepartment(
     @Res() res,
-    @Param() departmentId: number,
-  ){
+    @Param() departmentId: number
+  ) {
     try {
       this.logger.log(`Initiated creating new survey forms for a department.`);
 
-      const surveyForms = await this.surveyService.generateSurveyFormsForDepartment(departmentId);
+      const surveyForms =
+        await this.surveyService.generateSurveyFormsForDepartment(departmentId);
 
-      this.logger.log(`Successfully created new survey forms for a department.`);
+      this.logger.log(
+        `Successfully created new survey forms for a department.`
+      );
 
       return res.status(HttpStatus.CREATED).json({
         data: surveyForms,
-        message: `SurveyForms created successfully for depatrment with id #${departmentId}`,
+        message: `SurveyForms created successfully for department with id #${departmentId}`,
       });
     } catch (error) {
-      this.logger.error(`Failed to create new survey forms for depatrment with id #${departmentId}`, error);
+      this.logger.error(
+        `Failed to create new survey forms for department with id #${departmentId}`,
+        error
+      );
 
-      const { errorMessage, statusCode } = getPrismaErrorStatusAndMessage(error);
-      return res
-        .status(statusCode)
-        .json({ message: errorMessage || `Could not create survey forms for depatrment with id #${departmentId}` });
+      const { errorMessage, statusCode } =
+        getPrismaErrorStatusAndMessage(error);
+      return res.status(statusCode).json({
+        message:
+          errorMessage ||
+          `Could not create survey forms for department with id #${departmentId}`,
+      });
     }
   }
 
-  @Get()
+  @Get("user-filled-survey/:userId")
   @ApiOperation({ summary: "Get number of surveys to be filled by User." })
-  @ApiResponse({ status: HttpStatus.CREATED, type: "number" })
+  @ApiResponse({ status: HttpStatus.OK, type: "number" })
   async getSurveysToBeFilledByUser(
     @Res() res,
     @Param("userId", ParseUUIDPipe) userId: string
-  ){
+  ) {
     try {
-      this.logger.log(`Getting number of surveys to be filled by user with id #${userId}.`);
+      this.logger.log(
+        `Getting number of surveys to be filled by user with id #${userId}.`
+      );
 
-      const surveyForms = await this.surveyService.getSurveysToBeFilledByUser(userId);
+      const surveyForms = await this.surveyService.getSurveysToBeFilledByUser(
+        userId
+      );
 
-      this.logger.log(`Successfully fetched the number of surveys to be filled by user with id #${userId}.`);
+      this.logger.log(
+        `Successfully fetched the number of surveys to be filled by user with id #${userId}.`
+      );
 
-      return res.status(HttpStatus.CREATED).json({
+      return res.status(HttpStatus.OK).json({
         data: surveyForms,
         message: `Successfully fetched the number of surveys to be filled by user with id #${userId}.`,
       });
     } catch (error) {
-      this.logger.error(`Failed to fetch the number of surveys to be filled by user with id #${userId}.`, error);
+      this.logger.error(
+        `Failed to fetch the number of surveys to be filled by user with id #${userId}.`,
+        error
+      );
 
-      const { errorMessage, statusCode } = getPrismaErrorStatusAndMessage(error);
-      return res
-        .status(statusCode)
-        .json({ message: errorMessage || `Could not fetch the number of surveys to be filled by user with id #${userId}.` });
+      const { errorMessage, statusCode } =
+        getPrismaErrorStatusAndMessage(error);
+      return res.status(statusCode).json({
+        message:
+          errorMessage ||
+          `Could not fetch the number of surveys to be filled by user with id #${userId}.`,
+      });
+    }
+  }
+
+  @Get("latest-survey-response/:userId")
+  @ApiOperation({ summary: "Fetch latest survey response by userId" })
+  @ApiResponse({ status: HttpStatus.OK })
+  async getLatestSurveyResponsesForUserId(
+    @Res() res,
+    @Param("userId") userId: string
+  ) {
+    try {
+      this.logger.log(
+        `Initiated fetching latest survey response by userId #${userId}`
+      );
+
+      const surveyForm =
+        await this.surveyService.getLatestSurveyResponsesForUserId(userId);
+
+      this.logger.log(
+        `Successfully fetched latest survey response by userId #${userId}`
+      );
+
+      return res.status(HttpStatus.OK).send({
+        data: surveyForm,
+        message: `Successfully fetched latest survey response by userId #${userId}`,
+      });
+    } catch (error) {
+      this.logger.error(
+        `Failed to fetch latest survey response by userId #${userId}`,
+        error
+      );
+
+      const { errorMessage, statusCode } =
+        getPrismaErrorStatusAndMessage(error);
+      return res.status(statusCode).send({
+        message:
+          errorMessage ||
+          `Could not find latest survey response by userId #${userId}`,
+      });
     }
   }
 }
