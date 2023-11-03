@@ -1,5 +1,4 @@
 import {
-  Body,
   Controller,
   Delete,
   Get,
@@ -17,8 +16,6 @@ import { AdminCompetencyService } from "./admin-competency.service";
 import {
   AdminCompetencyArrayResponseDto,
   AdminCompetencyResponseDto,
-  CreateAdminCompetencyDto,
-  UpdateAdminCompetencyDto,
 } from "./dto";
 
 @Controller("admin-competency")
@@ -87,35 +84,33 @@ export class AdminCompetencyController {
     }
   }
 
-  @Get(":id/:competencyId")
-  @ApiOperation({ summary: "get admin-competency by id and competencyId" })
+  @Get(":competencyId")
+  @ApiOperation({ summary: "get admin-competency by competencyId" })
   @ApiResponse({ status: HttpStatus.OK, type: AdminCompetencyResponseDto })
   async findOne(
     @Res() res,
-    @Param("id", ParseIntPipe) id: number,
     @Param("competencyId", ParseIntPipe) competencyId: number
   ): Promise<AdminCompetencyResponseDto> {
     try {
       this.logger.log(
-        `Initiated fetching admin-competency with id #${id} and competency id #${competencyId}`
+        `Initiated fetching admin-competency with competency id #${competencyId}`
       );
 
       const adminCompetency = await this.adminCompetencyService.findOne(
-        id,
         competencyId
       );
 
       this.logger.log(
-        `Successfully fetched admin-competency with id #${id} and competency id #${competencyId}`
+        `Successfully fetched admin-competency with competency id #${competencyId}`
       );
 
       return res.status(HttpStatus.OK).send({
-        message: `Successfully fetched admin-competency with id #${id} and competency id #${competencyId}`,
+        message: `Successfully fetched admin-competency with competency id #${competencyId}`,
         data: adminCompetency,
       });
     } catch (error) {
       this.logger.error(
-        `Failed to fetch admin-competency with id #${id} and competency id #${competencyId}`,
+        `Failed to fetch admin-competency with competency id #${competencyId}`,
         error
       );
 
@@ -126,86 +121,38 @@ export class AdminCompetencyController {
         statusCode,
         message:
           errorMessage ||
-          `Failed to fetch admin-competency with id #${id} and competency id #${competencyId}`,
+          `Failed to fetch admin-competency with competency id #${competencyId}`,
       });
     }
   }
 
-  @Patch(":id/:competencyId")
+  @Patch(":competencyId")
   @ApiOperation({ summary: "update admin-competency" })
   @ApiResponse({ status: HttpStatus.OK, type: AdminCompetencyResponseDto })
   async update(
     @Res() res,
-    @Param("id", ParseIntPipe) id: number,
-    @Param("competencyId", ParseIntPipe) competencyId: number,
-    @Body() updateAdminCompetencyDto: UpdateAdminCompetencyDto
-  ): Promise<AdminCompetencyResponseDto> {
-    try {
-      this.logger.log(
-        `Initiated updating admin-competency with id #${id} and competency id #${competencyId}`
-      );
-
-      const adminCompetency = await this.adminCompetencyService.update(
-        id,
-        competencyId,
-        updateAdminCompetencyDto
-      );
-
-      this.logger.log(
-        `Successfully updated admin-competency with id #${id} and competency id #${competencyId}`
-      );
-
-      return res.status(HttpStatus.OK).send({
-        message: `Successfully updated admin-competency with id #${id} and competency id #${competencyId}`,
-        data: adminCompetency,
-      });
-    } catch (error) {
-      this.logger.error(
-        `Failed to update admin-competency with id #${id} and competency id #${competencyId}`,
-        error
-      );
-
-      const { errorMessage, statusCode } =
-        getPrismaErrorStatusAndMessage(error);
-
-      return res.status(statusCode).json({
-        statusCode,
-        message:
-          errorMessage ||
-          `Failed to update admin-competency with id #${id} and competency id #${competencyId}`,
-      });
-    }
-  }
-
-  @Delete(":id/:competencyId")
-  @ApiOperation({ summary: "delete admin-competency" })
-  @ApiResponse({ status: HttpStatus.OK, type: AdminCompetencyResponseDto })
-  async remove(
-    @Res() res,
-    @Param("id", ParseIntPipe) id: number,
     @Param("competencyId", ParseIntPipe) competencyId: number
   ): Promise<AdminCompetencyResponseDto> {
     try {
       this.logger.log(
-        `Initiated deleting admin-competency with id #${id} and competency id #${competencyId}`
+        `Initiated updating admin-competency competency id #${competencyId}`
       );
 
-      const adminCompetency = await this.adminCompetencyService.remove(
-        id,
+      const adminCompetency = await this.adminCompetencyService.update(
         competencyId
       );
 
       this.logger.log(
-        `Successfully deleted admin-competency with id #${id} and competency id #${competencyId}`
+        `Successfully updated admin-competency competency id #${competencyId}`
       );
 
       return res.status(HttpStatus.OK).send({
-        message: `Successfully deleted admin-competency with id #${id} and competency id #${competencyId}`,
+        message: `Successfully updated admin-competency competency id #${competencyId}`,
         data: adminCompetency,
       });
     } catch (error) {
       this.logger.error(
-        `Failed to delete admin-competency  with id #${id} and competency id #${competencyId}`,
+        `Failed to update admin-competency competency id #${competencyId}`,
         error
       );
 
@@ -216,7 +163,49 @@ export class AdminCompetencyController {
         statusCode,
         message:
           errorMessage ||
-          `Failed to delete admin-competency  with id #${id} and competency id #${competencyId}`,
+          `Failed to update admin-competency competency id #${competencyId}`,
+      });
+    }
+  }
+
+  @Delete(":competencyId")
+  @ApiOperation({ summary: "delete admin-competency" })
+  @ApiResponse({ status: HttpStatus.OK, type: AdminCompetencyResponseDto })
+  async remove(
+    @Res() res,
+    @Param("competencyId", ParseIntPipe) competencyId: number
+  ): Promise<AdminCompetencyResponseDto> {
+    try {
+      this.logger.log(
+        `Initiated deleting admin-competency competency id #${competencyId}`
+      );
+
+      const adminCompetency = await this.adminCompetencyService.remove(
+        competencyId
+      );
+
+      this.logger.log(
+        `Successfully deleted admin-competency competency id #${competencyId}`
+      );
+
+      return res.status(HttpStatus.OK).send({
+        message: `Successfully deleted admin-competency competency id #${competencyId}`,
+        data: adminCompetency,
+      });
+    } catch (error) {
+      this.logger.error(
+        `Failed to delete admin-competency  competency id #${competencyId}`,
+        error
+      );
+
+      const { errorMessage, statusCode } =
+        getPrismaErrorStatusAndMessage(error);
+
+      return res.status(statusCode).json({
+        statusCode,
+        message:
+          errorMessage ||
+          `Failed to delete admin-competency  competency id #${competencyId}`,
       });
     }
   }
