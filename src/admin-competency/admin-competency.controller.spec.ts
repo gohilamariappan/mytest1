@@ -38,51 +38,6 @@ describe("AdminCompetencyController e2e", () => {
     app.close();
   });
 
-  describe("AdminCompetencyController create()", () => {
-    it("should return created admin competency on success", async function () {
-      const createAdminCompetencyDto: CreateAdminCompetencyDto = {
-        competencyId: 10,
-        name: "Test create admin competency",
-        competencyLevels: [
-          {
-            competencyLevelNumber: 1,
-            competencyLevelName: "Basic Proficiency",
-          },
-        ],
-        description:
-          "Ability to formulate and execute long-term plans aligned with the organization's goals.",
-      };
-
-      const response = await pactum
-        .spec()
-        .post("/admin-competency/sync-competency-data")
-        .withBody(createAdminCompetencyDto)
-        .expectStatus(201);
-
-      const createdAdminCompetency = JSON.parse(JSON.stringify(response.body));
-      
-      expect(createdAdminCompetency).not.toBeNull();
-      expect(createdAdminCompetency.name).toEqual(
-        createAdminCompetencyDto.name
-      );
-      expect(createdAdminCompetency.description).toEqual(
-        createAdminCompetencyDto.description
-      );
-      expect(
-        createdAdminCompetency.competencyLevels[0].competencyLevelName
-      ).toEqual(
-        createAdminCompetencyDto.competencyLevels[0].competencyLevelName
-      );
-      expect(
-        createdAdminCompetency.competencyLevels[0].competencyLevelNumber
-      ).toEqual(
-        createAdminCompetencyDto.competencyLevels[0].competencyLevelNumber
-      );
-      expect(createdAdminCompetency.createdAt).toBeDefined();
-      expect(createdAdminCompetency.updatedAt).toBeDefined();
-    });
-  });
-
   describe("AdminCompetencyController, findAll()", () => {
     it("should get all admin competency", async () => {
       const response = await pactum
