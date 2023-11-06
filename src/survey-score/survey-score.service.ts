@@ -4,13 +4,13 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { ResponseTrackerStatusEnum, SurveyStatusEnum } from "@prisma/client";
+import _ from "lodash";
 import { PrismaService } from "src/prisma/prisma.service";
 import { QuestionBankService } from "src/question-bank/question-bank.service";
 import { responseObject } from "src/response-tracker/dto";
 import { AnswerEnum } from "src/response-tracker/enums/response-tracker.enums";
 import { ResponseTrackerService } from "src/response-tracker/response-tracker.service";
 import { SurveyFormService } from "src/survey-form/survey-form.service";
-import { UserMetadataService } from "src/user-metadata/user-metadata.service";
 import { CreateSurveyScoreDto } from "./dto/create-survey-score.dto";
 import { UpdateSurveyScoreDto } from "./dto/update-survey-score.dto";
 import {
@@ -89,11 +89,34 @@ export class SurveyScoreService {
           ResponseTrackerStatusEnum.COMPLETED
         );
 
-      const surveyResponses = completedSurveyResponses
-        .map((response) => response.responseJson)
-        .flat();
+      const surveyResponses = _.compact(
+        _.flatten(
+          _.map(completedSurveyResponses, (response) => {
+            const result = _.get(response, "responseJson", []);
+            return !_.isEmpty(result) ? result : null;
+          })
+        )
+      );
 
-      const answerScore = this.calculateAnswerScore(surveyResponses);
+      if (_.isEmpty(surveyResponses)) {
+        const surveyQuestionIds = _.map(
+          JSON.parse(JSON.stringify(surveyForm.questionsJson)),
+          (question) => _.get(question, "questionId")
+        );
+
+        const emptyResponseScorePayload = await this.fetchEmptyResponseScores(
+          surveyQuestionIds,
+          surveyFormId
+        );
+
+        await this.prisma.surveyScore.createMany({
+          data: emptyResponseScorePayload,
+        });
+
+        return `Successfully calculated score for survey form id #${surveyFormId}`;
+      }
+
+      const answerScore = this.calculateAnswerScore(_.compact(surveyResponses));
 
       const answerScoreAndCompetencyGroupData: {
         [key: string]: IGroupScoreData;
@@ -115,10 +138,12 @@ export class SurveyScoreService {
       const overallScore =
         this.calculateOverAllScoreFromFinalGropedData(finalGroupedData);
 
-      await this.surveyFormService.updateSurveyFormScore(
-        surveyFormId,
-        overallScore
-      );
+      if (overallScore) {
+        await this.surveyFormService.updateSurveyFormScore(
+          surveyFormId,
+          overallScore
+        );
+      }
 
       const scorePayload = this.formatScorePayloadFromFinalGroupDataAndFormId(
         surveyFormId,
@@ -135,36 +160,61 @@ export class SurveyScoreService {
     }
   }
 
+  public async fetchEmptyResponseScores(
+    questionIds: number[],
+    surveyFormId: number
+  ) {
+    return Promise.all(
+      questionIds.map(async (surveyQuestionId) => {
+        const question = await this.questionBankService.getQuestionById(
+          surveyQuestionId
+        );
+        const { competencyId, competencyLevelNumber } = question;
+        return {
+          surveyFormId,
+          competencyId,
+          competencyLevelNumber,
+          score: -1,
+        };
+      })
+    );
+  }
+
   public calculateAnswerScore(surveyResponses: responseObject[]): {
     [key: string]: IAnswerScore;
   } {
-    return surveyResponses.reduce((acc, item) => {
-      const { questionId, answer } = item;
+    if (_.isEmpty(surveyResponses)) {
+      return {}; // Return an empty object when surveyResponses is empty
+    }
 
-      if (!acc[questionId]) {
-        acc[questionId] = { score: 0, totalQuestions: 0 };
-      }
+    const groupedResponses = _.groupBy(surveyResponses, "questionId");
 
-      if (answer === AnswerEnum.YES) {
-        acc[questionId].score += 1;
-        acc[questionId].totalQuestions += 1;
-      } else if (answer === AnswerEnum.NO) {
-        acc[questionId].score += 0;
-        acc[questionId].totalQuestions += 1;
-      }
+    const answerScores = _.mapValues(groupedResponses, (responses) => {
+      const totalQuestions = _.sumBy(responses, (response) =>
+        response.answer === AnswerEnum.DO_NOT_KNOW ? 0 : 1
+      );
 
-      return acc;
-    }, {});
+      const score = _.sumBy(responses, (response) =>
+        response.answer === AnswerEnum.YES ? 1 : 0
+      );
+
+      return { score, totalQuestions };
+    });
+
+    return answerScores;
   }
 
   public async getAnswerScoreAndCompetencyGroupData(answerScore: {
     [key: string]: IAnswerScore;
   }): Promise<{ [key: string]: IGroupScoreData }> {
-    const groupedData: { [key: string]: IGroupScoreData } = {};
+    if (_.isEmpty(answerScore)) {
+      return {}; // Return an empty object when answerScore is empty
+    }
+
     const questionIds = Object.keys(answerScore);
 
-    // Create an array of promises for each iteration
-    const promises = questionIds.map(async (questionId) => {
+    // Use _.map to create an array of promises for each iteration
+    const promises = _.map(questionIds, async (questionId) => {
       const question = await this.questionBankService.getQuestionById(
         +questionId
       );
@@ -172,35 +222,41 @@ export class SurveyScoreService {
 
       const scoreData = answerScore[questionId];
 
-      groupedData[questionId] = {
-        score: scoreData.score,
-        totalQuestions: scoreData.totalQuestions,
-        competencyId,
-        competencyLevelNumber,
-        scorePercentage: 0,
-      };
+      return [
+        questionId,
+        {
+          score: scoreData.score,
+          totalQuestions: scoreData.totalQuestions,
+          competencyId,
+          competencyLevelNumber,
+          scorePercentage: 0,
+        },
+      ];
     });
 
-    // Wait for all promises to resolve
-    await Promise.all(promises);
+    // Wait for all promises to resolve using Promise.all
+    const results = await Promise.all(promises);
 
-    return groupedData;
+    // Use _.fromPairs to transform the results array into an object
+    return _.fromPairs(results);
   }
 
   public groupScoreDataByCompetency(groupedData: {
     [key: string]: IGroupScoreData;
   }): { [key: string]: IGroupScoreData } {
-    return Object.values(groupedData).reduce((acc, item) => {
+    if (_.isEmpty(groupedData)) {
+      return {}; // Return an empty object when groupedData is empty
+    }
+
+    return _.values(groupedData).reduce((acc, item) => {
       const key = `${item.competencyId}-${item.competencyLevelNumber}`;
 
-      if (!acc[key]) {
-        acc[key] = {
-          score: 0,
-          totalQuestions: 0,
-          competencyId: item.competencyId,
-          competencyLevelNumber: item.competencyLevelNumber,
-        };
-      }
+      acc[key] = acc[key] || {
+        score: 0,
+        totalQuestions: 0,
+        competencyId: item.competencyId,
+        competencyLevelNumber: item.competencyLevelNumber,
+      };
 
       acc[key].score += item.score;
       acc[key].totalQuestions += item.totalQuestions;
@@ -211,8 +267,13 @@ export class SurveyScoreService {
 
   public calculateOverAllScoreFromFinalGropedData(
     finalGroupedData: IGroupScoreData[]
-  ): number {
-    const overallScore = finalGroupedData.reduce(
+  ): number | null {
+    if (_.isEmpty(finalGroupedData)) {
+      return null; // Return null default value for an empty payload
+    }
+
+    const overallScore = _.reduce(
+      finalGroupedData,
       (acc, group) => {
         acc.score += group.score;
         acc.totalQuestions += group.totalQuestions;
@@ -230,7 +291,11 @@ export class SurveyScoreService {
     surveyFormId: number,
     finalGroupedData: IGroupScoreData[]
   ) {
-    return finalGroupedData.map((data: IGroupScoreData) => {
+    if (_.isEmpty(finalGroupedData)) {
+      return []; // Return an empty array or any other appropriate default value for an empty payload
+    }
+
+    return _.map(finalGroupedData, (data) => {
       const { competencyId, competencyLevelNumber, scorePercentage } = data;
       return {
         surveyFormId,
@@ -250,12 +315,10 @@ export class SurveyScoreService {
         `Survey scores not found for user id #${userId}`
       );
 
-    const updatedSurveyScore = surveyScoreResponse.map((data) => {
+    return _.map(surveyScoreResponse, (data) => {
       const { id, ...rest } = data;
       return { surveyFormId: id, ...rest };
     });
-
-    return updatedSurveyScore;
   }
 
   public async getLatestSurveyScoreByUserId(userId: string) {
