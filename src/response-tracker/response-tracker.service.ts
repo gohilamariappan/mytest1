@@ -3,6 +3,7 @@ import { PrismaService } from "..//prisma/prisma.service";
 import { CreateResponseTrackerDto } from "./dto/create-response-tracker.dto";
 import { UpdateResponseTrackerDto } from "./dto/update-response-tracker.dto";
 import { IResponseTracker } from "./interfaces/response-tracker.interface";
+import { ResponseTrackerStatusEnum } from "@prisma/client";
 
 @Injectable()
 export class ResponseTrackerService {
@@ -162,5 +163,30 @@ export class ResponseTrackerService {
     });
 
     return result;
+  }
+
+  public async updateBySurveyFormId(
+    updateResponseTrackerDto: UpdateResponseTrackerDto
+  ) {
+    const { surveyFormId, assesseeId, assessorId } = updateResponseTrackerDto;
+    const responseJson = JSON.stringify(updateResponseTrackerDto.responseJson);
+
+    const payload = {
+      responseJson: JSON.parse(responseJson || "[]"),
+      status: ResponseTrackerStatusEnum.COMPLETED,
+    };
+
+    if (!responseJson) delete payload.responseJson;
+
+    return await this.prisma.responseTracker.update({
+      where: {
+        surveyFormId_assesseeId_assessorId: {
+          surveyFormId,
+          assesseeId,
+          assessorId,
+        },
+      },
+      data: payload,
+    });
   }
 }

@@ -58,7 +58,7 @@ export const users = [
     userName: "Deepa Mishra",
     password: "P@ssw0rd6",
     designation: "Software Architect",
-    departmentId: 1,
+    departmentId: 2,
     levelNumber: 4, // competency level for Deepa Mishra
   },
   {
@@ -68,7 +68,7 @@ export const users = [
     userName: "Rahul Verma",
     password: "P@ssw0rd7",
     designation: "Software Architect",
-    departmentId: 1,
+    departmentId: 2,
     levelNumber: 3, // competency level for Rahul Verma
   },
   {
@@ -78,7 +78,7 @@ export const users = [
     userName: "Anita Sen",
     password: "P@ssw0rd8",
     designation: "Software Engineer",
-    departmentId: 1,
+    departmentId: 2,
     levelNumber: 2, // competency level for Anita Sen
   },
   {
@@ -88,7 +88,7 @@ export const users = [
     userName: "Mohit Gupta",
     password: "P@ssw0rd9",
     designation: "Software Engineer",
-    departmentId: 1,
+    departmentId: 2,
     levelNumber: 3, // competency level for Mohit Gupta
   },
   {
@@ -98,7 +98,7 @@ export const users = [
     userName: "Pooja Rawat",
     password: "P@ssw0rd10",
     designation: "Software Engineer",
-    departmentId: 1,
+    departmentId: 3,
     levelNumber: 3, // competency level for Pooja Rawat
   },
   {
@@ -108,7 +108,7 @@ export const users = [
     userName: "Anurag Sharma",
     password: "P@ssw0rd11",
     designation: "Software Engineer",
-    departmentId: 1,
+    departmentId: 3,
     levelNumber: 2, // competency level for Anurag Sharma
   },
   {
@@ -118,7 +118,7 @@ export const users = [
     userName: "Meera Rani",
     password: "P@ssw0rd12",
     designation: "Software Engineer",
-    departmentId: 1,
+    departmentId: 3,
     levelNumber: 2, // competency level for Meera Rani
   },
   {
@@ -128,7 +128,7 @@ export const users = [
     userName: "Vikas Patel",
     password: "P@ssw0rd13",
     designation: "Software Engineer",
-    departmentId: 1,
+    departmentId: 4,
     levelNumber: 3, // competency level for Vikas Patel
   },
   {
@@ -138,7 +138,7 @@ export const users = [
     userName: "Divya Malik",
     password: "P@ssw0rd14",
     designation: "Software Engineer",
-    departmentId: 1,
+    departmentId: 5,
     levelNumber: 2, // competency level for Divya Malik
   },
   {
@@ -148,7 +148,7 @@ export const users = [
     userName: "Rajiv Khanna",
     password: "P@ssw0rd15",
     designation: "Software Engineer",
-    departmentId: 1,
+    departmentId: 3,
     levelNumber: 4, // competency level for Rajiv Khanna
   },
   {

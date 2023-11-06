@@ -108,4 +108,18 @@ describe("UserMetadataController", () => {
         .expectBodyContains(userId2);
     });
   });
+
+  describe("UserMetadataController findManyUserMetadata()", () => {
+    it("should get all user metadata", async () => {
+      const response = await pactum
+        .spec()
+        .get("/user-metadata")
+        .expectStatus(200)
+
+      const userMetadata = JSON.parse(JSON.stringify(response.body));
+
+      expect(userMetadata).toStrictEqual({"data": [], "message": "UserMetadata(s) fetched successfully"});
+      
+    });
+  });
 });

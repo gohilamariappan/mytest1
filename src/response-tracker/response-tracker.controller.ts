@@ -246,29 +246,34 @@ export class ResponseTrackerController {
     }
   }
 
-  @Patch(":id")
-  @ApiOperation({ summary: "update response tracker by id" })
+  @Patch()
+  @ApiOperation({
+    summary:
+      "update response tracker by surveyFormId, assesseeId and assessorId",
+  })
   @ApiResponse({ status: HttpStatus.OK, type: ResponseTrackerDtoResponse })
   async update(
     @Res() res,
-    @Param("id", ParseIntPipe) id: number,
     @Body() updateResponseTrackerDto: UpdateResponseTrackerDto
   ): Promise<ResponseTrackerDtoResponse> {
+    const { surveyFormId, assesseeId, assessorId } = updateResponseTrackerDto;
     try {
-      this.logger.log(`Initiated updating response tracker with id #${id}`);
-
-      const updatedResponse = await this.responseTrackerService.update(
-        id,
-        updateResponseTrackerDto
+      this.logger.log(
+        `Initiated updating response tracker with surveyFormId #${surveyFormId}, assesseeId #${assesseeId} and assessorId #${assessorId}`
       );
+
+      const updatedResponse =
+        await this.responseTrackerService.updateBySurveyFormId(
+          updateResponseTrackerDto
+        );
 
       return res.status(HttpStatus.OK).json({
         data: updatedResponse,
-        message: `Successfully updated response tracker with id ${id}`,
+        message: `Successfully updated response tracker with surveyFormId ${surveyFormId}, assesseeId #${assesseeId} and assessorId #${assessorId}`,
       });
     } catch (error) {
       this.logger.error(
-        `Failed to update response tracker with id #${id}`,
+        `Failed to update response tracker with surveyFormId #${surveyFormId}, assesseeId #${assesseeId} and assessorId #${assessorId}`,
         error
       );
 
@@ -278,7 +283,8 @@ export class ResponseTrackerController {
       return res.status(statusCode).json({
         statusCode,
         message:
-          errorMessage || `Failed to update response tracker with id #${id}`,
+          errorMessage ||
+          `Failed to update response tracker with surveyFormId #${surveyFormId}, assesseeId #${assesseeId} and assessorId #${assessorId}`,
       });
     }
   }

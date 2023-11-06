@@ -1,5 +1,10 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { ResponseTrackerStatusEnum, SurveyStatusEnum } from "@prisma/client";
+import _ from "lodash";
 import { PrismaService } from "src/prisma/prisma.service";
 import {
   CreateSurveyFormDto,
@@ -55,6 +60,11 @@ export class SurveyService {
         surveyCycleParameter: {
           isActive: true,
         },
+        ResponseTracker: {
+          every: {
+            assesseeId: userId,
+          },
+        },
       },
       orderBy: {
         createdAt: "desc",
@@ -65,8 +75,13 @@ export class SurveyService {
             id: true,
             surveyFormId: true,
             assesseeId: true,
-            assessorId: true,
-            responseJson: true,
+            Assessor: {
+              select: {
+                userId: true,
+                userName: true,
+                designation: true,
+              },
+            },
             status: true,
           },
         },
@@ -87,13 +102,44 @@ export class SurveyService {
         departmentId,
       },
     });
+
+    const surveyCycleParameter = await this.prisma.surveyConfig.findFirst({
+      where: {
+        departmentId,
+        SurveyCycleParameters: {
+          every: { isActive: true },
+        },
+      },
+      select: {
+        SurveyCycleParameters: {
+          select: {
+            id: true,
+          },
+        },
+      },
+    });
+
+    const surveyCycleParameterId = _.get(
+      surveyCycleParameter,
+      "SurveyCycleParameters.[0].id",
+      0
+    );
+
+    if (!surveyCycleParameterId || _.isEqual(surveyCycleParameterId, 0)) {
+      throw new BadRequestException(
+        `No any active survey cycle found for department id #${departmentId}`
+      );
+    }
+
     for (const user of users) {
       //get questions for the user according to their designation
-      const questions = await this.questionBank.getAllQuestionsForUser(user.userId);
+      const questions = await this.questionBank.getAllQuestionsForUser(
+        user.userId
+      );
       //create the CreateSurveyFormDto for the user
       const surveyFormDto: CreateSurveyFormDto = {
         userId: user.userId,
-        surveyCycleParameterId: 1,
+        surveyCycleParameterId,
         status: SurveyStatusEnum.PUBLISHED,
         questionsJson: questions,
       };
