@@ -5,7 +5,7 @@ import {
   forwardRef,
 } from "@nestjs/common";
 import _ from "lodash";
-import { PrismaService } from "src/prisma/prisma.service";
+import { PrismaService } from "../prisma/prisma.service";
 import { MockCompetencyService } from "../mockModules/mock-competency/mock-competency.service";
 import { UpdateAdminCompetencyDto } from "./dto";
 

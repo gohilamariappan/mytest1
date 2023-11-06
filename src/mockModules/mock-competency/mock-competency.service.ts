@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
-import { PrismaService } from "src/prisma/prisma.service";
+import { PrismaService } from "../../prisma/prisma.service";
 import { CreateCompetencyLevelDto } from "../mock-competency-level/dto";
 import { MockCompetencyLevelService } from "../mock-competency-level/mock-competency-level.service";
 import { CreateCompetencyDto, UpdateCompetencyDto } from "./dto";
