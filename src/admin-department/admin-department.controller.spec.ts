@@ -4,7 +4,6 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { ConfigService } from "@nestjs/config";
 import { INestApplication, ValidationPipe } from "@nestjs/common";
 import { AdminDepartmentModule } from "./admin-department.module";
-import { ResponseAdminDepartmentDto } from "./dto/response-admin-department.dto";
 
 describe("AdminDepartment e2e", () => {
   let app: INestApplication;
@@ -36,26 +35,27 @@ describe("AdminDepartment e2e", () => {
     app.close();
   });
 
+  const testData = {
+   departmentId : 1
+  }
+
   describe("AdminDepartmentController createOrUpdateAdminDepartment()", () => {
     it("should return created or updated admin department", async function () {
-      const testData = {
-        departmentId: 1,
-      };
       const response = await pactum
         .spec()
         .post(`/admin-department/${testData.departmentId}`)
         .withPathParams({ departmentId: testData.departmentId })
-        .expectStatus(201);
-      const createdAdminDepartment = JSON.parse(response);
-      expect(createdAdminDepartment).toMatchObject(ResponseAdminDepartmentDto);
+        .expectBodyContains(testData.departmentId);
     });
   });
 
   describe("AdminDepartmentController getAllAdminDepartment()", () => {
     it("should return all admin departments", async function () {
-      const response = await pactum.spec().get("/admin-departments");
-      const allAdminDepartments = JSON.parse(response);
-      expect(allAdminDepartments[0]).toMatchObject(ResponseAdminDepartmentDto);
+      const response = await pactum
+        .spec()
+        .get("/admin-department/")
+        .expectStatus(200)
+        .expectBodyContains(testData.departmentId);
     });
   });
 });

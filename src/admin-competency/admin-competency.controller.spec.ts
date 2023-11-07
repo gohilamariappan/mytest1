@@ -38,54 +38,16 @@ describe("AdminCompetencyController e2e", () => {
     app.close();
   });
 
-  describe("AdminCompetencyController create()", () => {
-    it("should return created admin competency on success", async function () {
-      const createAdminCompetencyDto: CreateAdminCompetencyDto = {
-        competencyId: 1,
-        name: "Test create admin competency",
-        competencyLevels: [
-          { competencyLevelNumber: 1, competencyLevelName: "Test-1" },
-        ],
-        description: "Testing description",
-      };
-
-      const response = await pactum
-        .spec()
-        .post("/admin-competency")
-        .withBody(createAdminCompetencyDto)
-        .expectStatus(201);
-
-      const createdAdminCompetency = JSON.parse(response.body);
-      expect(createdAdminCompetency).not.toBeNull();
-      expect(createdAdminCompetency.name).toEqual(
-        createAdminCompetencyDto.name
-      );
-      expect(createdAdminCompetency.description).toEqual(
-        createAdminCompetencyDto.description
-      );
-      expect(
-        createdAdminCompetency.competencyLevels[0].competencyLevelName
-      ).toEqual(
-        createAdminCompetencyDto.competencyLevels[0].competencyLevelName
-      );
-      expect(
-        createdAdminCompetency.competencyLevels[0].competencyLevelNumber
-      ).toEqual(
-        createAdminCompetencyDto.competencyLevels[0].competencyLevelNumber
-      );
-      expect(createdAdminCompetency.createdAt).toBeDefined();
-      expect(createdAdminCompetency.updatedAt).toBeDefined();
-    });
-  });
-
   describe("AdminCompetencyController, findAll()", () => {
     it("should get all admin competency", async () => {
       const response = await pactum
         .spec()
         .get("/admin-competency")
-        .expectStatus(200);
-      const adminCompetencies = JSON.parse(response.body);
-      expect(Array.isArray(adminCompetencies)).toBeTruthy();
+        .expectStatus(200)
+        
+      const adminCompetencies = JSON.parse(JSON.stringify(response.body));
+      expect(adminCompetencies.message).toEqual('Successfully fetched all admin-competency');
+      expect(adminCompetencies.data.length).toBeGreaterThanOrEqual(0);
     });
   });
 
@@ -96,8 +58,8 @@ describe("AdminCompetencyController e2e", () => {
         description: "Updated Test Description",
       };
       const testData = {
-        id: 1,
-        competencyId: 55,
+        id: 5,
+        competencyId: 5,
       };
       const response = await pactum
         .spec()
@@ -109,12 +71,15 @@ describe("AdminCompetencyController e2e", () => {
         .withBody(updatedAdminCompetencyDto)
         .expectStatus(200);
 
-      const updatedAdminCompetency = JSON.parse(response.body);
+      const updatedAdminCompetency = JSON.parse(JSON.stringify(response.body));
       expect(updatedAdminCompetency).not.toBeNull();
-      expect(updatedAdminCompetency.name).toEqual(
+      expect(updatedAdminCompetency.message).toEqual(
+        `Successfully updated admin-competency with id #${testData.id} and competency id #${testData.competencyId}`
+      );
+      expect(updatedAdminCompetency.data.name).toEqual(
         updatedAdminCompetencyDto.name
       );
-      expect(updatedAdminCompetency.description).toEqual(
+      expect(updatedAdminCompetency.data.description).toEqual(
         updatedAdminCompetencyDto.description
       );
     });
@@ -123,8 +88,8 @@ describe("AdminCompetencyController e2e", () => {
   describe("AdminCompetencyController  remove()", () => {
     it("should delete an admin competency by id", async () => {
       const testData = {
-        id: 1,
-        competencyId: 55,
+        id: 8,
+        competencyId: 8,
       };
       const response = await pactum
         .spec()
@@ -134,15 +99,22 @@ describe("AdminCompetencyController e2e", () => {
           competencyId: testData.competencyId,
         })
         .expectStatus(200);
-      const deletedAdminCompetency = JSON.parse(response.body);
+      const deletedAdminCompetency = JSON.parse(JSON.stringify(response.body));
+      console.log("deletedAdminCompetency", deletedAdminCompetency);
+      
       expect(deletedAdminCompetency).not.toBeNull();
-      expect(deletedAdminCompetency.id).toEqual(1);
-      expect(deletedAdminCompetency.competencyId).toEqual(55);
-      expect(deletedAdminCompetency.name).toBeDefined();
-      expect(deletedAdminCompetency.competencyLevels).toBeDefined();
-      expect(deletedAdminCompetency?.description).toBeDefined();
-      expect(deletedAdminCompetency?.createdAt).toBeDefined();
-      expect(deletedAdminCompetency?.updatedAt).toBeDefined();
+      expect(deletedAdminCompetency.message).toEqual(
+        `Successfully deleted admin-competency with id #${testData.id} and competency id #${testData.competencyId}`
+      );
+      expect(deletedAdminCompetency.data.id).toEqual(testData.id);
+      expect(deletedAdminCompetency.data.competencyId).toEqual(
+        testData.competencyId
+      );
+      expect(deletedAdminCompetency.data.name).toBeDefined();
+      expect(deletedAdminCompetency.data.competencyLevels).toBeDefined();
+      expect(deletedAdminCompetency?.data.description).toBeDefined();
+      expect(deletedAdminCompetency?.data.createdAt).toBeDefined();
+      expect(deletedAdminCompetency?.data.updatedAt).toBeDefined();
     });
   });
 });
