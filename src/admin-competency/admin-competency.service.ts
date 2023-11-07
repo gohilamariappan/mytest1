@@ -72,6 +72,16 @@ export class AdminCompetencyService {
     return adminCompetency;
   }
 
+  public async findAllCompetencyNames() {
+    const adminCompetencies = await this.prisma.adminCompetency.findMany({
+      select:{
+        competencyId: true,
+        name: true,
+      }
+    });
+    return adminCompetencies;
+  }
+
   public async findOne(competencyId: number) {
     const adminCompetency = await this.prisma.adminCompetency.findUnique({
       where: {

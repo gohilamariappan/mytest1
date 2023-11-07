@@ -84,6 +84,34 @@ export class AdminCompetencyController {
     }
   }
 
+  @Get("/names")
+  @ApiOperation({ summary: "get all admin-competency" })
+  @ApiResponse({ status: HttpStatus.OK, type: AdminCompetencyArrayResponseDto })
+  async findAllCompetencyNames(@Res() res): Promise<AdminCompetencyArrayResponseDto> {
+    try {
+      this.logger.log(`Initiated fetching all admin-competency`);
+
+      const adminCompetency = await this.adminCompetencyService.findAllCompetencyNames();
+
+      this.logger.log(`Successfully fetched all admin-competency`);
+
+      return res.status(HttpStatus.OK).send({
+        message: `Successfully fetched all admin-competency`,
+        data: adminCompetency,
+      });
+    } catch (error) {
+      this.logger.error("Failed to fetch all admin-competency", error);
+
+      const { errorMessage, statusCode } =
+        getPrismaErrorStatusAndMessage(error);
+
+      return res.status(statusCode).json({
+        statusCode,
+        message: errorMessage || "Failed to fetch all admin-competency",
+      });
+    }
+  }
+
   @Get(":competencyId")
   @ApiOperation({ summary: "get admin-competency by competencyId" })
   @ApiResponse({ status: HttpStatus.OK, type: AdminCompetencyResponseDto })
