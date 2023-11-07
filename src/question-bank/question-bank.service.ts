@@ -1,11 +1,5 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import _ from "lodash";
-import { FileUploadService } from "src/file-upload/file-upload.service";
-import { MockCompetencyService } from "src/mockModules/mock-competency/mock-competency.service";
-import { MockDesignationService } from "src/mockModules/mock-designation/mock-designation.service";
-import { MockUserService } from "src/mockModules/mock-user/mock-user.service";
-import { PrismaService } from "src/prisma/prisma.service";
-import { MockRoleService } from "./../mockModules/mock-role/mock-role.service";
 import {
   CreateFileUploadDto,
   CreateQuestionBankDto,
