@@ -9,9 +9,12 @@ import { MockRoleService } from "./../mockModules/mock-role/mock-role.service";
 import {
   CreateFileUploadDto,
   CreateQuestionBankDto,
+  CreateUpdateDeleteQuesitonsDto,
   QuestionBankFilterDto,
 } from "./dto/create-question-bank.dto";
-import { UpdateQuestionBankDto } from "./dto/update-question-bank.dto";
+import {
+  UpdateQuestionBankDto
+} from "./dto/update-question-bank.dto";
 
 @Injectable()
 export class QuestionBankService {
@@ -308,5 +311,57 @@ export class QuestionBankService {
     if (!question)
       throw new NotFoundException(`question with id #${id} not found`);
     return question;
+  }
+
+  public async createUpdateDeleteQuesitons(
+    questionBank: CreateUpdateDeleteQuesitonsDto
+  ) {
+    const { createQuestions, updateQuestions, deleteQuestions } = questionBank;
+    await this.prisma.$transaction(async (prismaClient) => {
+      if (!_.isUndefined(deleteQuestions) && !_.isEmpty(deleteQuestions)) {
+        for (const deleteQuestionId of deleteQuestions) {
+          await prismaClient.questionBank.delete({
+            where: {
+              id: deleteQuestionId,
+            },
+          });
+        }
+      }
+
+      if (!_.isUndefined(updateQuestions) && !_.isEmpty(updateQuestions)) {
+        for (const updateQuestion of updateQuestions) {
+          await prismaClient.questionBank.update({
+            where: {
+              id: updateQuestion.questionId,
+            },
+            data: {
+              question: updateQuestion.question,
+            },
+          });
+        }
+      }
+
+      if (!_.isUndefined(createQuestions) && !_.isEmpty(createQuestions)) {
+        for (const createQuestion of createQuestions) {
+          const checkCompentencyId = await prismaClient.competency.findUnique({
+            where: {
+              id: createQuestion.competencyId,
+            },
+          });
+
+          if (!checkCompentencyId) {
+            throw new NotFoundException("Competency is not Found");
+          }
+
+          await prismaClient.questionBank.create({
+            data: {
+              competencyId: createQuestion.competencyId,
+              competencyLevelNumber: createQuestion.competencyLevelNumber,
+              question: createQuestion.question,
+            },
+          });
+        }
+      }
+    });
   }
 }
