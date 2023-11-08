@@ -16,8 +16,6 @@ model UserMetadata {
   userId                     String            @unique() @db.Uuid
   userName                   String            @unique()
   isNewEmployee              Boolean
-  departmentId               Int
-  Department                 AdminDepartment   @relation(fields: [departmentId], references: [departmentId])
   designation                String?
   dateOfJoining              DateTime
   createdAt                  DateTime          @default(now())
@@ -26,6 +24,8 @@ model UserMetadata {
   isAdmin                    Boolean
   ResponseTrackersAsAssessee ResponseTracker[] @relation("AssesseeResponseTrackers")
   ResponseTrackersAsAssessor ResponseTracker[] @relation("AssessorResponseTrackers")
+  // departmentId               Int
+  // Department                 AdminDepartment   @relation(fields: [departmentId], references: [departmentId])
 
   @@id([id, userId])
 }
@@ -55,62 +55,66 @@ model AdminCompetency {
   @@map("admin_competencies")
 }
 
-model AdminDepartment {
-  id           Int            @default(autoincrement())
-  departmentId Int            @unique
-  name         String
-  description  String?
-  UserMetadata UserMetadata[]
-  SurveyConfig SurveyConfig?
+// model AdminDepartment {
+//   id           Int            @default(autoincrement())
+//   departmentId Int            @unique
+//   name         String
+//   description  String?
+//   UserMetadata UserMetadata[]
+//   SurveyConfig SurveyConfig?
 
-  @@id([id, departmentId])
-  @@map("admin_department")
-}
+//   @@id([id, departmentId])
+//   @@map("admin_department")
+// }
 
 model SurveyConfig {
-  id                    Int                    @id @default(autoincrement())
-  onboardingTime        Int
-  onboardingTimeUnit    TimeUnitsEnum
-  //will be replaced with surveyCycle in phase two
-  startTime             DateTime
-  endTime               DateTime
-  departmentId          Int                    @unique
-  AdminDepartment       AdminDepartment        @relation(fields: [departmentId], references: [departmentId])
-  SurveyCycleParameters SurveyCycleParameter[]
+  id                 Int           @id @default(autoincrement())
+  surveyName         String
+  onboardingTime     Int           @default(3)
+  onboardingTimeUnit TimeUnitsEnum @default(MONTH)
+  startTime          DateTime
+  endTime            DateTime
+  isActive           Boolean
+  SurveyForm         SurveyForm[]
+  // departmentId          Int                    @unique
+  // AdminDepartment       AdminDepartment        @relation(fields: [departmentId], references: [departmentId])
+  // SurveyCycleParameters SurveyCycleParameter[]
 
   @@map("survey_config")
 }
 
-model SurveyCycleParameter {
-  id             Int           @id @default(autoincrement())
-  startTime      DateTime
-  endTime        DateTime
-  surveyForm     SurveyForm[]
-  isActive       Boolean
-  surveyConfigId Int?
-  SurveyConfig   SurveyConfig? @relation(fields: [surveyConfigId], references: [id])
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
+// model SurveyCycleParameter {
+//   id             Int           @id @default(autoincrement())
+//   startTime      DateTime
+//   endTime        DateTime
+//   surveyForm     SurveyForm[]
+//   isActive       Boolean
+//   surveyConfigId Int?
+//   SurveyConfig   SurveyConfig? @relation(fields: [surveyConfigId], references: [id])
+//   createdAt      DateTime      @default(now())
+//   updatedAt      DateTime      @updatedAt
 
-  @@map("survey_cycle_parameters")
-}
+//   @@map("survey_cycle_parameters")
+// }
 
 model SurveyForm {
-  id                     Int                  @id @default(autoincrement())
-  userId                 String               @db.Uuid
-  UserMetadata           UserMetadata         @relation(fields: [userId], references: [userId])
-  questionsJson          Json //{questionId: question}
-  surveyCycleParameterId Int
-  surveyCycleParameter   SurveyCycleParameter @relation(fields: [surveyCycleParameterId], references: [id])
-  status                 SurveyStatusEnum
-  overallScore           Float?
-  sunbirdCredentialIds   String?
-  ResponseTracker        ResponseTracker[]
-  SurveyScore            SurveyScore[]
-  createdAt              DateTime             @default(now())
-  updatedAt              DateTime             @updatedAt
+  id                   Int               @id @default(autoincrement())
+  userId               String            @db.Uuid
+  UserMetadata         UserMetadata      @relation(fields: [userId], references: [userId])
+  questionsJson        Json //{questionId: question}
+  surveyConfigId       Int
+  SurveyConfig         SurveyConfig      @relation(fields: [surveyConfigId], references: [id])
+  status               SurveyStatusEnum
+  overallScore         Float?
+  sunbirdCredentialIds String?
+  ResponseTracker      ResponseTracker[]
+  SurveyScore          SurveyScore[]
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
+  // surveyCycleParameterId Int
+  // surveyCycleParameter   SurveyCycleParameter @relation(fields: [surveyCycleParameterId], references: [id])
 
-  @@unique([userId, surveyCycleParameterId])
+  @@unique([userId, surveyConfigId])
   @@map("survey_form")
 }
 
