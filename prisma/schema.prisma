@@ -74,7 +74,7 @@ model SurveyConfig {
   onboardingTimeUnit TimeUnitsEnum @default(MONTH)
   startTime          DateTime
   endTime            DateTime
-  isActive           Boolean
+  isActive           Boolean       @default(false)
   SurveyForm         SurveyForm[]
   // departmentId          Int                    @unique
   // AdminDepartment       AdminDepartment        @relation(fields: [departmentId], references: [departmentId])
