@@ -6,9 +6,10 @@ services:
     volumes:
       - ./.data/db:/var/lib/postgresql/data
     environment:
-      POSTGRES_USER: ${DATABASE_USERNAME}
-      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
-      POSTGRES_DB: ${DATABASE_NAME}
+      DATABASE_PORT: 5432
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: wpcas-survey
 
   # maildev:
   #   build:
@@ -31,8 +32,9 @@ services:
   #     - 6379:6379
 
   api:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    # build:
+      # context: .
+      # dockerfile: Dockerfile
+    image: wpcas-test:0.0.1
     ports:
       - ${APP_PORT}:${APP_PORT}

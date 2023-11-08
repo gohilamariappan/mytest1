@@ -43,6 +43,8 @@ RUN npm install
 # Copy the rest of the application code to the container
 COPY . .
 
+# RUN npm run migrate:dev
+
 # Build your Nest.js application
 RUN npm run build
 
