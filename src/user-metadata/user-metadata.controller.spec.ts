@@ -38,8 +38,8 @@ describe("UserMetadataController", () => {
     app.close();
   });
 
-  const userId1 = "0f5d0b13-8d72-46c9-a7c4-c1f7e5aa1f17";
-  const userId2 = "0f82ac61-9801-488f-babb-3c2d23a413d0";
+  const userId1 = "4d45a9e9-4a4d-4c92-aaea-7b5abbd6ff98";
+  const userId2 = "4f67ae5a-c2a2-4652-81cc-4d1471e1a158";
   describe("UserMetadataController createOrUpdateUserMetadata()", () => {
     it("should create or update user1 metadata", async () => {
 
@@ -116,8 +116,7 @@ describe("UserMetadataController", () => {
         .get("/user-metadata")
         .expectStatus(200)
 
-      const userMetadata = JSON.parse(JSON.stringify(response.body));
-
+      const userMetadata = JSON.parse(JSON.stringify(response.body));     
       expect(userMetadata).toStrictEqual({"data": [], "message": "UserMetadata(s) fetched successfully"});
       
     });

@@ -1,3 +1,4 @@
+import { Type } from "class-transformer";
 import {
   IsBoolean,
   IsDate,
@@ -10,10 +11,12 @@ import {
 export class CreateSurveyCycleParameterDto {
   @IsNotEmpty()
   @IsDate()
+  @Type(() => Date)
   startTime: Date;
 
   @IsNotEmpty()
   @IsDate()
+  @Type(() => Date)
   endTime: Date;
 
   @IsNotEmpty()
