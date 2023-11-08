@@ -56,7 +56,6 @@ describe("SurveyConfig e2e", () => {
         .expectStatus(201);
 
       const createdSurveyConfig = JSON.parse(JSON.stringify(response.body));
-      console.log("createdSurveyConfig", createdSurveyConfig);
       expect(createdSurveyConfig.message).toEqual(
         `Survey config created successfully`
       );
@@ -79,7 +78,6 @@ describe("SurveyConfig e2e", () => {
         .expectStatus(200);
 
       const surveyConfigs = JSON.parse(JSON.stringify(response.body));
-      console.log("surveyConfigs", surveyConfigs);
       expect(surveyConfigs.message).toEqual(
         "Successfully fetched all survey config."
       );

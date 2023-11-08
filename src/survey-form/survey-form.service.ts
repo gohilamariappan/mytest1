@@ -20,11 +20,8 @@ export class SurveyFormService {
     });
   }
 
-  async findSurveyFormById(id: number) {
-    console.log(id);
-    
+  async findSurveyFormById(id: number) { 
     const surveyForm = await this.prisma.surveyForm.findUnique({
-      
       where: { id },
     });
     if (!surveyForm) {

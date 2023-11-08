@@ -95,7 +95,6 @@ describe("SurveyFormController e2e", () => {
         .expectStatus(200);
 
       const surveyForm = JSON.parse(JSON.stringify(response.body));
-      console.log(surveyForm);
       expect(surveyForm.message).toBe("SurveyForm fetched successfully");
       expect(surveyForm.data.id).toEqual(testData.id);
     });

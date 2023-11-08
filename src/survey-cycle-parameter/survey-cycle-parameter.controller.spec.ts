@@ -80,7 +80,6 @@ describe("SurveyCycleParameterController e2e", () => {
       const getAllSurveyCycleParameter = JSON.parse(
         JSON.stringify(response.body)
       );
-      console.log(getAllSurveyCycleParameter);
       expect(getAllSurveyCycleParameter.message).toEqual(
         "Successfully fetched all survey cycle parameter."
       );

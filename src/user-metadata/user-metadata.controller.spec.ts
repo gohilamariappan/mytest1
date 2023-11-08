@@ -87,27 +87,27 @@ describe("UserMetadataController", () => {
     });
   });
 
-  // describe("UserMetadataController deleteUserMetadata()", () => {
-  //   it("should delete user1 metadata by ID", async () => {
+  describe("UserMetadataController deleteUserMetadata()", () => {
+    it("should delete user1 metadata by ID", async () => {
 
-  //     const response = await pactum
-  //       .spec()
-  //       .delete("/user-metadata/" + userId1)
-  //       .expectStatus(200)
-  //       .expectBodyContains(userId1);
-  //   });
-  // });
+      const response = await pactum
+        .spec()
+        .delete("/user-metadata/" + userId1)
+        .expectStatus(200)
+        .expectBodyContains(userId1);
+    });
+  });
 
-  // describe("UserMetadataController deleteUserMetadata()", () => {
-  //   it("should delete user2 metadata by ID", async () => {
+  describe("UserMetadataController deleteUserMetadata()", () => {
+    it("should delete user2 metadata by ID", async () => {
 
-  //     const response = await pactum
-  //       .spec()
-  //       .delete("/user-metadata/" + userId2)
-  //       .expectStatus(200)
-  //       .expectBodyContains(userId2);
-  //   });
-  // });
+      const response = await pactum
+        .spec()
+        .delete("/user-metadata/" + userId2)
+        .expectStatus(200)
+        .expectBodyContains(userId2);
+    });
+  });
 
   describe("UserMetadataController findManyUserMetadata()", () => {
     it("should get all user metadata", async () => {
@@ -116,9 +116,7 @@ describe("UserMetadataController", () => {
         .get("/user-metadata")
         .expectStatus(200)
 
-      const userMetadata = JSON.parse(JSON.stringify(response.body));
-     console.log(userMetadata);
-     
+      const userMetadata = JSON.parse(JSON.stringify(response.body));     
       expect(userMetadata).toStrictEqual({"data": [], "message": "UserMetadata(s) fetched successfully"});
       
     });
