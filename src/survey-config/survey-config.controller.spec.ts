@@ -4,6 +4,7 @@ import { PrismaService } from "../prisma/prisma.service";
 import { Test, TestingModule } from "@nestjs/testing";
 import { SurveyConfigModule } from "./survey-config.module";
 import { ConfigService } from "@nestjs/config";
+import { CreateSurveyConfigDto } from "./dto/create-survey-config.dto";
 
 describe("SurveyConfig e2e", () => {
   let app: INestApplication;
@@ -40,11 +41,12 @@ describe("SurveyConfig e2e", () => {
 
   describe("SurveyConfigController createSurveyConfig()", () => {
     it("should create a new survey config", async () => {
-      const createSurveyConfigDto = {
-        name: "Test Survey Config",
-        departmentId: 1,
-        startTime: new Date(),
-        endTime: new Date(),
+      const createSurveyConfigDto : CreateSurveyConfigDto = {
+        startTime: new Date("2023-10-31"),
+        endTime: new Date("2024-01-31"),
+        departmentId: 4,
+        onboardingTime: 30,
+        onboardingTimeUnit: "DAY",
       };
 
       const response = await pactum
@@ -53,12 +55,19 @@ describe("SurveyConfig e2e", () => {
         .withBody(createSurveyConfigDto)
         .expectStatus(201);
 
-      const createdSurveyConfig = JSON.parse(response.body);
-
-      expect(createdSurveyConfig.name).toBe("Test Survey Config");
-      expect(createdSurveyConfig.departmentId).toBe(1);
-      expect(createdSurveyConfig.startTime).toBeDefined();
-      expect(createdSurveyConfig.endTime).toBeDefined();
+      const createdSurveyConfig = JSON.parse(JSON.stringify(response.body));
+      console.log("createdSurveyConfig", createdSurveyConfig);
+      expect(createdSurveyConfig.message).toEqual(
+        `Survey config created successfully`
+      );
+      expect(createdSurveyConfig.data).toHaveProperty("id")
+      expect(createdSurveyConfig.data.departmentId).toEqual(
+        createSurveyConfigDto.departmentId
+      );
+      expect(createdSurveyConfig.data.startTime).toBeDefined()
+      expect(createdSurveyConfig.data.endTime).toBeDefined()
+      expect(createdSurveyConfig.data.onboardingTime).toEqual(createSurveyConfigDto.onboardingTime);
+      expect(createdSurveyConfig.data.onboardingTimeUnit).toEqual(createSurveyConfigDto.onboardingTimeUnit);
     });
   });
 
@@ -69,45 +78,75 @@ describe("SurveyConfig e2e", () => {
         .get("/survey-config")
         .expectStatus(200);
 
-      const surveyConfigs = JSON.parse(response.body);
-
-      expect(surveyConfigs.length).toBeGreaterThanOrEqual(0);
+      const surveyConfigs = JSON.parse(JSON.stringify(response.body));
+      console.log("surveyConfigs", surveyConfigs);
+      expect(surveyConfigs.message).toEqual(
+        "Successfully fetched all survey config."
+      );
+      expect(surveyConfigs.data.length).toBeGreaterThanOrEqual(0);
     });
   });
 
   describe("SurveyConfigController updateSurveyConfigById()", () => {
     it("should update an existing survey config", async () => {
+      const testData = {
+        id: 2,
+      };
       const updateSurveyConfigDto = {
-        name: "Updated Test Survey Config",
-        departmentId: 2,
+        onboardingTime: 2,
+        onboardingTimeUnit: "MONTH",
       };
 
       const response = await pactum
         .spec()
-        .put("/survey-config/1")
+        .patch(`/survey-config/update/${testData.id}`)
+        .withPathParams({
+          id: testData.id,
+        })
         .withBody(updateSurveyConfigDto)
         .expectStatus(200);
 
-      const updatedSurveyConfig = JSON.parse(response.body);
+      const updatedSurveyConfig = JSON.parse(JSON.stringify(response.body));
 
-      expect(updatedSurveyConfig.name).toBe("Updated Test Survey Config");
-      expect(updatedSurveyConfig.departmentId).toBe(2);
+      expect(updatedSurveyConfig.message).toEqual(
+        `Successfully updated survey config for id #${testData.id}`
+      );
+      expect(updatedSurveyConfig.data.id).toEqual(testData.id);
+      expect(updatedSurveyConfig.data.departmentId).toBeDefined();
+      expect(updatedSurveyConfig.data.onboardingTime).toEqual(
+        updateSurveyConfigDto.onboardingTime
+      );
+      expect(updatedSurveyConfig.data.onboardingTimeUnit).toEqual(
+        updateSurveyConfigDto.onboardingTimeUnit
+      );
+      expect(updatedSurveyConfig.data.startTime).toBeDefined();
+      expect(updatedSurveyConfig.data.endTime).toBeDefined();
     });
   });
 
   describe("SurveyConfigController deleteSurveyConfigById()", () => {
     it("should delete an existing survey config", async () => {
+      const testData = {
+        id: 2,
+      };
       const response = await pactum
         .spec()
-        .delete("/survey-config/1")
+        .delete(`/survey-config/delete/${testData.id}`)
+        .withPathParams({
+          id: testData.id,
+        })
         .expectStatus(200);
 
-      const deletedSurveyConfig = JSON.parse(response.body);
-
-      expect(deletedSurveyConfig.name).toBeDefined();
-      expect(deletedSurveyConfig.departmentId).toBeDefined();
-      expect(deletedSurveyConfig.startTime).toBeDefined();
-      expect(deletedSurveyConfig.endTime).toBeDefined();
+      const deletedSurveyConfig = JSON.parse(JSON.stringify(response.body));
+      expect(deletedSurveyConfig.message).toEqual(
+        `Successfully deleted survey config for id #${testData.id}`
+      );
+      expect(deletedSurveyConfig.data.id).toEqual(testData.id);
+      expect(deletedSurveyConfig.data.departmentId).toBeDefined();
+      expect(deletedSurveyConfig.data.onboardingTime).toBeDefined();
+      expect(deletedSurveyConfig.data.onboardingTimeUnit).toBeDefined();
+      expect(deletedSurveyConfig.data.startTime).toBeDefined();
+      expect(deletedSurveyConfig.data.endTime).toBeDefined();
     });
   });
 });

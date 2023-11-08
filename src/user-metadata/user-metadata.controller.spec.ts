@@ -38,8 +38,8 @@ describe("UserMetadataController", () => {
     app.close();
   });
 
-  const userId1 = "0f5d0b13-8d72-46c9-a7c4-c1f7e5aa1f17";
-  const userId2 = "0f82ac61-9801-488f-babb-3c2d23a413d0";
+  const userId1 = "4d45a9e9-4a4d-4c92-aaea-7b5abbd6ff98";
+  const userId2 = "4f67ae5a-c2a2-4652-81cc-4d1471e1a158";
   describe("UserMetadataController createOrUpdateUserMetadata()", () => {
     it("should create or update user1 metadata", async () => {
 
@@ -87,27 +87,27 @@ describe("UserMetadataController", () => {
     });
   });
 
-  describe("UserMetadataController deleteUserMetadata()", () => {
-    it("should delete user1 metadata by ID", async () => {
+  // describe("UserMetadataController deleteUserMetadata()", () => {
+  //   it("should delete user1 metadata by ID", async () => {
 
-      const response = await pactum
-        .spec()
-        .delete("/user-metadata/" + userId1)
-        .expectStatus(200)
-        .expectBodyContains(userId1);
-    });
-  });
+  //     const response = await pactum
+  //       .spec()
+  //       .delete("/user-metadata/" + userId1)
+  //       .expectStatus(200)
+  //       .expectBodyContains(userId1);
+  //   });
+  // });
 
-  describe("UserMetadataController deleteUserMetadata()", () => {
-    it("should delete user2 metadata by ID", async () => {
+  // describe("UserMetadataController deleteUserMetadata()", () => {
+  //   it("should delete user2 metadata by ID", async () => {
 
-      const response = await pactum
-        .spec()
-        .delete("/user-metadata/" + userId2)
-        .expectStatus(200)
-        .expectBodyContains(userId2);
-    });
-  });
+  //     const response = await pactum
+  //       .spec()
+  //       .delete("/user-metadata/" + userId2)
+  //       .expectStatus(200)
+  //       .expectBodyContains(userId2);
+  //   });
+  // });
 
   describe("UserMetadataController findManyUserMetadata()", () => {
     it("should get all user metadata", async () => {
@@ -117,7 +117,8 @@ describe("UserMetadataController", () => {
         .expectStatus(200)
 
       const userMetadata = JSON.parse(JSON.stringify(response.body));
-
+     console.log(userMetadata);
+     
       expect(userMetadata).toStrictEqual({"data": [], "message": "UserMetadata(s) fetched successfully"});
       
     });

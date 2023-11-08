@@ -36,7 +36,7 @@ describe("AdminDepartment e2e", () => {
   });
 
   const testData = {
-   departmentId : 1
+   departmentId : 5
   }
 
   describe("AdminDepartmentController createOrUpdateAdminDepartment()", () => {
@@ -45,6 +45,7 @@ describe("AdminDepartment e2e", () => {
         .spec()
         .post(`/admin-department/${testData.departmentId}`)
         .withPathParams({ departmentId: testData.departmentId })
+        .expectStatus(201)
         .expectBodyContains(testData.departmentId);
     });
   });

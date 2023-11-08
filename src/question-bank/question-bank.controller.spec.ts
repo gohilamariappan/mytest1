@@ -51,7 +51,6 @@ describe("QuestionBankController", () => {
           .withBody(createQuestionDto)
           .expectStatus(201);
         const createdQuestion = JSON.parse(JSON.stringify(response.body));
-        console.log(createdQuestion);
 
         expect(createdQuestion.message).toEqual("Question created sucessfully.");
         expect(createdQuestion).not.toBeNull();
@@ -95,7 +94,6 @@ describe("QuestionBankController", () => {
           .withBody(updatedQuestionDto)
           .expectStatus(200);
         const updatedQuestion = JSON.parse(JSON.stringify(response.body));
-
         expect(updatedQuestion.message).toEqual(
           `Successfully updated question for id #${testData.id}`
         );
@@ -142,7 +140,6 @@ describe("QuestionBankController", () => {
         })
         .expectStatus(200);
       const questionsForUser = JSON.parse(JSON.stringify(response.body));
-      console.log("questionsByUser", questionsForUser);
       expect(questionsForUser.message).toEqual(
         `Successfully get all the question for id #${testData.userId}`
       );

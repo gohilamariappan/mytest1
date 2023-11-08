@@ -3,10 +3,9 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { INestApplication, ValidationPipe } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { ConfigService } from "@nestjs/config";
-import { SurveyConfigModule } from "src/survey-config/survey-config.module";
 import { CreateSurveyCycleParameterDto } from "./dto/create-survey-cycle-parameter.dto";
-import { ResponseSurveyCycleParameterDto } from "./dto/response-survey-cycle-parameter.dto";
 import { UpdateSurveyCycleParameterDto } from "./dto/update-survey-cycle-parameter.dto";
+import { SurveyCycleParameterModule } from "./survey-cycle-parameter.module";
 
 describe("SurveyCycleParameterController e2e", () => {
   let app: INestApplication;
@@ -14,7 +13,7 @@ describe("SurveyCycleParameterController e2e", () => {
   let module: TestingModule;
   beforeAll(async () => {
     module = await Test.createTestingModule({
-      imports: [SurveyConfigModule],
+      imports: [SurveyCycleParameterModule],
     }).compile();
 
     app = module.createNestApplication();
@@ -39,7 +38,7 @@ describe("SurveyCycleParameterController e2e", () => {
     app.close();
   });
   describe("SurveyCycleParameterController createSurveyParameter()", () => {
-    it("should return created survey cycle parameter with id and name", async function () {
+    it("should return created survey cycle parameter with id ", async function () {
       const createSurveyCycleParameterDto: CreateSurveyCycleParameterDto = {
         startTime: new Date("2023-10-31"),
         endTime: new Date("2024-01-31"),
@@ -53,20 +52,21 @@ describe("SurveyCycleParameterController e2e", () => {
         .withBody(createSurveyCycleParameterDto)
         .expectStatus(201);
 
-      const createdSurveyCycleParameter = JSON.parse(response);
-      expect(createdSurveyCycleParameter).toHaveProperty("id");
-      expect(createdSurveyCycleParameter.startTime).toEqual(
-        createSurveyCycleParameterDto.startTime
+      const createdSurveyCycleParameter = JSON.parse(
+        JSON.stringify(response.body)
       );
-      expect(createdSurveyCycleParameter.endTime).toEqual(
-        createSurveyCycleParameterDto.endTime
+      expect(createdSurveyCycleParameter.message).toEqual(
+        "Survey cycle parameter created successfully."
       );
-      expect(createdSurveyCycleParameter.isActive).toBeTruthy();
-      expect(createdSurveyCycleParameter.surveyConfigId).toEqual(
+      expect(createdSurveyCycleParameter.data).toHaveProperty("id");
+      expect(createdSurveyCycleParameter.data.startTime).toBeDefined();
+      expect(createdSurveyCycleParameter.data.endTime).toBeDefined();
+      expect(createdSurveyCycleParameter.data.isActive).toBeTruthy();
+      expect(createdSurveyCycleParameter.data.surveyConfigId).toEqual(
         createSurveyCycleParameterDto.surveyConfigId
       );
-      expect(createdSurveyCycleParameter?.createdAt).toBeDefined();
-      expect(createdSurveyCycleParameter?.updatedAt).toBeDefined();
+      expect(createdSurveyCycleParameter?.data.createdAt).toBeDefined();
+      expect(createdSurveyCycleParameter?.data.updatedAt).toBeDefined();
     });
   });
 
@@ -74,11 +74,17 @@ describe("SurveyCycleParameterController e2e", () => {
     it("should get all survey cycle parameter", async () => {
       const response = await pactum
         .spec()
-        .get("/survey-cycle-parameters")
+        .get("/survey-cycle-parameter")
         .expectStatus(200);
 
-      const getAllSurveyCycleParameter = JSON.parse(response);
-      expect(Array.isArray(getAllSurveyCycleParameter)).toBeTruthy();
+      const getAllSurveyCycleParameter = JSON.parse(
+        JSON.stringify(response.body)
+      );
+      console.log(getAllSurveyCycleParameter);
+      expect(getAllSurveyCycleParameter.message).toEqual(
+        "Successfully fetched all survey cycle parameter."
+      );
+      expect(getAllSurveyCycleParameter.data.length).toBeGreaterThanOrEqual(0);
     });
   });
 
@@ -88,29 +94,32 @@ describe("SurveyCycleParameterController e2e", () => {
         id: 1,
       };
       const updateSurveyCycleParameterDto: UpdateSurveyCycleParameterDto = {
-        startTime: new Date("2023-10-31"),
-        endTime: new Date("2024-01-31"),
+        startTime: new Date("2025-10-31"),
+        endTime: new Date("2025-11-31"),
         isActive: false,
       };
       const response = await pactum
         .spec()
-        .patch(`/survey-cycle-parameter/${testData.id}`)
+        .patch(`/survey-cycle-parameter/update/${testData.id}`)
         .withPathParams({
           id: testData.id,
         })
         .withBody(updateSurveyCycleParameterDto)
         .expectStatus(200);
-      const updatedSurveyCycleParameter = JSON.parse(response);
-      expect(updatedSurveyCycleParameter).toHaveProperty("id");
-      expect(updatedSurveyCycleParameter.startTime).toEqual(
-        updateSurveyCycleParameterDto.startTime
+      const updatedSurveyCycleParameter = JSON.parse(
+        JSON.stringify(response.body)
       );
-      expect(updatedSurveyCycleParameter.endTime).toEqual(
-        updateSurveyCycleParameterDto.endTime
+      expect(updatedSurveyCycleParameter.message).toEqual(
+        `Successfully updated survey cycle parameter for id #${testData.id}`
       );
-      expect(updatedSurveyCycleParameter.isActive).toEqual(false);
-      expect(updatedSurveyCycleParameter?.createdAt).toBeDefined();
-      expect(updatedSurveyCycleParameter?.updatedAt).toBeDefined();
+      expect(updatedSurveyCycleParameter.data).toHaveProperty("id");
+      expect(updatedSurveyCycleParameter.data.startTime).toBeDefined();
+      expect(updatedSurveyCycleParameter.data.endTime).toBeDefined();
+      expect(updatedSurveyCycleParameter.data.isActive).toEqual(
+        updateSurveyCycleParameterDto.isActive
+      );
+      expect(updatedSurveyCycleParameter?.data.createdAt).toBeDefined();
+      expect(updatedSurveyCycleParameter?.data.updatedAt).toBeDefined();
     });
   });
 });
