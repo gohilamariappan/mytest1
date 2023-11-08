@@ -1,9 +1,12 @@
+import { ApiProperty } from "@nestjs/swagger";
 import {
+  IsArray,
   IsInt,
   IsNotEmpty,
   IsOptional,
   IsString,
 } from "class-validator";
+import { UpdateQuestionBankDto2 } from "./update-question-bank.dto";
 
 // CreateQuestionBankDto is used for creating a new question bank
 export class CreateQuestionBankDto {
@@ -65,4 +68,21 @@ export class QuestionBankFilterDto {
   @IsOptional()
   @IsString()
   orderBy?: string;
+}
+
+export class CreateUpdateDeleteQuesitonsDto {
+  @IsOptional()
+  @IsNotEmpty()
+  createQuestions?: CreateQuestionBankDto[];
+  
+  @IsOptional()
+  @IsNotEmpty()
+  updateQuestions?: UpdateQuestionBankDto2[]
+
+  @ApiProperty({isArray: true, example:[1, 2, 3]})
+  @IsOptional()
+  @IsNotEmpty()
+  @IsArray()
+  @IsInt({ each: true })
+  deleteQuestions?: number[];
 }
