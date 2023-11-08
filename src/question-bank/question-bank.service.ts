@@ -13,8 +13,7 @@ import {
   QuestionBankFilterDto,
 } from "./dto/create-question-bank.dto";
 import {
-  UpdateQuestionBankDto,
-  UpdateQuestionBankDto2,
+  UpdateQuestionBankDto
 } from "./dto/update-question-bank.dto";
 
 @Injectable()

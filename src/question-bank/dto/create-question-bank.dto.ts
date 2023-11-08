@@ -1,5 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import {
+  ArrayNotEmpty,
   IsArray,
   IsInt,
   IsNotEmpty,
@@ -83,6 +84,7 @@ export class CreateUpdateDeleteQuesitonsDto {
   @IsOptional()
   @IsNotEmpty()
   @IsArray()
+  @ArrayNotEmpty()
   @IsInt({ each: true })
   deleteQuestions?: number[];
 }
