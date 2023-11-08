@@ -320,17 +320,17 @@ export class QuestionBankService {
     const { createQuestions, updateQuestions, deleteQuestions } = questionBank;
     await this.prisma.$transaction(async (prismaClient) => {
       if (!_.isUndefined(deleteQuestions) && !_.isEmpty(deleteQuestions)) {
-        for(const deleteQuestionId of deleteQuestions){
+        for (const deleteQuestionId of deleteQuestions) {
           await prismaClient.questionBank.delete({
             where: {
-              id : deleteQuestionId
+              id: deleteQuestionId,
             },
           });
         }
       }
 
       if (!_.isUndefined(updateQuestions) && !_.isEmpty(updateQuestions)) {
-        for(const updateQuestion of updateQuestions){
+        for (const updateQuestion of updateQuestions) {
           await prismaClient.questionBank.update({
             where: {
               id: updateQuestion.questionId,
@@ -343,12 +343,24 @@ export class QuestionBankService {
       }
 
       if (!_.isUndefined(createQuestions) && !_.isEmpty(createQuestions)) {
-        for(const createQuestion of createQuestions){
-          await prismaClient.questionBank.create({ data: {
-            competencyId: createQuestion.competencyId,
-            competencyLevelNumber: createQuestion.competencyLevelNumber,
-            question: createQuestion.question
-          } });
+        for (const createQuestion of createQuestions) {
+          const checkCompentencyId = await prismaClient.competency.findUnique({
+            where: {
+              id: createQuestion.competencyId,
+            },
+          });
+
+          if (!checkCompentencyId) {
+            throw new NotFoundException("Competency is not Found");
+          }
+
+          await prismaClient.questionBank.create({
+            data: {
+              competencyId: createQuestion.competencyId,
+              competencyLevelNumber: createQuestion.competencyLevelNumber,
+              question: createQuestion.question,
+            },
+          });
         }
       }
     });
