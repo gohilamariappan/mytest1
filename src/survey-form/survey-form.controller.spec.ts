@@ -42,7 +42,7 @@ describe("SurveyFormController e2e", () => {
 
   const testData = {
     userId: "4f67ae5a-c2a2-4652-81cc-4d1471e1a158",
-    id: 18,
+    surveyFormId: 1,
     surveyCycleParameterId: 1,
   };
 
@@ -69,7 +69,7 @@ describe("SurveyFormController e2e", () => {
       expect(createdSurveyForm.message).toEqual(
         "SurveyForm created successfully"
       );
-      expect(createdSurveyForm.data.data.id).toEqual(testData.id);
+      expect(createdSurveyForm.data.data.id).toEqual(testData.surveyFormId);
       expect(createdSurveyForm.data.userId).toEqual(createSurveyFormDto.userId);
       expect(createdSurveyForm.data.surveyCycleParameterId).toEqual(
         createSurveyFormDto.surveyCycleParameterId
@@ -88,34 +88,34 @@ describe("SurveyFormController e2e", () => {
     it("should get a survey form by ID", async () => {
       const response = await pactum
         .spec()
-        .get(`/survey-form/${testData.id}`)
+        .get(`/survey-form/${testData.surveyFormId}`)
         .withPathParams({
-          id: testData.id,
+          id: testData.surveyFormId,
         })
         .expectStatus(200);
 
       const surveyForm = JSON.parse(JSON.stringify(response.body));
       expect(surveyForm.message).toBe("SurveyForm fetched successfully");
-      expect(surveyForm.data.id).toEqual(testData.id);
+      expect(surveyForm.data.id).toEqual(testData.surveyFormId);
     });
   });
 
   describe("updateSurveyFormStatus", () => {
     it("should update the status of a survey form", async () => {
-      const updateData = { status: SurveyStatusEnum.PUBLISHED };
+      const updateData = { status: SurveyStatusEnum.CLOSED };
       const response = await pactum
         .spec()
-        .patch(`/survey-form/status/${testData.id}`)
+        .patch(`/survey-form/status/${testData.surveyFormId}`)
         .withPathParams({
-          id: testData.id,
+          id: testData.surveyFormId,
         })
         .withJson(updateData)
         .expectStatus(200);
 
       const updatedSurveyForm = JSON.parse(JSON.stringify(response.body));
       expect(updatedSurveyForm.message).toBe("SurveyForm updated successfully");
-      expect(updatedSurveyForm.data.id).toEqual(testData.id);
-      expect(updatedSurveyForm.data.status).toBe(SurveyStatusEnum.PUBLISHED);
+      expect(updatedSurveyForm.data.id).toEqual(testData.surveyFormId);
+      expect(updatedSurveyForm.data.status).toBe(updateData.status);
       expect(updatedSurveyForm.data.userId).toBeDefined();
     });
   });
@@ -124,16 +124,16 @@ describe("SurveyFormController e2e", () => {
     it("should delete a survey form by ID", async () => {
       const response = await pactum
         .spec()
-        .delete(`/survey-form/${testData.id}`)
+        .delete(`/survey-form/${testData.surveyFormId}`)
         .withPathParams({
-          id : testData.id
+          id : testData.surveyFormId
         })
         .expectStatus(200);
 
       const deletedSurveyForm = JSON.parse(JSON.stringify(response.body));
 
       expect(deletedSurveyForm.message).toBe("SurveyForm deleted successfully");
-      expect(deletedSurveyForm.data.id).toBe(testData.id);
+      expect(deletedSurveyForm.data.id).toBe(testData.surveyFormId);
       expect(deletedSurveyForm.data.status).toBeDefined();
       expect(deletedSurveyForm.data.userId).toBeDefined();
     });
