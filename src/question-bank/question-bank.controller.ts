@@ -17,10 +17,17 @@ import {
 import { QuestionBankService } from "./question-bank.service";
 import {
   CreateQuestionBankDto,
+  CreateUpdateDeleteQuesitonsDto,
   QuestionBankFilterDto,
 } from "./dto/create-question-bank.dto";
 import { UpdateQuestionBankDto } from "./dto/update-question-bank.dto";
-import { ApiBody, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
+import {
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from "@nestjs/swagger";
 import { ResponseQuestionBankDto } from "./dto/response-question-bank.dto";
 import { getPrismaErrorStatusAndMessage } from "../utils/utils";
 import { FileInterceptor } from "@nestjs/platform-express";
@@ -218,10 +225,9 @@ export class QuestionBankController {
       return res.status(statusCode).json({
         statusCode,
         message: errorMessage || `Failed to upload question bank.`,
-      })
+      });
     }
   }
-
 
   // Get all the mapped questions for the user
   @Get("user/:id")
@@ -258,6 +264,35 @@ export class QuestionBankController {
       return res.status(statusCode).json({
         statusCode,
         message: errorMessage || `Failed to get all questions for id #${id}`,
+      });
+    }
+  }
+
+  //API to Create, Update and Delete Multiple Questions
+  @Post("/updateMultipleQuestions")
+  @ApiOperation({ summary: "Create, Update and Delete Multiple Questions" })
+  @ApiResponse({ status: HttpStatus.OK })
+  async createUpdateDeleteQuesitons(
+    @Res() res,
+    @Body() createUpdateDeleteQuesitonsDto: CreateUpdateDeleteQuesitonsDto
+  ) {
+    // Log the initiaton for csv file upload
+    this.logger.log(`Initiate updating the question bank.`);
+    try {
+      await this.questionBankService.createUpdateDeleteQuesitons(createUpdateDeleteQuesitonsDto);
+      this.logger.log(`Successfully updated the question bank.`);
+      return res.status(HttpStatus.CREATED).json({
+        message: "Question bank updated sucessfully.",
+      });
+    } catch (error) {
+      this.logger.error(`Failed to update question bank.`, error);
+      // get error message and status code
+      const { errorMessage, statusCode } =
+        getPrismaErrorStatusAndMessage(error);
+      // Return an error response
+      return res.status(statusCode).json({
+        statusCode,
+        message: errorMessage || `Failed to update question bank.`,
       });
     }
   }

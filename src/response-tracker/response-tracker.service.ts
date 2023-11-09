@@ -1,6 +1,15 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
-import { PrismaService } from "..//prisma/prisma.service";
-import { CreateResponseTrackerDto } from "./dto/create-response-tracker.dto";
+import { PrismaService } from "../prisma/prisma.service";
+import {
+  Injectable,
+  NotAcceptableException,
+  NotFoundException,
+} from "@nestjs/common";
+import { ResponseTrackerStatusEnum } from "@prisma/client";
+import _ from "lodash";
+import {
+  CreateResponseTrackerDto,
+  responseObject,
+} from "./dto/create-response-tracker.dto";
 import { UpdateResponseTrackerDto } from "./dto/update-response-tracker.dto";
 import { IResponseTracker } from "./interfaces/response-tracker.interface";
 import { ResponseTrackerStatusEnum } from "@prisma/client";
@@ -46,26 +55,66 @@ export class ResponseTrackerService {
     return response;
   }
 
-  public async findByAssessorId(assessorId: string) {
+  public async findByAssessorIdAndSurveyFormId(
+    assessorId: string,
+    surveyFormId: number
+  ) {
     const response = await this.prisma.responseTracker.findMany({
-      where: { assessorId },
+      where: { assessorId, surveyFormId },
+      include: {
+        Assessee: {
+          select: {
+            designation: true,
+            userName: true,
+          },
+        },
+        surveyForm: {
+          select: {
+            surveyCycleParameter: {
+              select: {
+                endTime: true,
+              },
+            },
+          },
+        },
+      },
     });
 
     if (!response || response.length === 0)
       throw new NotFoundException(
-        `Response tracker with assessorId #${assessorId} not found`
+        `Response tracker with assessorId #${assessorId} and surveyFormId #${surveyFormId} not found`
       );
     return response;
   }
 
-  public async findByAssesseeId(assesseeId: string) {
+  public async findByAssesseeIdAndSurveyFormId(
+    assesseeId: string,
+    surveyFormId: number
+  ) {
     const response = await this.prisma.responseTracker.findMany({
-      where: { assesseeId },
+      where: { assesseeId, surveyFormId },
+      include: {
+        Assessor: {
+          select: {
+            designation: true,
+            userName: true, // add profile picture when added
+          },
+        },
+        surveyForm: {
+          select: {
+            surveyCycleParameter: {
+              select: {
+                endTime: true,
+              },
+            },
+          },
+        },
+      },
     });
 
     if (!response || response.length === 0)
       throw new NotFoundException(
-        `Response tracker with assesseeId #${assesseeId} not found`
+        `Response tracker with assesseeId #${assesseeId} and surveyFormId #${surveyFormId} not found`
       );
     return response;
   }
@@ -111,6 +160,16 @@ export class ResponseTrackerService {
     id: number,
     updateResponseTrackerDto: UpdateResponseTrackerDto
   ) {
+    const isQuestionsValid = await this.validateQuestions(
+      updateResponseTrackerDto.responseJson,
+      updateResponseTrackerDto.surveyFormId
+    );
+
+    if (!isQuestionsValid) {
+      throw new NotAcceptableException(
+        `Question not matching with the questions in the survey form with id #${updateResponseTrackerDto.surveyFormId}`
+      );
+    }
     const responseJson = JSON.stringify(updateResponseTrackerDto.responseJson);
 
     const payload = {
@@ -168,15 +227,30 @@ export class ResponseTrackerService {
   public async updateBySurveyFormId(
     updateResponseTrackerDto: UpdateResponseTrackerDto
   ) {
-    const { surveyFormId, assesseeId, assessorId } = updateResponseTrackerDto;
-    const responseJson = JSON.stringify(updateResponseTrackerDto.responseJson);
+
+    const { surveyFormId, assesseeId, assessorId, responseJson } =
+      updateResponseTrackerDto;
+    const isQuestionsValid = await this.validateQuestions(
+      responseJson,
+      surveyFormId
+    );
+
+    if (!isQuestionsValid) {
+      throw new NotAcceptableException(
+        `Question not matching with the questions in the survey form with id #${surveyFormId}`
+      );
+    }
+
+    const responseJsonData = JSON.stringify(responseJson);
 
     const payload = {
-      responseJson: JSON.parse(responseJson || "[]"),
+      responseJson: JSON.parse(responseJsonData || "[]"),
       status: ResponseTrackerStatusEnum.COMPLETED,
     };
 
-    if (!responseJson) delete payload.responseJson;
+    if (!responseJsonData) delete payload.responseJson;
+
+    const today = new Date().toISOString();
 
     return await this.prisma.responseTracker.update({
       where: {
@@ -185,8 +259,45 @@ export class ResponseTrackerService {
           assesseeId,
           assessorId,
         },
+        surveyForm: {
+          surveyCycleParameter: {
+            endTime: {
+              gte: today,
+            },
+          },
+        },
       },
       data: payload,
     });
+  }
+
+
+  public async validateQuestions(
+    questionData: responseObject[],
+    surveyFormId: number
+  ): Promise<boolean> {
+    const surveyForm = await this.prisma.surveyForm.findUniqueOrThrow({
+      where: {
+        id: surveyFormId,
+      },
+    });
+
+    const surveyFormQuestions = JSON.parse(
+      JSON.stringify(_.get(surveyForm, "questionsJson", []))
+    );
+    let surveyFormQuestionIds = _.compact(
+      _.map(surveyFormQuestions, (question) =>
+        _.get(question, "questionId", null)
+      )
+    );
+
+    surveyFormQuestionIds = _.sortBy(surveyFormQuestionIds);
+
+    let questionIds = _.compact(
+      _.map(questionData, (question) => _.get(question, "questionId", null))
+    );
+
+    questionIds = _.sortBy(questionIds);
+    return _.isEqual(questionIds, surveyFormQuestionIds);
   }
 }
