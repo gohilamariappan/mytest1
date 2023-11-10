@@ -1,5 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { TimeUnitsEnum } from "@prisma/client";
+import { Type } from "class-transformer";
 import { IsDate, IsEnum, IsInt, IsNotEmpty, IsOptional } from "class-validator";
 
 export class CreateSurveyConfigDto {
@@ -18,11 +19,13 @@ export class CreateSurveyConfigDto {
   // start time for the survey config
   @IsNotEmpty()
   @IsDate()
+  @Type(() => Date)
   startTime: Date;
 
   // end time for the survey config
   @IsNotEmpty()
   @IsDate()
+  @Type(() => Date)
   endTime: Date;
 }
 

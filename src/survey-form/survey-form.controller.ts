@@ -9,6 +9,7 @@ import {
   Delete,
   Res,
   Logger,
+  ParseIntPipe,
 } from "@nestjs/common";
 import { SurveyFormService } from "./survey-form.service";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
@@ -18,7 +19,7 @@ import {
   UpdateSurveyFormDto,
   UpdateSurveyFormStatusDto,
 } from "./dto";
-import { getPrismaErrorStatusAndMessage } from "src/utils/utils";
+import { getPrismaErrorStatusAndMessage } from "../utils/utils";
 
 @Controller("survey-form")
 @ApiTags("survey-form")
@@ -62,7 +63,7 @@ export class SurveyFormController {
   @ApiResponse({ status: HttpStatus.FOUND, type: SurveyFormResponse })
   async findSurveyFormById(
     @Res() res,
-    @Param("id") id: number
+    @Param("id", ParseIntPipe) id: number
   ): Promise<SurveyFormResponse> {
     try {
       this.logger.log(`Initiated fetching new survey form`);
@@ -91,7 +92,7 @@ export class SurveyFormController {
   @ApiResponse({ status: HttpStatus.OK, type: SurveyFormResponse })
   async updateSurveyFormStatus(
     @Res() res,
-    @Param("id") id: number,
+    @Param("id", ParseIntPipe) id: number,
     @Body() updateSurveyFormDto: UpdateSurveyFormStatusDto
   ): Promise<SurveyFormResponse> {
     try {
@@ -124,7 +125,7 @@ export class SurveyFormController {
   @ApiResponse({ status: HttpStatus.OK, type: SurveyFormResponse })
   async deleteSurveyForm(
     @Res() res,
-    @Param("id") id: number
+    @Param("id", ParseIntPipe) id: number
   ): Promise<SurveyFormResponse> {
     try {
       this.logger.log(`Initiated deleting new survey form`);

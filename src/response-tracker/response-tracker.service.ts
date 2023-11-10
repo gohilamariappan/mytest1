@@ -1,17 +1,17 @@
+import { PrismaService } from "../prisma/prisma.service";
 import {
   Injectable,
   NotAcceptableException,
   NotFoundException,
 } from "@nestjs/common";
-import { ResponseTrackerStatusEnum } from "@prisma/client";
 import _ from "lodash";
-import { PrismaService } from "src/prisma/prisma.service";
 import {
   CreateResponseTrackerDto,
   responseObject,
 } from "./dto/create-response-tracker.dto";
 import { UpdateResponseTrackerDto } from "./dto/update-response-tracker.dto";
 import { IResponseTracker } from "./interfaces/response-tracker.interface";
+import { ResponseTrackerStatusEnum } from "@prisma/client";
 
 @Injectable()
 export class ResponseTrackerService {
@@ -226,6 +226,7 @@ export class ResponseTrackerService {
   public async updateBySurveyFormId(
     updateResponseTrackerDto: UpdateResponseTrackerDto
   ) {
+
     const { surveyFormId, assesseeId, assessorId, responseJson } =
       updateResponseTrackerDto;
     const isQuestionsValid = await this.validateQuestions(
@@ -268,6 +269,7 @@ export class ResponseTrackerService {
       data: payload,
     });
   }
+
 
   public async validateQuestions(
     questionData: responseObject[],

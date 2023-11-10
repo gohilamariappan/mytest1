@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import _ from "lodash";
-import { MockDepartmentService } from "src/mockModules/mock-department/mock-department.service";
-import { PrismaService } from "src/prisma/prisma.service";
+import { MockDepartmentService } from "../mockModules/mock-department/mock-department.service";
+import { PrismaService } from "../prisma/prisma.service";
 import { FilterAdminDepartmentsDto } from "./dto/create-admin-department.dto";
 
 @Injectable()

@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { SurveyStatusEnum } from "@prisma/client";
-import { PrismaService } from "src/prisma/prisma.service";
+import { PrismaService } from "../prisma/prisma.service";
 import { CreateSurveyFormDto, SurveyScoresForUser } from "./dto";
 
 @Injectable()
@@ -20,7 +20,7 @@ export class SurveyFormService {
     });
   }
 
-  async findSurveyFormById(id: number) {
+  async findSurveyFormById(id: number) { 
     const surveyForm = await this.prisma.surveyForm.findUnique({
       where: { id },
     });

@@ -13,13 +13,13 @@ import {
   Res,
 } from "@nestjs/common";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
-import { getPrismaErrorStatusAndMessage } from "src/utils/utils";
 import {
   CreateResponseTrackerDto,
   ResponseTrackerDtoMultipleResponse,
   ResponseTrackerDtoResponse,
   UpdateResponseTrackerDto,
 } from "./dto";
+import { getPrismaErrorStatusAndMessage } from "../utils/utils";
 import { ResponseTrackerService } from "./response-tracker.service";
 
 @Controller("response-tracker")
