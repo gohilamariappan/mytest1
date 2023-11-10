@@ -36,7 +36,7 @@ describe("SurveyConfig e2e", () => {
   });
 
   afterAll(async () => {
-    app.close();
+    await app.close();
   });
 
   describe("SurveyConfigController createSurveyConfig()", () => {
@@ -44,7 +44,7 @@ describe("SurveyConfig e2e", () => {
       const createSurveyConfigDto : CreateSurveyConfigDto = {
         startTime: new Date("2023-10-31"),
         endTime: new Date("2024-01-31"),
-        departmentId: 4,
+        departmentId: 1,
         onboardingTime: 30,
         onboardingTimeUnit: "DAY",
       };
@@ -88,7 +88,7 @@ describe("SurveyConfig e2e", () => {
   describe("SurveyConfigController updateSurveyConfigById()", () => {
     it("should update an existing survey config", async () => {
       const testData = {
-        id: 2,
+        id: 1,
       };
       const updateSurveyConfigDto = {
         onboardingTime: 2,
@@ -125,7 +125,7 @@ describe("SurveyConfig e2e", () => {
   describe("SurveyConfigController deleteSurveyConfigById()", () => {
     it("should delete an existing survey config", async () => {
       const testData = {
-        id: 2,
+        id: 1,
       };
       const response = await pactum
         .spec()

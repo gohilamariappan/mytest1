@@ -127,7 +127,7 @@ describe("SurveyFormController e2e", () => {
 
   describe("findOne()", () => {
     it("should get a survey score by ID", async () => {
-      const id = 4;
+      const id = 1;
 
       const response = await pactum
         .spec()
@@ -151,7 +151,7 @@ describe("SurveyFormController e2e", () => {
 
   describe("update()", () => {
     it("should update a survey score by ID", async () => {
-      const id = 4;
+      const id = 1;
       const updateSurveyScoreDto: UpdateSurveyScoreDto = {
         score: 87,
       };

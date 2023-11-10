@@ -35,7 +35,7 @@ describe("SurveyCycleParameterController e2e", () => {
     pactum.request.setBaseUrl(`http://localhost:${PORT}/${apiPrefix}`);
   });
   afterAll(async () => {
-    app.close();
+    await app.close();
   });
   describe("SurveyCycleParameterController createSurveyParameter()", () => {
     it("should return created survey cycle parameter with id ", async function () {
