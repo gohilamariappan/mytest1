@@ -4,7 +4,6 @@ import {
   NotAcceptableException,
   NotFoundException,
 } from "@nestjs/common";
-import { ResponseTrackerStatusEnum } from "@prisma/client";
 import _ from "lodash";
 import {
   CreateResponseTrackerDto,

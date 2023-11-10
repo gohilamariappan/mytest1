@@ -69,7 +69,7 @@ describe("SurveyFormController e2e", () => {
       expect(createdSurveyForm.message).toEqual(
         "SurveyForm created successfully"
       );
-      expect(createdSurveyForm.data.data.id).toEqual(testData.surveyFormId);
+      expect(createdSurveyForm.data).toHaveProperty("id")
       expect(createdSurveyForm.data.userId).toEqual(createSurveyFormDto.userId);
       expect(createdSurveyForm.data.surveyCycleParameterId).toEqual(
         createSurveyFormDto.surveyCycleParameterId

@@ -289,16 +289,6 @@ export class QuestionBankService {
             };
           });
 
-          });
-
-          const mappedQuestions = _.map(questions, (data) => {
-            const { id, question } = data;
-            return {
-              question,
-              questionId: id,
-            };
-          });
-
           questionLists.push(...mappedQuestions);
           competencyLevelNumber--;
         }

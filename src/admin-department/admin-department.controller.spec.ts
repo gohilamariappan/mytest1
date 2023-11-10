@@ -32,11 +32,11 @@ describe("AdminDepartment e2e", () => {
   });
 
   afterAll(async () => {
-    app.close();
+    await app.close();
   });
 
   const testData = {
-   departmentId : 5
+   departmentId : 1
   }
 
   describe("AdminDepartmentController createOrUpdateAdminDepartment()", () => {
