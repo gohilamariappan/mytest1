@@ -76,11 +76,20 @@ model SurveyConfig {
   endTime            DateTime
   isActive           Boolean       @default(false)
   SurveyForm         SurveyForm[]
+  UserMapping        UserMapping[]
   // departmentId          Int                    @unique
   // AdminDepartment       AdminDepartment        @relation(fields: [departmentId], references: [departmentId])
   // SurveyCycleParameters SurveyCycleParameter[]
 
   @@map("survey_config")
+}
+
+model UserMapping {
+  id             Int          @id @default(autoincrement())
+  surveyConfigId Int
+  SurveyConfig   SurveyConfig @relation(fields: [surveyConfigId], references: [id])
+  assesseeId     String       @db.Uuid
+  assessorIds    String[]     @db.Uuid
 }
 
 // model SurveyCycleParameter {
