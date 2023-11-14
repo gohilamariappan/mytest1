@@ -211,7 +211,7 @@ export class QuestionBankController {
     // Log the initiaton for csv file upload
     this.logger.log(`Initiate to upload a csv file.`);
     try {
-      await this.questionBankService.uploadCsvFile(file.path);
+      this.questionBankService.uploadCsvFile(file.path);
       this.logger.log(`Successfully uploaded question bank.`);
       return res.status(HttpStatus.CREATED).json({
         message: "Question bank uploaded sucessfully.",
@@ -279,9 +279,7 @@ export class QuestionBankController {
     // Log the initiaton for csv file upload
     this.logger.log(`Initiate updating the question bank.`);
     try {
-      await this.questionBankService.createUpdateDeleteQuesitons(
-        createUpdateDeleteQuesitonsDto
-      );
+      await this.questionBankService.createUpdateDeleteQuesitons(createUpdateDeleteQuesitonsDto);
       this.logger.log(`Successfully updated the question bank.`);
       return res.status(HttpStatus.CREATED).json({
         message: "Question bank updated sucessfully.",
@@ -295,37 +293,6 @@ export class QuestionBankController {
       return res.status(statusCode).json({
         statusCode,
         message: errorMessage || `Failed to update question bank.`,
-      });
-    }
-  }
-
-  // API to get question bank template header
-  @Get("/template")
-  @ApiOperation({ summary: "get question bank template header" })
-  @ApiResponse({ status: HttpStatus.OK })
-  async getQuestionBankTemplate(
-    @Res() res
-  ) {
-    this.logger.log(`Initiate to fetch the question bank template header.`);
-    try {
-      const header = await this.questionBankService.getQuestionBankTemplate();
-       this.logger.log(
-         `Successfully fetch the question bank template header.`
-       );
-       return res.status(HttpStatus.CREATED).json({
-         message: "Successfully fetch the question bank template header.",
-         data : header
-       });
-    } catch (error) {
-      this.logger.error(`Failed to get the question bank template header.`, error);
-      // get error message and status code
-      const { errorMessage, statusCode } =
-        getPrismaErrorStatusAndMessage(error);
-      // Return an error response
-      return res.status(statusCode).json({
-        statusCode,
-        message:
-          errorMessage || `Failed to get the question bank template header.`,
       });
     }
   }
