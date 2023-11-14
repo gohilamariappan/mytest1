@@ -363,4 +363,9 @@ export class QuestionBankService {
       }
     });
   }
+
+  public async getQuestionBankTemplate() {
+    const header = ["competency", "competencyLevelNu", "question"];
+    return header;
+  }
 }
