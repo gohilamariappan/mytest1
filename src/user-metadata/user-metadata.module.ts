@@ -1,15 +1,13 @@
 import { Module } from "@nestjs/common";
+import { MockUserService } from "src/mockModules/mock-user/mock-user.service";
+import { SurveyConfigModule } from "../survey-config/survey-config.module";
 import { UserMetadataController } from "./user-metadata.controller";
 import { UserMetadataService } from "./user-metadata.service";
-import { SurveyConfigService } from "../survey-config/survey-config.service";
-import { MockUserService } from "../mockModules/mock-user/mock-user.service";
-import { PrismaModule } from "../prisma/prisma.module";
-import { AdminDepartmentModule } from "../admin-department/admin-department.module";
 
 @Module({
-  imports: [AdminDepartmentModule,PrismaModule],
+  imports:[SurveyConfigModule],
   controllers: [UserMetadataController],
-  providers: [UserMetadataService, SurveyConfigService, MockUserService],
+  providers: [UserMetadataService, MockUserService],
   exports: [UserMetadataService],
 })
 export class UserMetadataModule {}

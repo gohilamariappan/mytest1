@@ -12,11 +12,6 @@ export class UserMetadataFilterDto {
   @IsNotEmpty()
   isNewEmployee?: boolean;
 
-  @IsInt()
-  @IsOptional()
-  @IsNotEmpty()
-  departmentId?: number;
-
   @IsString()
   @IsOptional()
   @IsNotEmpty()

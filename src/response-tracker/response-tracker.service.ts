@@ -69,7 +69,7 @@ export class ResponseTrackerService {
         },
         surveyForm: {
           select: {
-            surveyCycleParameter: {
+            SurveyConfig: {
               select: {
                 endTime: true,
               },
@@ -101,7 +101,7 @@ export class ResponseTrackerService {
         },
         surveyForm: {
           select: {
-            surveyCycleParameter: {
+            SurveyConfig: {
               select: {
                 endTime: true,
               },
@@ -121,7 +121,7 @@ export class ResponseTrackerService {
   public async getResponsesActiveSurveyByUserId(userId: string) {
     const surveyForms = await this.prisma.surveyForm.findMany({
       where: {
-        surveyCycleParameter: {
+        SurveyConfig: {
           isActive: true,
         },
         userId,
@@ -259,7 +259,7 @@ export class ResponseTrackerService {
           assessorId,
         },
         surveyForm: {
-          surveyCycleParameter: {
+          SurveyConfig: {
             endTime: {
               gte: today,
             },
