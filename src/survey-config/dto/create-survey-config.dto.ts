@@ -78,12 +78,12 @@ export class SurveyConfigFilterDto {
   // Optional limit for pagination, validate that it's an integer.
   @IsOptional()
   @IsInt()
-  limit?: number = 10;
+  limit?: number;
 
   // Optional offset for pagination, validate that it's an integer.
   @IsOptional()
   @IsInt()
-  offset?: number = 0;
+  offset?: number;
 }
 
 export class UserMappingFileUploadDto {
