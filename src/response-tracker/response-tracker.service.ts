@@ -55,7 +55,7 @@ export class ResponseTrackerService {
     return response;
   }
 
-  public async findByAssessorIdAndSurveyFormId(
+  public async findByAssessorId(
     assessorId: string
   ) {
     const response = await this.prisma.responseTracker.findMany({
