@@ -4,6 +4,7 @@ import {
   HttpStatus,
   Logger,
   Param,
+  ParseIntPipe,
   ParseUUIDPipe,
   Post,
   Res,
@@ -24,7 +25,7 @@ export class SurveyController {
   @ApiResponse({ status: HttpStatus.CREATED })
   async generateSurveyFormsForSurveyConfig(
     @Res() res,
-    @Param("configId") configId: number
+    @Param("configId", ParseIntPipe) configId: number
   ) {
     try {
       this.logger.log(
@@ -103,7 +104,7 @@ export class SurveyController {
   @ApiResponse({ status: HttpStatus.OK, type: ResponseSurveyFormDto })
   async getLatestSurveyResponsesForUserId(
     @Res() res,
-    @Param("userId") userId: string
+    @Param("userId", ParseUUIDPipe) userId: string
   ): Promise<SurveyFormResponse> {
     try {
       this.logger.log(

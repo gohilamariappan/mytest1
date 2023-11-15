@@ -216,7 +216,7 @@ export class UserMetadataService {
         const user = await prismaClient.userMetadata.findUnique({
           where: { userId: id },
         });
-        console.log({user,})
+        
         if(!user){
           await this.createOrUpdateUserMetadata(id);
         }
