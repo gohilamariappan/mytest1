@@ -364,8 +364,75 @@ export class QuestionBankService {
     });
   }
 
+  public async getUnmappedCompetency() {
+    const QuestionsMappedWithCompetency =
+      await this.prisma.questionBank.findMany();
+    //  console.log("QuestionsMappedWithCompetency", QuestionsMappedWithCompetency);
+    const mappedCompetenciesSet = new Set(
+      QuestionsMappedWithCompetency.map(
+        (mapped) => `${mapped.competencyId}_${mapped.competencyLevelNumber}`
+      )
+    );
+    // get all competencies
+    const allCompetencies =
+      await this.competencyService.findAllCompetenciesWithLevelNames();
+
+    const unmappedCompetencies: {
+      competencyId: number;
+      competencyLevelNumber: number;
+    }[] = [];
+
+    allCompetencies.forEach((competency) => {
+      const { competencyLevels } = competency;
+      competencyLevels.forEach(async (level) => {
+        const key = `${level.competencyId}_${level.competencyLevel.levelNumber}`;
+
+        if (!mappedCompetenciesSet.has(key)) {
+          unmappedCompetencies.push({
+            competencyId: level.competencyId,
+            competencyLevelNumber: level.competencyLevel.levelNumber,
+          });
+        }
+      });
+    });
+    const data: any = [];
+    // Use map to create an array of promises
+    const promises = unmappedCompetencies.map(async (item) => {
+      const competency = (
+        await this.competencyService.findCompetencyById(item.competencyId)
+      ).name;
+      const competencyAndLevel = {
+        competency,
+        competencyLevelNumber: item.competencyLevelNumber,
+      };
+      return competencyAndLevel; // Return the value to the map function
+    });
+
+    try {
+      await Promise.all(promises)
+        .then((result) => {
+          // All asynchronous operations have completed
+          data.push(...result); // Push all results to the data array
+        })
+        .catch((error) => {
+          // Handle errors if any of the promises reject
+          console.error(error);
+        });
+    } catch (error) {
+      console.error("Error storing data in the database:", error);
+      throw new Error("Failed to store data in the database");
+    }
+    return data;
+  }
+
   public async getQuestionBankTemplate() {
-    const header = ["competency", "competencyLevelNu", "question"];
-    return header;
+    const header = ["competency", "competencyLevelNumber", "question"];
+    // get all unmapped competency and their competencyLevelNumber for which there
+    // is no any question associated with it
+    const unmappedCompetencies = await this.getUnmappedCompetency();
+    return {
+      header,
+      unmappedCompetencies,
+    };
   }
 }
