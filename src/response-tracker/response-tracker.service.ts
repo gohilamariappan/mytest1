@@ -55,15 +55,17 @@ export class ResponseTrackerService {
     return response;
   }
 
-  public async findByAssessorId(assessorId: string) {
+  public async findByAssessorIdAndSurveyFormId(
+    assessorId: string
+  ) {
     const response = await this.prisma.responseTracker.findMany({
-      where: {
-        assessorId,
+      where: { 
+        assessorId, 
         surveyForm: {
           SurveyConfig: {
             isActive: true,
-          },
-        },
+          }
+        } 
       },
       include: {
         Assessee: {
