@@ -15,6 +15,7 @@ import {
 import { UpdateSurveyConfigDto } from "./dto/update-survey-config.dto";
 import { UserMetadataService } from "../user-metadata/user-metadata.service";
 import { isDateInPast } from "../utils/utils";
+import { UserMappingDTO } from "./dto/response-survey-config.dto";
 
 @Injectable()
 export class SurveyConfigService {
@@ -95,7 +96,7 @@ export class SurveyConfigService {
   ) {
     let updatedConfig;
     let userIdList: Set<string> = new Set();
-    
+
     const surveyConfig = await this.prisma.surveyConfig.findUnique({
       where: {
         id: surveyConfigId,
@@ -111,7 +112,7 @@ export class SurveyConfigService {
         `Cannot update a survey config after the startTime has already passed.`
       );
     }
-    
+
     try {
       await this.prisma.$transaction(async (prismaClient) => {
         if (filepath != null) {
@@ -123,11 +124,12 @@ export class SurveyConfigService {
             const userMapping: UserMappingFileUploadDto = obj;
 
             try {
-              userIdList = await this.userMetadataService.validateAndFetchUserIds(
-                prismaClient,
-                userIdList,
-                userMapping
-              );
+              userIdList =
+                await this.userMetadataService.validateAndFetchUserIds(
+                  prismaClient,
+                  userIdList,
+                  userMapping
+                );
             } catch (error) {
               throw error;
             }
@@ -179,5 +181,22 @@ export class SurveyConfigService {
       },
     });
     return deletedSurveyConfig;
+  }
+
+  public async getUserMappingSampleForSurveyConfig(): Promise<UserMappingDTO[]> {
+    return [
+      {
+        assesseeId: "8a98a623-2ad4-40af-bfb3-1a53051e89e9",
+        assessorIds: "8e11986e-36d4-4f7d-bf5e-b436a25ee661, 53fc7f0c-8724-4cba-80b9-3f6040e3aeae",
+      },
+      {
+        assesseeId: "8e11986e-36d4-4f7d-bf5e-b436a25ee661",
+        assessorIds: "8a98a623-2ad4-40af-bfb3-1a53051e89e9, 53fc7f0c-8724-4cba-80b9-3f6040e3aeae",
+      },
+      {
+        assesseeId: "53fc7f0c-8724-4cba-80b9-3f6040e3aeae",
+        assessorIds: "8a98a623-2ad4-40af-bfb3-1a53051e89e9, 8e11986e-36d4-4f7d-bf5e-b436a25ee661",
+      },
+    ];
   }
 }

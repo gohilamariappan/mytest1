@@ -21,7 +21,7 @@ import {
 } from "./dto/create-survey-config.dto";
 import { UpdateSurveyConfigDto } from "./dto/update-survey-config.dto";
 import { ApiBody, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
-import { ConfigResponseDTO, ResponseSurveyConfigDto } from "./dto/response-survey-config.dto";
+import { ConfigResponseDTO, ResponseSurveyConfigDto, SampleUserMappingResponse } from "./dto/response-survey-config.dto";
 import { getPrismaErrorStatusAndMessage } from "../utils/utils";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { multerOptions } from "../config/multer-options.config";
@@ -181,6 +181,38 @@ export class SurveyConfigController {
       return res.status(statusCode).json({
         statusCode,
         message: errorMessage || `Failed to delete survey config for id #${id}`,
+      });
+    }
+  }
+
+  @Get("user-mapping-sample")
+  @ApiOperation({ summary: "Get sample user mapping data" }) // Api operation for swagger
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: SampleUserMappingResponse,
+    isArray: true,
+  }) 
+  async getUserMappingSampleForSurveyConfig(
+    @Res() res
+  ): Promise<SampleUserMappingResponse> {
+    try {
+      this.logger.log(`Initiated fetching sample user mapping data.`);
+      const sampleData = await this.surveyConfigService.getUserMappingSampleForSurveyConfig();
+      this.logger.log(`Successfully fetched sample user mapping data.`);
+
+      return res.status(HttpStatus.OK).json({
+        message: "Kindly substitute the placeholder UUIDs with authentic and valid ones.",
+        data: sampleData,
+      });
+    } catch (error) {
+      this.logger.error(`Failed to fetch sample user mapping data`, error);
+
+      const { errorMessage, statusCode } =
+        getPrismaErrorStatusAndMessage(error); // get error message and status code
+
+      return res.status(statusCode).json({
+        statusCode,
+        message: errorMessage || `Failed to fetch sample user mapping data.`,
       });
     }
   }
