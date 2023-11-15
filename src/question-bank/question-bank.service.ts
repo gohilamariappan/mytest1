@@ -50,8 +50,13 @@ export class QuestionBankService {
 
   async getAllQuestions(filter: QuestionBankFilterDto) {
     // Get all questions and filter using compentencyId and compentencyLevelId
-    const { competencyId, competencyLevelNumber, limit, offset, orderBy } =
-      filter;
+    const {
+      competencyId,
+      competencyLevelNumber,
+      limit,
+      offset,
+      orderBy,
+    } = filter;
     return this.prisma.questionBank.findMany({
       where: {
         competencyId: competencyId ?? undefined, // Optional compentencyId filter

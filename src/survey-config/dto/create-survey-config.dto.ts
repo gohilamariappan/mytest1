@@ -97,3 +97,15 @@ export class UserMappingFileUploadDto {
   @IsUUID("all", { each: true })
   assessorIds: UUID[];
 }
+
+export class UserMappingFileUploadDto {
+  @IsNotEmpty()
+  @IsUUID()
+  assesseeId: string;
+
+  @IsNotEmpty()
+  @IsArray()
+  @ArrayNotEmpty()
+  @IsUUID("all", { each: true })
+  assessorIds: UUID[];
+}

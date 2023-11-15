@@ -124,12 +124,11 @@ export class SurveyConfigService {
             const userMapping: UserMappingFileUploadDto = obj;
 
             try {
-              userIdList =
-                await this.userMetadataService.validateAndFetchUserIds(
-                  prismaClient,
-                  userIdList,
-                  userMapping
-                );
+              userIdList = await this.userMetadataService.validateAndFetchUserIds(
+                prismaClient,
+                userIdList,
+                userMapping
+              );
             } catch (error) {
               throw error;
             }
