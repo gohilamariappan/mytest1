@@ -54,12 +54,16 @@ export class ResponseTrackerService {
     return response;
   }
 
-  public async findByAssessorIdAndSurveyFormId(
-    assessorId: string,
-    surveyFormId: number
-  ) {
+  public async findByAssessorId(assessorId: string) {
     const response = await this.prisma.responseTracker.findMany({
-      where: { assessorId, surveyFormId },
+      where: {
+        assessorId,
+        surveyForm: {
+          surveyCycleParameter: {
+            isActive: true,
+          },
+        },
+      },
       include: {
         Assessee: {
           select: {
@@ -81,7 +85,7 @@ export class ResponseTrackerService {
 
     if (!response || response.length === 0)
       throw new NotFoundException(
-        `Response tracker with assessorId #${assessorId} and surveyFormId #${surveyFormId} not found`
+        `Response tracker with assessorId #${assessorId} not found`
       );
     return response;
   }
@@ -226,7 +230,6 @@ export class ResponseTrackerService {
   public async updateBySurveyFormId(
     updateResponseTrackerDto: UpdateResponseTrackerDto
   ) {
-
     const { surveyFormId, assesseeId, assessorId, responseJson } =
       updateResponseTrackerDto;
     const isQuestionsValid = await this.validateQuestions(
@@ -269,7 +272,6 @@ export class ResponseTrackerService {
       data: payload,
     });
   }
-
 
   public async validateQuestions(
     questionData: responseObject[],
