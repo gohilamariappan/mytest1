@@ -301,23 +301,23 @@ export class QuestionBankController {
 
   // API to get question bank template header
   @Get("/template")
-  @ApiOperation({ summary: "get question bank template header" })
+  @ApiOperation({ summary: "get question bank template" })
   @ApiResponse({ status: HttpStatus.OK })
   async getQuestionBankTemplate(
     @Res() res
   ) {
-    this.logger.log(`Initiate to fetch the question bank template header.`);
+    this.logger.log(`Initiate to fetch the question bank template.`);
     try {
       const header = await this.questionBankService.getQuestionBankTemplate();
        this.logger.log(
-         `Successfully fetch the question bank template header.`
+         `Successfully fetch the question bank template.`
        );
        return res.status(HttpStatus.CREATED).json({
-         message: "Successfully fetch the question bank template header.",
+         message: "Successfully fetch the question bank template.",
          data : header
        });
     } catch (error) {
-      this.logger.error(`Failed to get the question bank template header.`, error);
+      this.logger.error(`Failed to get the question bank template.`, error);
       // get error message and status code
       const { errorMessage, statusCode } =
         getPrismaErrorStatusAndMessage(error);
@@ -325,7 +325,7 @@ export class QuestionBankController {
       return res.status(statusCode).json({
         statusCode,
         message:
-          errorMessage || `Failed to get the question bank template header.`,
+          errorMessage || `Failed to get the question bank template.`,
       });
     }
   }
