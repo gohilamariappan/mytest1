@@ -182,7 +182,7 @@ export class ResponseTrackerController {
       );
 
       const response =
-        await this.responseTrackerService.findByAssessorIdAndSurveyFormId(
+        await this.responseTrackerService.findByAssessorId(
           assessorId
         );
 
