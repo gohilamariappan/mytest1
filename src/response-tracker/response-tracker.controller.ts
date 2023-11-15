@@ -181,18 +181,17 @@ export class ResponseTrackerController {
         `Initiated fetching response tracker with assessorId#${assessorId}.`
       );
 
-      const response =
-        await this.responseTrackerService.findByAssessorId(
-          assessorId
-        );
+      const response = await this.responseTrackerService.findByAssessorId(
+        assessorId
+      );
 
       return res.status(HttpStatus.OK).json({
         data: response,
-        message: `Successfully fetched response tracker for assessorId #${assessorId}`,
+        message: `Successfully fetched response tracker for assessorId #${assessorId}.`,
       });
     } catch (error) {
       this.logger.error(
-        `Failed to fetch response tracker with assessorId #${assessorId}`,
+        `Failed to fetch response tracker with assessorId #${assessorId}.`,
         error
       );
 
@@ -203,7 +202,7 @@ export class ResponseTrackerController {
         statusCode,
         message:
           errorMessage ||
-          `Failed to fetch response tracker for assessorId #${assessorId}`,
+          `Failed to fetch response tracker for assessorId #${assessorId}.`,
       });
     }
   }
