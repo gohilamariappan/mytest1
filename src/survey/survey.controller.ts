@@ -11,6 +11,7 @@ import {
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { getPrismaErrorStatusAndMessage } from "src/utils/utils";
 import { SurveyService } from "./survey.service";
+import { ResponseSurveyFormDto, SurveyFormResponse } from "../survey-form/dto";
 
 @Controller("survey")
 @ApiTags("survey")
@@ -18,30 +19,32 @@ export class SurveyController {
   private readonly logger = new Logger(SurveyController.name);
   constructor(private readonly surveyService: SurveyService) {}
 
-  @Post(":departmentId")
-  @ApiOperation({ summary: "Create Survey-Forms for a department." })
+  @Post(":configId")
+  @ApiOperation({ summary: "Create Survey-Forms for a SurveyConfig." })
   @ApiResponse({ status: HttpStatus.CREATED })
-  async generateSurveyFormsForDepartment(
+  async generateSurveyFormsForSurveyConfig(
     @Res() res,
-    @Param("departmentId") departmentId: number
+    @Param("configId") configId: number
   ) {
     try {
-      this.logger.log(`Initiated creating new survey forms for a department.`);
+      this.logger.log(
+        `Initiated creating new survey forms for a Survey Config.`
+      );
 
       const surveyForms =
-        await this.surveyService.generateSurveyFormsForDepartment(departmentId);
+        await this.surveyService.generateSurveyFormsForSurveyConfig(configId);
 
       this.logger.log(
-        `Successfully created new survey forms for a department.`
+        `Successfully created new survey forms for a Survey Config.`
       );
 
       return res.status(HttpStatus.CREATED).json({
         data: surveyForms,
-        message: `SurveyForms created successfully for department with id #${departmentId}`,
+        message: `SurveyForms created successfully for Survey Config with id #${configId}`,
       });
     } catch (error) {
       this.logger.error(
-        `Failed to create new survey forms for department with id #${departmentId}`,
+        `Failed to create new survey forms for Survey Config with id #${configId}`,
         error
       );
 
@@ -50,7 +53,7 @@ export class SurveyController {
       return res.status(statusCode).json({
         message:
           errorMessage ||
-          `Could not create survey forms for department with id #${departmentId}`,
+          `Could not create survey forms for Survey Config with id #${configId}`,
       });
     }
   }
@@ -61,7 +64,7 @@ export class SurveyController {
   async getSurveysToBeFilledByUser(
     @Res() res,
     @Param("userId", ParseUUIDPipe) userId: string
-  ) {
+  ): Promise<{ data: number; message: string }> {
     try {
       this.logger.log(
         `Getting number of surveys to be filled by user with id #${userId}.`
@@ -97,11 +100,11 @@ export class SurveyController {
 
   @Get("latest-survey-response/:userId")
   @ApiOperation({ summary: "Fetch latest survey response by userId" })
-  @ApiResponse({ status: HttpStatus.OK })
+  @ApiResponse({ status: HttpStatus.OK, type: ResponseSurveyFormDto })
   async getLatestSurveyResponsesForUserId(
     @Res() res,
     @Param("userId") userId: string
-  ) {
+  ): Promise<SurveyFormResponse> {
     try {
       this.logger.log(
         `Initiated fetching latest survey response by userId #${userId}`

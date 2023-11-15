@@ -1,24 +1,19 @@
-import { Injectable, Logger, NotFoundException } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { Cron, CronExpression } from "@nestjs/schedule";
-import {
-  AdminDepartment,
-  SurveyConfig,
-  SurveyStatusEnum,
-} from "@prisma/client";
+import { SurveyConfig, SurveyStatusEnum } from "@prisma/client";
+import { PrismaService } from "../prisma/prisma.service";
 import { SurveyConfigService } from "../survey-config/survey-config.service";
-import { SurveyCycleParameterService } from "../survey-cycle-parameter/survey-cycle-parameter.service";
 import { SurveyFormService } from "../survey-form/survey-form.service";
 import { SurveyScoreService } from "../survey-score/survey-score.service";
 import { SurveyService } from "../survey/survey.service";
 import { UserMetadataService } from "../user-metadata/user-metadata.service";
-import { AdminDepartmentService } from "../admin-department/admin-department.service";
+import { isDayBeforeToday, isToday } from "../utils/utils";
 
 @Injectable()
 export class ScheduledTasksService {
   constructor(
-    private adminDepartmentService: AdminDepartmentService,
+    private prismaService: PrismaService,
     private surveyConfigService: SurveyConfigService,
-    private surveyParamsService: SurveyCycleParameterService,
     private surveyService: SurveyService,
     private userMetadataService: UserMetadataService,
     private surveyFormService: SurveyFormService,
@@ -29,55 +24,52 @@ export class ScheduledTasksService {
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async surveyCron() {
     this.logger.log(
-      `Start CRON Job for Surveys. Fetching data of all departments.`
+      `Start CRON Job for Surveys. Fetching data of all survey configurations.`
     );
 
-    const departments = await this.adminDepartmentService.getAllAdminDepartment({});
+    const surveyConfigs = await this.surveyConfigService.getAllSurveyConfig({});
 
     this.logger.log(
-      `Fetched data of all departments. Cycling through every department to start or end surveys.`
+      `Fetched data of all survey configurations. Cycling through every survey configuration to start or end surveys.`
     );
 
-    for (const department of departments) {
-      const surveyConfig = await this.surveyConfigService.getAllSurveyConfig({
-        departmentId: department.id,
-      });
-
-      const surveyConfigParam = await this.surveyParamsService.getAllSurveyParameter({
-        surveyConfigId: surveyConfig[0].id,
-      });
-
+    for (const surveyConfig of surveyConfigs) {
       this.logger.log(
-        `Checking if a survey is Active for the department "${department.name}" with id: "${department.departmentId}".`
+        `Checking if the surveyConfig "${surveyConfig.surveyName}" with id: "${surveyConfig.id}" is Active.`
       );
 
-      if (surveyConfigParam && surveyConfigParam[0].isActive == true) {
+      if (surveyConfig.isActive == true) {
+        this.logger.log(`The survey is ACTIVE.`);
 
-        this.logger.log(`A survey is ACTIVE for department "${department.name}"`);
-
-        if (this.isDayBeforeToday(surveyConfigParam[0].endTime)) {
+        if (isDayBeforeToday(surveyConfig.endTime)) {
           this.logger.log(
             `Survey will end tomorrow. Sending remainder notification to all survey participants.`
           );
           //send notifications
-        } else if (this.isToday(surveyConfigParam[0].endTime)) {
-          
+        } else if (isToday(surveyConfig.endTime)) {
           this.logger.log(`Fetching all SurveyForms related to the survey.`);
           const surveyForms =
-            await this.surveyFormService.findSurveyFormBySurveyCycleParameterId(
-              surveyConfigParam[0].id
+            await this.surveyFormService.findSurveyFormBySurveyConfigId(
+              surveyConfig.id
             );
 
-          this.logger.log(`Calculation scores for all "${surveyForms.length}" SurveyForms related to the survey.`);
+          this.logger.log(
+            `Calculation scores for all "${surveyForms.length}" SurveyForms related to the survey.`
+          );
           for (const surveyForm of surveyForms) {
-            //calculate score for each form
-            this.logger.log(`Calculation score for SurveyForms with id: "${surveyForm.id}" for user with id: "${surveyForm.userId}".`);
+            this.logger.log(
+              `Calculating the score for SurveyForm with id: "${surveyForm.id}" for user with id: "${surveyForm.userId}".`
+            );
             await this.surveyScoreService.calculateSurveyScoreBySurveyFormId(
               surveyForm.id
             );
+            this.logger.log(
+              `Calculated the score for SurveyForm with id: "${surveyForm.id}" for user with id: "${surveyForm.userId}".`
+            );
 
-            //update the survey form as "CLOSED"
-            this.logger.log(`Calculated the score and updating the surveyFrom's status to "CLOSED."`);
+            this.logger.log(
+              `Updating the surveyFrom's (id: "${surveyForm.id}") status to "CLOSED".`
+            );
             await this.surveyFormService.updateSurveyFormStatus(
               surveyForm.id,
               SurveyStatusEnum.CLOSED
@@ -85,80 +77,78 @@ export class ScheduledTasksService {
             this.logger.log(`Updated the surveyFrom's status to "CLOSED."`);
           }
 
+          this.logger.log(
+            `Deleting the userMapping for the survey as it will end today.`
+          );
+          await this.prismaService.userMapping.deleteMany({
+            where: { surveyConfigId: surveyConfig.id },
+          });
+          this.logger.log(
+            `Deleted the userMapping for the survey as it will end today.`
+          );
+
           this.logger.log(`Deactivating the Survey as it will end today.`);
-          await this.surveyParamsService.updateSurveyParameterById(
-            surveyConfigParam[0].id,
+          await this.surveyConfigService.updateSurveyConfigById(
+            surveyConfig.id,
             { isActive: false }
           );
-          this.logger.log(`Deactivated the Survey with for the department "${department.name}" with id: "${department.departmentId}.`);
-
+          this.logger.log(
+            `Deactivated the Survey "${surveyConfig.surveyName}" with surveyConfigId: "${surveyConfig.id}".`
+          );
         }
       } else {
-        await this.startSurvey(department, surveyConfig[0]);
+        await this.startSurvey(surveyConfig);
       }
     }
   }
 
-  async startSurvey(department: AdminDepartment, surveyConfig: SurveyConfig) {
-    this.logger.log(`No survey is ACTIVE for department "${department.name}"`);
-    if (this.isDayBeforeToday(surveyConfig.startTime)) {
-      //update department data
-      this.logger.log(`The survey starts tomorrow. Updating department data.`);
-      const updateDepartment =
-        await this.adminDepartmentService.createOrUpdateAdminDepartment(
-          department.id
-        );
-      this.logger.log(`Updated department's data.`);
-
+  async startSurvey(surveyConfig: SurveyConfig) {
+    this.logger.log(
+      `The survey with surveyConfigId: "${surveyConfig.id}" is not ACTIVE.`
+    );
+    if (isDayBeforeToday(surveyConfig.startTime)) {
       //update user data
-      this.logger.log(`Fetching users that belong to "${department.name}" department.`);
-      const updateUsers = await this.userMetadataService.findManyUserMetadata({
-        departmentId: department.id,
-      });
-      this.logger.log(`Updating all "${updateUsers.length}" user's data that belongs to the department "${department.name}".`);
-      for (const user of updateUsers) {
-        await this.userMetadataService.createOrUpdateUserMetadata(user.userId);
-      }
-      this.logger.log(`Updated all "${updateUsers.length}" user's data that belongs to the department "${department.name}".`);
-    } else if (this.isToday(surveyConfig.startTime)) {
-      this.logger.log(`The survey starts today.`);
-      const surveyConfigParam =
-        await this.surveyParamsService.getAllSurveyParameter({
-          surveyConfigId: surveyConfig.id,
-        });
-
-      this.logger.log(`Activating the Survey with for the department "${department.name}" with id: "${department.departmentId}.`);
-      if (surveyConfigParam) {
-        await this.surveyParamsService.updateSurveyParameterById(
-          surveyConfigParam[0].id,
-          { isActive: false }
+      this.logger.log(
+        `Fetching userIds of the users who are participating in the survey.`
+      );
+      const updateUsers =
+        await this.surveyService.fetchUserIdsOfSurveyParticipants(
+          surveyConfig.id
         );
+      this.logger.log(
+        `Updating all "${updateUsers.size}" user's data who are participating in the survey.`
+      );
+      for (const userId of updateUsers) {
+        await this.userMetadataService.createOrUpdateUserMetadata(userId);
       }
+      this.logger.log(
+        `Updated all "${updateUsers.size}" user's data who are participating in the survey.`
+      );
+    } else if (isToday(surveyConfig.startTime)) {
+      this.logger.log(
+        `Activating the Survey "${surveyConfig.surveyName}" with surveyConfigId: "${surveyConfig.id}".`
+      );
+      await this.surveyConfigService.updateSurveyConfigById(surveyConfig.id, {
+        isActive: true,
+      });
+      this.logger.log(
+        `Activated the Survey "${surveyConfig.surveyName}" with surveyConfigId: "${surveyConfig.id}".`
+      );
 
-      this.logger.log(`Generating SurveyForms for every user that belongs to the department "${department.name}".`);
-      await this.surveyService.generateSurveyFormsForDepartment(department.id);
+      this.logger.log(
+        `Generating SurveyForms for every user who is participating in the Survey "${surveyConfig.surveyName}" with id: "${surveyConfig.id}".`
+      );
+      await this.surveyService.generateSurveyFormsForSurveyConfig(
+        surveyConfig.id
+      );
+      this.logger.log(
+        `Generated SurveyForms for every user who is participating in the Survey "${surveyConfig.surveyName}" with id: "${surveyConfig.id}".`
+      );
 
       // send notifications for all survey participant
-      this.logger.log(`Sending notification to every user that belongs to the department "${department.name}".`);
+      this.logger.log(
+        `Sending notification to every user who is participating in the Survey "${surveyConfig.surveyName}" with id: "${surveyConfig.id}".`
+      );
     }
-  }
-
-  isDayBeforeToday(date) {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const yesterday = new Date(date);
-    yesterday.setDate(yesterday.getDate() - 1);
-
-    return yesterday.getTime() === today.getTime();
-  }
-
-  isToday(date) {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const givenDate = new Date(date);
-
-    return givenDate.getTime() === today.getTime();
   }
 }

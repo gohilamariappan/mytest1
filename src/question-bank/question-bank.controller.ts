@@ -211,7 +211,7 @@ export class QuestionBankController {
     // Log the initiaton for csv file upload
     this.logger.log(`Initiate to upload a csv file.`);
     try {
-      this.questionBankService.uploadCsvFile(file.path);
+      await this.questionBankService.uploadCsvFile(file.path);
       this.logger.log(`Successfully uploaded question bank.`);
       return res.status(HttpStatus.CREATED).json({
         message: "Question bank uploaded sucessfully.",

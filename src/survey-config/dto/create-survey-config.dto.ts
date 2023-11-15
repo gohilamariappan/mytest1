@@ -1,32 +1,58 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { TimeUnitsEnum } from "@prisma/client";
 import { Type } from "class-transformer";
-import { IsDate, IsEnum, IsInt, IsNotEmpty, IsOptional } from "class-validator";
+import {
+  ArrayNotEmpty,
+  IsArray,
+  IsDate,
+  IsEnum,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUUID,
+} from "class-validator";
+import { UUID } from "crypto";
+import { IsTwoFieldsRequired } from "../../utils/custom-decorators/isTwoFieldsRequired";
 
 export class CreateSurveyConfigDto {
-  @IsNotEmpty()
-  @IsInt()
-  departmentId: number;
 
   @IsNotEmpty()
-  @IsInt()
-  onboardingTime: number;
+  @IsString()
+  surveyName: string;
 
+  @IsOptional()
+  @IsNotEmpty()
+  @IsTwoFieldsRequired("onboardingTime", "onboardingTimeUnit")
+  @IsInt()
+  onboardingTime?: number;
+
+  @IsOptional()
+  @IsNotEmpty()
   @ApiProperty({ enum: TimeUnitsEnum })
+  @IsTwoFieldsRequired("onboardingTimeUnit", "onboardingTime")
   @IsEnum(TimeUnitsEnum, { each: true })
-  onboardingTimeUnit: TimeUnitsEnum;
+  onboardingTimeUnit?: TimeUnitsEnum;
 
   // start time for the survey config
   @IsNotEmpty()
   @IsDate()
   @Type(() => Date)
+  @IsTwoFieldsRequired("startTime", "endTime")
   startTime: Date;
 
   // end time for the survey config
   @IsNotEmpty()
   @IsDate()
   @Type(() => Date)
+  @IsTwoFieldsRequired("endTime", "startTime")
   endTime: Date;
+
+  @ApiProperty({
+    type: "string" || "number",
+    format: "binary",
+  })
+  file: any;
 }
 
 // SurveyConfigFilterDto is used for filtering and paginating survey config.
@@ -35,7 +61,7 @@ export class SurveyConfigFilterDto {
   @IsOptional()
   @IsNotEmpty()
   @IsInt()
-  departmentId?: number;
+  configId?: number;
 
   //Optional startTime filter validate that its valid date-time value
   @IsOptional()
@@ -58,4 +84,16 @@ export class SurveyConfigFilterDto {
   @IsOptional()
   @IsInt()
   offset?: number = 0;
+}
+
+export class UserMappingFileUploadDto {
+  @IsNotEmpty()
+  @IsUUID()
+  assesseeId: string;
+
+  @IsNotEmpty()
+  @IsArray()
+  @ArrayNotEmpty()
+  @IsUUID("all", { each: true })
+  assessorIds: UUID[];
 }

@@ -1,46 +1,40 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Inject, Injectable, NotFoundException, forwardRef } from "@nestjs/common";
 import { TimeUnitsEnum, UserRolesEnum } from "@prisma/client";
 import _ from "lodash";
 import { MockUserService } from "../mockModules/mock-user/mock-user.service";
 import { PrismaService } from "../prisma/prisma.service";
 import { SurveyConfigService } from "../survey-config/survey-config.service";
 import { UserMetadataFilterDto } from "./dto";
-import { AdminDepartmentService } from "../admin-department/admin-department.service";
+import { UserMappingFileUploadDto } from "../survey-config/dto/create-survey-config.dto";
+import { SurveyService } from "../survey/survey.service";
 
 @Injectable()
 export class UserMetadataService {
   constructor(
     private prisma: PrismaService,
     private mockUser: MockUserService,
+    @Inject(forwardRef(()=>SurveyConfigService))
     private surveyConfig: SurveyConfigService,
-    private adminDepartmentService: AdminDepartmentService
+    private surveyService: SurveyService
   ) {}
 
   public async syncUserDataWithFrac() {
-    // sync department data first before users because of table relation
-    await this.adminDepartmentService.syncDepartmentData();
-
     // fetch all users
     const users = await this.mockUser.findAll();
 
     // update or create data in user metadata table
     const usersMetaDataPayload = await Promise.all(
       users.map(async (user) => {
-        const { Department, createdAt, designation, id, role, userName } = user;
-
-        const isNewEmployee = await this.isEmployeeNew(
-          user.createdAt,
-          user.Department!.id
-        );
+        const { createdAt, designation, id, role, userName, profilePicture } = user;
 
         const userMetadataPayload = {
           userId: id,
           userName,
-          departmentId: _.get(Department, "id", 0),
           designation,
-          isNewEmployee,
+          isNewEmployee: false,
           dateOfJoining: createdAt,
           isAdmin: role == _.get(UserRolesEnum, "ADMIN", "") ? true : false,
+          profilePicture
         };
 
         return await this.prisma.userMetadata.upsert({
@@ -60,18 +54,14 @@ export class UserMetadataService {
       select: this.metadataSelect,
     });
     const user = await this.mockUser.findOne(userId);
-    const isNewEmployee = await this.isEmployeeNew(
-      user.createdAt,
-      user.Department!.id
-    );
     const userObj = {
       userId: user.id,
       userName: user.userName,
-      isNewEmployee: isNewEmployee,
+      isNewEmployee: false,
       dateOfJoining: user.createdAt,
       isAdmin: user.role == UserRolesEnum.ADMIN ? true : false,
-      departmentId: user.Department!.id,
       designation: user.designation,
+      profilePicture: user.profilePicture
     };
 
     if (!userMetadata) {
@@ -84,11 +74,11 @@ export class UserMetadataService {
         userMetadata = await this.prisma.userMetadata.update({
           where: { userId },
           data: {
-            isNewEmployee: isNewEmployee,
+            isNewEmployee: false,
             dateOfJoining: user.createdAt,
             isAdmin: user.role == UserRolesEnum.ADMIN ? true : false,
-            departmentId: user.Department!.id,
             designation: user.designation,
+            profilePicture: user.profilePicture
           },
           select: this.metadataSelect,
         });
@@ -113,22 +103,28 @@ export class UserMetadataService {
     const {
       isAdmin,
       isNewEmployee,
-      departmentId,
       designation,
-      limit = 10,
-      offset = 0,
+      limit,
+      offset,
     } = filter;
-    return await this.prisma.userMetadata.findMany({
+    let users =  await this.prisma.userMetadata.findMany({
       where: {
         isAdmin: isAdmin ?? undefined,
         isNewEmployee: isNewEmployee ?? undefined,
-        departmentId: departmentId ?? undefined,
         designation: designation ?? undefined,
       },
-      skip: +offset,
-      take: +limit,
+      skip: offset  ?? undefined,
+      take: limit ?? undefined,
       select: this.metadataSelect,
     });
+    for(const user of users){
+      const surveysToBeFilled = await this.surveyService.getSurveysToBeFilledByUser(user.userId);
+      const surveysFilled = await this.surveyService.getSurveysFilledByUser(user.userId);
+      user["surveysToBeFilled"] = surveysToBeFilled;
+      user["surveysFilled"] = surveysFilled;
+    }
+
+    return users;
   }
 
   async deleteUserMetadata(userId: string) {
@@ -140,10 +136,10 @@ export class UserMetadataService {
 
   public async isEmployeeNew(
     dateOfJoining: Date,
-    departmentId: number
+    configId: number
   ): Promise<boolean> {
     const surveyConfig = await this.surveyConfig.getAllSurveyConfig({
-      departmentId,
+      configId,
     });
 
     if (surveyConfig.length == 0) return true;
@@ -173,7 +169,6 @@ export class UserMetadataService {
       select: {
         userId: true,
         dateOfJoining: true,
-        departmentId: true,
         designation: true,
         isNewEmployee: true,
         SurveyForm: {
@@ -182,7 +177,7 @@ export class UserMetadataService {
           },
           select: {
             id: true,
-            surveyCycleParameterId: true,
+            surveyConfigId: true,
             questionsJson: true,
             status: true,
             overallScore: true,
@@ -211,13 +206,35 @@ export class UserMetadataService {
     return userMetadata;
   }
 
+  public async validateAndFetchUserIds(prismaClient, userIdList: Set<string>, userMapping: UserMappingFileUploadDto) {
+    const userValidationArray = [...new Set([...userMapping.assessorIds, userMapping.assesseeId])];
+  
+    const idsNotInUserIdList: string[] = userValidationArray.filter(id => !userIdList.has(id));
+
+    for (const id of idsNotInUserIdList) {
+      try {
+        const user = await prismaClient.userMetadata.findUnique({
+          where: { userId: id },
+        });
+        console.log({user,})
+        if(!user){
+          await this.createOrUpdateUserMetadata(id);
+        }
+      } catch (error) {
+        throw new NotFoundException(`User with id: ${id} not found.`);
+      }
+    }
+  
+    return userIdList = new Set([...userIdList, ...idsNotInUserIdList]);
+  }
+
   metadataSelect = {
     userId: true,
     userName: true,
     dateOfJoining: true,
-    departmentId: true,
     isAdmin: true,
     designation: true,
     isNewEmployee: true,
+    profilePicture: true
   };
 }

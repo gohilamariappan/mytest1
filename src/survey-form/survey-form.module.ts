@@ -6,6 +6,7 @@ import { ConfigService } from "@nestjs/config";
 
 @Module({
   controllers: [SurveyFormController],
-  providers: [SurveyFormService, PrismaService, ConfigService],
+  providers: [SurveyFormService, PrismaService],
+  exports:[SurveyFormService]
 })
 export class SurveyFormModule {}

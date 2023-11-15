@@ -37,15 +37,15 @@ export class SurveyFormService {
     });
   }
 
-  async findSurveyFormBySurveyCycleParameterId(paramId: number) {
+  async findSurveyFormBySurveyConfigId(configId: number) {
     const surveyForms = await this.prisma.surveyForm.findMany({
       where: {
-        surveyCycleParameterId: paramId,
+        surveyConfigId: configId,
       },
     });
     if (!surveyForms || surveyForms.length == 0) {
       throw new NotFoundException(
-        `Survey Forms not found for SurveyCycleParameter with id #${paramId}`
+        `Survey Forms not found for SurveyCycleParameter with id #${configId}`
       );
     }
     return surveyForms;
@@ -132,7 +132,7 @@ export class SurveyFormService {
       where: {
         userId,
         status: SurveyStatusEnum.PUBLISHED,
-        surveyCycleParameter: {
+        SurveyConfig: {
           isActive: true,
         },
       },

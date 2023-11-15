@@ -7,6 +7,7 @@ import { SurveyScoreService } from "../survey-score/survey-score.service";
 import { SurveyService } from "../survey/survey.service";
 import { UserMetadataModule } from "../user-metadata/user-metadata.module";
 import { ScheduledTasksService } from "./scheduled-tasks.service";
+import { PrismaService } from "../prisma/prisma.service";
 
 @Module({
   imports: [QuestionBankModule, UserMetadataModule, SurveyConfigModule],
@@ -16,6 +17,7 @@ import { ScheduledTasksService } from "./scheduled-tasks.service";
     SurveyService,
     SurveyScoreService,
     ResponseTrackerService,
+    PrismaService
   ],
 })
 export class ScheduledTasksModule {}

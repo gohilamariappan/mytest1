@@ -47,3 +47,22 @@ export function getPrismaErrorStatusAndMessage(error: any): {
     errorMessage: error.message,
   };
 }
+
+export function isDayBeforeToday(date) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const yesterday = new Date(date);
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  return yesterday.getTime() === today.getTime();
+}
+
+export function isToday(date) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const givenDate = new Date(date);
+
+  return givenDate.getTime() === today.getTime();
+}

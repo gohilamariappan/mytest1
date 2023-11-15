@@ -53,8 +53,8 @@ export class QuestionBankService {
     const {
       competencyId,
       competencyLevelNumber,
-      limit = 10,
-      offset = 0,
+      limit,
+      offset,
       orderBy,
     } = filter;
     return this.prisma.questionBank.findMany({
@@ -65,8 +65,8 @@ export class QuestionBankService {
       orderBy: {
         [orderBy || "createdAt"]: "asc", // Default sorting by createdAt
       },
-      skip: offset,
-      take: limit,
+      skip: offset ?? undefined,
+      take: limit ?? undefined,
     });
   }
 
@@ -118,9 +118,20 @@ export class QuestionBankService {
 
   public async uploadCsvFile(filepath) {
     // Parsed the uploaded data
-    const parsedData = await this.fileUploadService.parseCSV(filepath);
+    let parsedData;
+    try {
+      parsedData = await this.fileUploadService.parseCSV(filepath);
+    } catch (error) {
+      await this.fileUploadService.deleteUploadedFile(filepath);
+      throw error;
+    }
     // Store the parsedData in the db
-    await this.bulkUploadQuestions(parsedData);
+    try {
+      await this.bulkUploadQuestions(parsedData);
+    } catch (error) {
+      await this.fileUploadService.deleteUploadedFile(filepath);
+      throw error;
+    }
     // Clean up after the sucessful upload of csv data
     await this.fileUploadService.deleteUploadedFile(filepath);
   }

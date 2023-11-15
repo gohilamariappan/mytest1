@@ -1,10 +1,5 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { ResponseTrackerStatusEnum, SurveyStatusEnum } from "@prisma/client";
-import _ from "lodash";
 import { PrismaService } from "src/prisma/prisma.service";
 import {
   CreateSurveyFormDto,
@@ -12,6 +7,7 @@ import {
 } from "src/survey-form/dto";
 import { SurveyFormService } from "src/survey-form/survey-form.service";
 import { QuestionBankService } from "../question-bank/question-bank.service";
+import _ from "lodash";
 
 @Injectable()
 export class SurveyService {
@@ -22,27 +18,13 @@ export class SurveyService {
   ) {}
 
   async getSurveysToBeFilledByUser(userId: string) {
-    const responseCount = await this.prisma.surveyForm.findFirst({
+    const responseCount = await this.prisma.responseTracker.findMany({
       where: {
-        userId,
-        surveyCycleParameter: {
-          isActive: true,
-        },
-        ResponseTracker: {
-          every: {
-            assessorId: userId,
-            status: ResponseTrackerStatusEnum.PENDING,
-          },
-        },
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-      select: {
-        ResponseTracker: {
-          select: {
-            id: true,
-            status: true,
+        assessorId: userId,
+        status: ResponseTrackerStatusEnum.PENDING,
+        surveyForm: {
+          SurveyConfig: {
+            isActive: true,
           },
         },
       },
@@ -50,14 +32,32 @@ export class SurveyService {
     if (!responseCount) {
       return 0;
     }
-    return responseCount.ResponseTracker.length;
+    return responseCount.length;
+  }
+
+  async getSurveysFilledByUser(userId: string) {
+    const responseCount = await this.prisma.responseTracker.findMany({
+      where: {
+        assessorId: userId,
+        status: ResponseTrackerStatusEnum.COMPLETED,
+        surveyForm: {
+          SurveyConfig: {
+            isActive: true,
+          },
+        },
+      },
+    });
+    if (!responseCount) {
+      return 0;
+    }
+    return responseCount.length;
   }
 
   async getLatestSurveyResponsesForUserId(userId: string) {
     const responses = await this.prisma.surveyForm.findFirst({
       where: {
         userId,
-        surveyCycleParameter: {
+        SurveyConfig: {
           isActive: true,
         },
         ResponseTracker: {
@@ -95,63 +95,42 @@ export class SurveyService {
     return responses;
   }
 
-  async generateSurveyFormsForDepartment(departmentId: number) {
+  async generateSurveyFormsForSurveyConfig(configId: number) {
     let surveyForms: ResponseSurveyFormDto[] = [];
-    const users = await this.prisma.userMetadata.findMany({
+
+    //logic to fetch user mapping
+    const userMapping = await this.prisma.userMapping.findMany({
       where: {
-        departmentId,
+        surveyConfigId: configId,
       },
     });
-
-    const surveyCycleParameter = await this.prisma.surveyConfig.findFirst({
-      where: {
-        departmentId,
-        SurveyCycleParameters: {
-          every: { isActive: true },
-        },
-      },
-      select: {
-        SurveyCycleParameters: {
-          select: {
-            id: true,
-          },
-        },
-      },
-    });
-
-    const surveyCycleParameterId = _.get(
-      surveyCycleParameter,
-      "SurveyCycleParameters.[0].id",
-      0
-    );
-
-    if (!surveyCycleParameterId || _.isEqual(surveyCycleParameterId, 0)) {
-      throw new BadRequestException(
-        `No any active survey cycle found for department id #${departmentId}`
+    if (_.isUndefined(userMapping) || _.isEmpty(userMapping)) {
+      throw new NotFoundException(
+        `No user mapping found for Survey Ci=onfig with id ${configId}`
       );
     }
 
-    for (const user of users) {
+    for (const mapping of userMapping) {
       //get questions for the user according to their designation
       const questions = await this.questionBank.getAllQuestionsForUser(
-        user.userId
+        mapping.assesseeId
       );
       //create the CreateSurveyFormDto for the user
       const surveyFormDto: CreateSurveyFormDto = {
-        userId: user.userId,
-        surveyCycleParameterId,
+        userId: mapping.assesseeId,
+        surveyConfigId: configId,
         status: SurveyStatusEnum.PUBLISHED,
         questionsJson: questions,
       };
       const surveyForm = await this.surveyForm.createSurveyForm(surveyFormDto);
       surveyForms.push(surveyForm);
-      for (const assessor of users) {
-        if (user.userId !== assessor.userId) {
+      for (const assessor of mapping.assessorIds) {
+        if (mapping.assesseeId !== assessor) {
           await this.prisma.responseTracker.create({
             data: {
               surveyFormId: surveyForm.id,
-              assesseeId: user.userId,
-              assessorId: assessor.userId,
+              assesseeId: mapping.assesseeId,
+              assessorId: assessor,
               status: ResponseTrackerStatusEnum.PENDING,
             },
           });
@@ -159,5 +138,21 @@ export class SurveyService {
       }
     }
     return surveyForms;
+  }
+
+  public async fetchUserIdsOfSurveyParticipants(surveyConfigId: number): Promise<Set<string>> {
+    try {
+      let userIdList: Set<string> = new Set();
+      const userMappings = await this.prisma.userMapping.findMany({
+        where: { surveyConfigId },
+      });
+      for(const userMapping of userMappings){
+        const userValidationArray = [...new Set([...userMapping.assessorIds, userMapping.assesseeId])];
+        userIdList = new Set([...userIdList, ...userValidationArray]);
+      }
+      return userIdList;
+    } catch (error) {
+      throw error;
+    }
   }
 }

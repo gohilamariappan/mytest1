@@ -65,6 +65,7 @@ export class ResponseTrackerService {
           select: {
             designation: true,
             userName: true,
+            profilePicture: true,
           },
         },
         surveyForm: {
@@ -96,7 +97,8 @@ export class ResponseTrackerService {
         Assessor: {
           select: {
             designation: true,
-            userName: true, // add profile picture when added
+            userName: true,
+            profilePicture: true,
           },
         },
         surveyForm: {

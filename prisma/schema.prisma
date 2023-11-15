@@ -15,6 +15,7 @@ model UserMetadata {
   id                         Int               @unique() @default(autoincrement())
   userId                     String            @unique() @db.Uuid
   userName                   String            @unique()
+  profilePicture             String?
   isNewEmployee              Boolean
   designation                String?
   dateOfJoining              DateTime
@@ -87,7 +88,7 @@ model SurveyConfig {
 model UserMapping {
   id             Int          @id @default(autoincrement())
   surveyConfigId Int
-  SurveyConfig   SurveyConfig @relation(fields: [surveyConfigId], references: [id])
+  SurveyConfig   SurveyConfig @relation(fields: [surveyConfigId], references: [id], onDelete: Cascade)
   assesseeId     String       @db.Uuid
   assessorIds    String[]     @db.Uuid
 }
@@ -130,7 +131,7 @@ model SurveyForm {
 model ResponseTracker {
   id           Int                       @id @default(autoincrement())
   surveyFormId Int
-  surveyForm   SurveyForm                @relation(fields: [surveyFormId], references: [id])
+  surveyForm   SurveyForm                @relation(fields: [surveyFormId], references: [id], onDelete: Cascade)
   assesseeId   String                    @db.Uuid
   assessorId   String                    @db.Uuid
   responseJson Json[]                    @default([]) //{questionId: number, answer: (Yes, No and DoNotKnow)}
