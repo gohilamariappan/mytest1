@@ -164,9 +164,9 @@ export class ResponseTrackerController {
     }
   }
 
-  @Get("assessor/:assessorId/:surveyFormId")
+  @Get("assessor/:assessorId")
   @ApiOperation({
-    summary: "get response tracker by assessorId & surveyFormId",
+    summary: "get response tracker by assessorId",
   })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -174,27 +174,25 @@ export class ResponseTrackerController {
   })
   async findByAssessorId(
     @Res() res,
-    @Param("assessorId", ParseUUIDPipe) assessorId: string,
-    @Param("surveyFormId", ParseIntPipe) surveyFormId: number
+    @Param("assessorId", ParseUUIDPipe) assessorId: string
   ): Promise<ResponseTrackerDtoMultipleResponse> {
     try {
       this.logger.log(
-        `Initiated fetching response tracker with assessorId#${assessorId} and surveyFormId #${surveyFormId}`
+        `Initiated fetching response tracker with assessorId#${assessorId}.`
       );
 
       const response =
         await this.responseTrackerService.findByAssessorIdAndSurveyFormId(
-          assessorId,
-          surveyFormId
+          assessorId
         );
 
       return res.status(HttpStatus.OK).json({
         data: response,
-        message: `Successfully fetched response tracker for assessorId #${assessorId} and surveyFormId #${surveyFormId}`,
+        message: `Successfully fetched response tracker for assessorId #${assessorId}`,
       });
     } catch (error) {
       this.logger.error(
-        `Failed to fetch response tracker with assessorId #${assessorId} and surveyFormId #${surveyFormId}`,
+        `Failed to fetch response tracker with assessorId #${assessorId}`,
         error
       );
 
@@ -205,7 +203,7 @@ export class ResponseTrackerController {
         statusCode,
         message:
           errorMessage ||
-          `Failed to fetch response tracker for assessorId #${assessorId} and surveyFormId #${surveyFormId}`,
+          `Failed to fetch response tracker for assessorId #${assessorId}`,
       });
     }
   }
