@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import _ from "lodash";
 import {
   CreateFileUploadDto,
@@ -127,6 +127,15 @@ export class QuestionBankService {
   }
 
   public async bulkUploadQuestions(data: CreateFileUploadDto[]) {
+    // check the header from the data
+    const headers = Object.keys(data[0]);
+    const requiredHeaders = ["competency", "competencyLevelNumber", "question"];
+    const nonValidHeader = headers.filter(
+      (item) => !requiredHeaders.includes(item)
+    );
+    if (nonValidHeader.length) {
+      throw new BadRequestException(`Invalid columns ${nonValidHeader}`);
+    }
     // Check if the competency Existed or not the given csv data if not then filter and throw error
     const allCompetencies = await this.competencyService.findAllCompetencies();
 
