@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Inject, Injectable, NotFoundException, forwardRef } from "@nestjs/common";
 import { ResponseTrackerStatusEnum, SurveyStatusEnum } from "@prisma/client";
 import { PrismaService } from "src/prisma/prisma.service";
 import {
@@ -8,13 +8,19 @@ import {
 import { SurveyFormService } from "src/survey-form/survey-form.service";
 import { QuestionBankService } from "../question-bank/question-bank.service";
 import _ from "lodash";
+import { UserMetadataService } from "../user-metadata/user-metadata.service";
+import { ResponseTrackerService } from "../response-tracker/response-tracker.service";
+import { HomeScreenResponse } from "./dto";
 
 @Injectable()
 export class SurveyService {
   constructor(
     private prisma: PrismaService,
     private surveyForm: SurveyFormService,
-    private questionBank: QuestionBankService
+    private questionBank: QuestionBankService,
+    @Inject(forwardRef(()=>UserMetadataService))
+    private userMetadata: UserMetadataService,
+    private responseTracker: ResponseTrackerService
   ) {}
 
   async getSurveysToBeFilledByUser(userId: string) {
@@ -151,6 +157,16 @@ export class SurveyService {
         userIdList = new Set([...userIdList, ...userValidationArray]);
       }
       return userIdList;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  public async wpcasHomeScreenApi(): Promise<HomeScreenResponse>{
+    try {
+      const users = await this.userMetadata.findManyUserMetadata({});
+      const surveyData = await this.responseTracker.fetchActiveSurveyFormData();
+      return {users, surveyData};
     } catch (error) {
       throw error;
     }

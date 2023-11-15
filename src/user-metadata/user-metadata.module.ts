@@ -7,7 +7,10 @@ import { PrismaService } from "../prisma/prisma.service";
 import { SurveyModule } from "../survey/survey.module";
 
 @Module({
-  imports:[forwardRef(() => SurveyConfigModule), SurveyModule],
+  imports: [
+    forwardRef(() => SurveyConfigModule),
+    forwardRef(() => SurveyModule),
+  ],
   controllers: [UserMetadataController],
   providers: [UserMetadataService, PrismaService, MockUserService],
   exports: [UserMetadataService],

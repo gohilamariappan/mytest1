@@ -15,6 +15,7 @@ export class UserMetadataService {
     private mockUser: MockUserService,
     @Inject(forwardRef(()=>SurveyConfigService))
     private surveyConfig: SurveyConfigService,
+    @Inject(forwardRef(()=>SurveyService))
     private surveyService: SurveyService
   ) {}
 
@@ -234,7 +235,6 @@ export class UserMetadataService {
     dateOfJoining: true,
     isAdmin: true,
     designation: true,
-    isNewEmployee: true,
-    profilePicture: true
+    isNewEmployee: true
   };
 }

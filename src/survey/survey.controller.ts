@@ -13,6 +13,7 @@ import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { getPrismaErrorStatusAndMessage } from "src/utils/utils";
 import { SurveyService } from "./survey.service";
 import { ResponseSurveyFormDto, SurveyFormResponse } from "../survey-form/dto";
+import { HomeScreenAPIResponse } from "./dto";
 
 @Controller("survey")
 @ApiTags("survey")
@@ -134,6 +135,34 @@ export class SurveyController {
         message:
           errorMessage ||
           `Could not find latest survey response by userId #${userId}`,
+      });
+    }
+  }
+
+  @Get("home-screen")
+  @ApiOperation({ summary: "Fetch WPCAS home screen data" })
+  @ApiResponse({ status: HttpStatus.OK, type: HomeScreenAPIResponse })
+  async wpcasHomeScreenApi(
+    @Res() res,
+  ): Promise<SurveyFormResponse> {
+    try {
+      this.logger.log(`Initiated fetching Home Screen data for WPCAS.`);
+
+      const surveyForm = await this.surveyService.wpcasHomeScreenApi();
+
+      this.logger.log(`Successfully fetched Home Screen data for WPCAS.`);
+
+      return res.status(HttpStatus.OK).send({
+        data: surveyForm,
+        message: `Successfully fetched Home Screen data for WPCAS.`,
+      });
+    } catch (error) {
+      this.logger.error(`Failed to fetch Home Screen data for WPCAS.`, error);
+
+      const { errorMessage, statusCode } =
+        getPrismaErrorStatusAndMessage(error);
+      return res.status(statusCode).send({
+        message: errorMessage || `Could not fetch Home Screen data for WPCAS.`,
       });
     }
   }

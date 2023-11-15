@@ -66,3 +66,12 @@ export function isToday(date) {
 
   return givenDate.getTime() === today.getTime();
 }
+
+export function isDateInPast(compareDate: Date, referenceDate: Date): boolean {
+  // Convert both dates to UTC to ensure accurate comparison
+  const compareDateUTC = new Date(compareDate.toUTCString());
+  const referenceDateUTC = new Date(referenceDate.toUTCString());
+
+  // Compare the dates
+  return compareDateUTC < referenceDateUTC;
+}

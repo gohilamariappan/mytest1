@@ -50,13 +50,8 @@ export class QuestionBankService {
 
   async getAllQuestions(filter: QuestionBankFilterDto) {
     // Get all questions and filter using compentencyId and compentencyLevelId
-    const {
-      competencyId,
-      competencyLevelNumber,
-      limit,
-      offset,
-      orderBy,
-    } = filter;
+    const { competencyId, competencyLevelNumber, limit, offset, orderBy } =
+      filter;
     return this.prisma.questionBank.findMany({
       where: {
         competencyId: competencyId ?? undefined, // Optional compentencyId filter
@@ -117,16 +112,11 @@ export class QuestionBankService {
   }
 
   public async uploadCsvFile(filepath) {
-    // Parsed the uploaded data
-    let parsedData;
     try {
+      // Parsed the uploaded data
+      let parsedData;
       parsedData = await this.fileUploadService.parseCSV(filepath);
-    } catch (error) {
-      await this.fileUploadService.deleteUploadedFile(filepath);
-      throw error;
-    }
-    // Store the parsedData in the db
-    try {
+      // Store the parsedData in the db
       await this.bulkUploadQuestions(parsedData);
     } catch (error) {
       await this.fileUploadService.deleteUploadedFile(filepath);

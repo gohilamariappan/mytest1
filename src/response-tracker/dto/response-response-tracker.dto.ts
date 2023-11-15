@@ -21,3 +21,9 @@ export class ResponseTrackerDtoMultipleResponse {
   message: string;
   statusCode?: number;
 }
+
+export class SurveyDataResponse{
+  totalSurveys: number;
+  totalSurveysFilled: number;
+  totalSurveysToBeFilled: number;
+}

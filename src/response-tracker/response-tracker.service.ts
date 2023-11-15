@@ -12,6 +12,7 @@ import {
 import { UpdateResponseTrackerDto } from "./dto/update-response-tracker.dto";
 import { IResponseTracker } from "./interfaces/response-tracker.interface";
 import { ResponseTrackerStatusEnum } from "@prisma/client";
+import { SurveyDataResponse } from "./dto";
 
 @Injectable()
 export class ResponseTrackerService {
@@ -54,17 +55,15 @@ export class ResponseTrackerService {
     return response;
   }
 
-  public async findByAssessorId(
-    assessorId: string
-  ) {
+  public async findByAssessorId(assessorId: string) {
     const response = await this.prisma.responseTracker.findMany({
-      where: { 
-        assessorId, 
+      where: {
+        assessorId,
         surveyForm: {
-          SurveyConfig:{
+          SurveyConfig: {
             isActive: true,
-          }
-        } 
+          },
+        },
       },
       include: {
         Assessee: {
@@ -304,5 +303,36 @@ export class ResponseTrackerService {
 
     questionIds = _.sortBy(questionIds);
     return _.isEqual(questionIds, surveyFormQuestionIds);
+  }
+
+  async fetchActiveSurveyFormData(): Promise<SurveyDataResponse> {
+    const isActiveSurveyCondition = {
+      surveyForm: {
+        SurveyConfig: {
+          isActive: true,
+        },
+      },
+    };
+
+    const totalSurveys = await this.getCountByStatus(isActiveSurveyCondition);
+
+    const totalSurveysToBeFilled = await this.getCountByStatus({
+      ...isActiveSurveyCondition,
+      status: ResponseTrackerStatusEnum.PENDING,
+    });
+
+    const totalSurveysFilled = await this.getCountByStatus({
+      ...isActiveSurveyCondition,
+      status: ResponseTrackerStatusEnum.COMPLETED,
+    });
+
+    return { totalSurveys, totalSurveysFilled, totalSurveysToBeFilled };
+  }
+
+  async getCountByStatus(whereCondition): Promise<number> {
+    console.log(whereCondition);
+    return await this.prisma.responseTracker.count({
+      where: whereCondition,
+    });
   }
 }

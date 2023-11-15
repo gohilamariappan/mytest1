@@ -114,6 +114,7 @@ export class SurveyConfigController {
   // Update the survey config
   @Patch("/update/:id")
   @ApiConsumes("multipart/form-data")
+  @UseInterceptors(FileInterceptor("file", multerOptions))
   @ApiOperation({ summary: "Update the survey config by ID" }) // Api operation for swagger
   @ApiResponse({ status: HttpStatus.OK, type: ConfigResponseDTO }) // Api operation for swagger
   async updateSurveyConfigById(

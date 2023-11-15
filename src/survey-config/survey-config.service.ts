@@ -1,6 +1,7 @@
 import {
   Inject,
   Injectable,
+  NotAcceptableException,
   NotFoundException,
   forwardRef,
 } from "@nestjs/common";
@@ -13,6 +14,7 @@ import {
 } from "./dto/create-survey-config.dto";
 import { UpdateSurveyConfigDto } from "./dto/update-survey-config.dto";
 import { UserMetadataService } from "../user-metadata/user-metadata.service";
+import { isDateInPast } from "../utils/utils";
 
 @Injectable()
 export class SurveyConfigService {
@@ -93,18 +95,23 @@ export class SurveyConfigService {
   ) {
     let updatedConfig;
     let userIdList: Set<string> = new Set();
-    // Check the document available for the given surveyId in database to update.
-    const findSurveyConfigId = await this.prisma.surveyConfig.findUnique({
+    
+    const surveyConfig = await this.prisma.surveyConfig.findUnique({
       where: {
         id: surveyConfigId,
       },
     });
-    if (!findSurveyConfigId) {
+    if (!surveyConfig) {
       throw new NotFoundException(
-        `Survey config with ID ${findSurveyConfigId} not found.`
+        `Survey config with ID ${surveyConfigId} not found.`
       );
     }
-    // Update the survey config by the id
+    if (isDateInPast(new Date(surveyConfig.startTime), new Date())) {
+      throw new NotAcceptableException(
+        `Cannot update a survey config after the startTime has already passed.`
+      );
+    }
+    
     try {
       await this.prisma.$transaction(async (prismaClient) => {
         if (filepath != null) {
@@ -127,14 +134,13 @@ export class SurveyConfigService {
 
             await prismaClient.userMapping.create({
               data: {
-                surveyConfigId: updatedConfig.id,
+                surveyConfigId,
                 assesseeId: userMapping.assesseeId,
                 assessorIds: userMapping.assessorIds,
               },
             });
           }
 
-          delete updateSurveyConfig.file;
           await this.fileUploadService.deleteUploadedFile(filepath);
         }
 
@@ -145,10 +151,13 @@ export class SurveyConfigService {
           data: updateSurveyConfig,
         });
       });
+      return updatedConfig;
     } catch (error) {
+      if (filepath) {
+        await this.fileUploadService.deleteUploadedFile(filepath);
+      }
       throw error;
     }
-    return updatedConfig;
   }
 
   async deleteSurveyConfig(surveyConfigId: number) {
