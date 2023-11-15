@@ -143,6 +143,8 @@ export class SurveyFormService {
           select: {
             userId: true,
             designation: true,
+            userName: true,
+            profilePicture: true,
           },
         },
       },
