@@ -150,4 +150,26 @@ export class SurveyFormService {
       },
     });
   }
+
+  async fetchLatestSurveyScoreByUserId(userId: string): Promise<number|null> {
+    const latestScore =  await this.prisma.surveyForm.findFirst({
+      where: {
+        userId,
+        status: SurveyStatusEnum.CLOSED,
+        SurveyConfig: {
+          isActive: true,
+        },
+      },
+      orderBy:{
+        createdAt: "desc"
+      },
+      select: {
+        overallScore: true
+      },
+    });
+    if(!latestScore || (latestScore.overallScore != null && latestScore.overallScore<0)){
+      return null;
+    }
+    return latestScore.overallScore;
+  }
 }

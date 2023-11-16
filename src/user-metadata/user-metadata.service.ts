@@ -7,6 +7,7 @@ import { SurveyConfigService } from "../survey-config/survey-config.service";
 import { UserMetadataFilterDto } from "./dto";
 import { UserMappingFileUploadDto } from "../survey-config/dto/create-survey-config.dto";
 import { SurveyService } from "../survey/survey.service";
+import { SurveyFormService } from "../survey-form/survey-form.service";
 
 @Injectable()
 export class UserMetadataService {
@@ -16,7 +17,8 @@ export class UserMetadataService {
     @Inject(forwardRef(()=>SurveyConfigService))
     private surveyConfig: SurveyConfigService,
     @Inject(forwardRef(()=>SurveyService))
-    private surveyService: SurveyService
+    private surveyService: SurveyService,
+    private surveyForm: SurveyFormService
   ) {}
 
   public async syncUserDataWithFrac() {
@@ -121,8 +123,10 @@ export class UserMetadataService {
     for(const user of users){
       const surveysToBeFilled = await this.surveyService.getSurveysToBeFilledByUser(user.userId);
       const surveysFilled = await this.surveyService.getSurveysFilledByUser(user.userId);
+      const wpcasScore = await this.surveyForm.fetchLatestSurveyScoreByUserId(user.userId);
       user["surveysToBeFilled"] = surveysToBeFilled;
       user["surveysFilled"] = surveysFilled;
+      user["wpcasScore"] = wpcasScore;
     }
 
     return users;
