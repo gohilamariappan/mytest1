@@ -44,7 +44,7 @@ export class SurveyConfigService {
         const parsedData = await this.fileUploadService.parseCSV(filepath);
 
         for (const obj of parsedData) {
-          obj.assessorIds = obj.assessorIds.split(", ");
+          obj.assessorIds = obj.assessorIds.replace(/\s/g, '').split(",");
 
           const userMapping: UserMappingFileUploadDto = obj;
 
@@ -119,7 +119,7 @@ export class SurveyConfigService {
           const parsedData = await this.fileUploadService.parseCSV(filepath);
 
           for (const obj of parsedData) {
-            obj.assessorIds = obj.assessorIds.split(", ");
+            obj.assessorIds = obj.assessorIds.replace(/\s/g, '').split(",");
 
             const userMapping: UserMappingFileUploadDto = obj;
 
