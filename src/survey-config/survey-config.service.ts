@@ -118,6 +118,12 @@ export class SurveyConfigService {
         if (filepath != null) {
           const parsedData = await this.fileUploadService.parseCSV(filepath);
 
+          await prismaClient.userMapping.deleteMany({
+            where:{
+              surveyConfigId
+            }
+          });
+
           for (const obj of parsedData) {
             obj.assessorIds = obj.assessorIds.replace(/\s/g, '').split(",");
 
