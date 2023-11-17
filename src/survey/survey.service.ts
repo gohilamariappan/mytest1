@@ -1,4 +1,4 @@
-import { Inject, Injectable, NotFoundException, forwardRef } from "@nestjs/common";
+import { Inject, Injectable, NotAcceptableException, NotFoundException, forwardRef } from "@nestjs/common";
 import { ResponseTrackerStatusEnum, SurveyStatusEnum } from "@prisma/client";
 import { PrismaService } from "src/prisma/prisma.service";
 import {
@@ -11,6 +11,7 @@ import _ from "lodash";
 import { UserMetadataService } from "../user-metadata/user-metadata.service";
 import { ResponseTrackerService } from "../response-tracker/response-tracker.service";
 import { HomeScreenResponse } from "./dto";
+import { SurveyConfigService } from "../survey-config/survey-config.service";
 
 @Injectable()
 export class SurveyService {
@@ -20,7 +21,8 @@ export class SurveyService {
     private questionBank: QuestionBankService,
     @Inject(forwardRef(()=>UserMetadataService))
     private userMetadata: UserMetadataService,
-    private responseTracker: ResponseTrackerService
+    private responseTracker: ResponseTrackerService,
+    private surveyConfig: SurveyConfigService
   ) {}
 
   async getSurveysToBeFilledByUser(userId: string) {
@@ -103,6 +105,12 @@ export class SurveyService {
 
   async generateSurveyFormsForSurveyConfig(configId: number) {
     let surveyForms: ResponseSurveyFormDto[] = [];
+
+    const surveyConfig = await this.surveyConfig.getAllSurveyConfig({configId: configId});
+
+    if(surveyConfig[0].isActive == false) {
+      throw new NotAcceptableException(`The survey with name: ${surveyConfig[0].surveyName} is not 'ACTIVE', thus cannot create the surveyForms.`);
+    }
 
     //logic to fetch user mapping
     const userMapping = await this.prisma.userMapping.findMany({
