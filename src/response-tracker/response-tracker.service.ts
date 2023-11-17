@@ -332,7 +332,6 @@ export class ResponseTrackerService {
   }
 
   async getCountByStatus(whereCondition): Promise<number> {
-    console.log(whereCondition);
     return await this.prisma.responseTracker.count({
       where: whereCondition,
     });

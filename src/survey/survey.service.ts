@@ -112,7 +112,7 @@ export class SurveyService {
     });
     if (_.isUndefined(userMapping) || _.isEmpty(userMapping)) {
       throw new NotFoundException(
-        `No user mapping found for Survey Ci=onfig with id ${configId}`
+        `No user mapping found for Survey Config with id ${configId}`
       );
     }
 
