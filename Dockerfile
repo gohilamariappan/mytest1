@@ -1,22 +1,3 @@
-# RUN apk add --no-cache bash
-# RUN npm i -g @nestjs/cli typescript ts-node
-
-# COPY package*.json /tmp/app/
-# RUN cd /tmp/app && npm install
-
-# COPY . /usr/src/app
-# RUN cp -a /tmp/app/node_modules /usr/src/app
-# COPY ./wait-for-it.sh /opt/wait-for-it.sh
-# COPY ./startup.dev.sh /opt/startup.dev.sh
-# RUN sed -i 's/\r//g' /opt/wait-for-it.sh
-# RUN sed -i 's/\r//g' /opt/startup.dev.sh
-
-# WORKDIR /usr/src/app
-# RUN cp env-example .env
-
-# RUN npm run build
-
-# CMD ["/opt/startup.dev.sh"]
 
 # Use the official Node.js 18 image as a base
 FROM node:18.16.1-alpine
@@ -36,7 +17,7 @@ COPY package*.json ./
 # Copy the Prisma configuration and migration files
 # This line copies the "prisma" directory from your project's root into the Docker container's working directory.
 COPY prisma ./prisma/
-
+COPY env-example ./.env
 # Install project dependencies
 RUN npm install
 
