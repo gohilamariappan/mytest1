@@ -279,7 +279,7 @@ export class QuestionBankService {
     }
 
     // Get competencyLevel for an user
-    let competencyLevelNumber = user.Level?.levelNumber;
+    let competencyLevelNumber = user.levelNumber;
 
     const questionLists: any = [];
     if (competencyIds?.length && competencyLevelNumber) {
