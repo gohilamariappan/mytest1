@@ -1,15 +1,19 @@
-import { Module } from "@nestjs/common";
+import { Module, forwardRef } from "@nestjs/common";
+import { MockUserService } from "src/mockModules/mock-user/mock-user.service";
+import { SurveyConfigModule } from "../survey-config/survey-config.module";
 import { UserMetadataController } from "./user-metadata.controller";
 import { UserMetadataService } from "./user-metadata.service";
-import { SurveyConfigService } from "../survey-config/survey-config.service";
-import { MockUserService } from "../mockModules/mock-user/mock-user.service";
-import { PrismaModule } from "../prisma/prisma.module";
-import { AdminDepartmentModule } from "../admin-department/admin-department.module";
+import { PrismaService } from "../prisma/prisma.service";
+import { SurveyModule } from "../survey/survey.module";
+import { SurveyFormService } from "../survey-form/survey-form.service";
 
 @Module({
-  imports: [AdminDepartmentModule,PrismaModule],
+  imports: [
+    forwardRef(() => SurveyConfigModule),
+    forwardRef(() => SurveyModule),
+  ],
   controllers: [UserMetadataController],
-  providers: [UserMetadataService, SurveyConfigService, MockUserService],
+  providers: [UserMetadataService, PrismaService, MockUserService, SurveyFormService],
   exports: [UserMetadataService],
 })
 export class UserMetadataModule {}

@@ -8,7 +8,6 @@ export const users = [
     userName: "Amit Sharma",
     password: "P@ssw0rd1",
     designation: "CEO",
-    departmentId: 1,
     levelNumber: 4, // Assuming Amit Sharma has a competency level of "Strategic Leadership"
   },
   {
@@ -18,7 +17,6 @@ export const users = [
     userName: "Neha Patil",
     password: "P@ssw0rd2",
     designation: "Software Engineer",
-    departmentId: 1,
     levelNumber: 2, // competency level for Neha Patil
   },
   {
@@ -28,7 +26,6 @@ export const users = [
     userName: "Rajesh Kumar",
     password: "P@ssw0rd3",
     designation: "Software Engineer",
-    departmentId: 1,
     levelNumber: 3, // competency level for Rajesh Kumar
   },
   {
@@ -38,7 +35,6 @@ export const users = [
     userName: "Priya Jain",
     password: "P@ssw0rd4",
     designation: "QA Engineer",
-    departmentId: 3,
     levelNumber: 2, // competency level for Priya Jain
   },
   {
@@ -48,7 +44,6 @@ export const users = [
     userName: "Arjun Singh",
     password: "P@ssw0rd5",
     designation: "QA Engineer",
-    departmentId: 3,
     levelNumber: 3, // competency level for Arjun Singh
   },
   {
@@ -58,7 +53,6 @@ export const users = [
     userName: "Deepa Mishra",
     password: "P@ssw0rd6",
     designation: "Software Architect",
-    departmentId: 2,
     levelNumber: 4, // competency level for Deepa Mishra
   },
   {
@@ -68,7 +62,6 @@ export const users = [
     userName: "Rahul Verma",
     password: "P@ssw0rd7",
     designation: "Software Architect",
-    departmentId: 2,
     levelNumber: 3, // competency level for Rahul Verma
   },
   {
@@ -78,7 +71,6 @@ export const users = [
     userName: "Anita Sen",
     password: "P@ssw0rd8",
     designation: "Software Engineer",
-    departmentId: 2,
     levelNumber: 2, // competency level for Anita Sen
   },
   {
@@ -88,7 +80,6 @@ export const users = [
     userName: "Mohit Gupta",
     password: "P@ssw0rd9",
     designation: "Software Engineer",
-    departmentId: 2,
     levelNumber: 3, // competency level for Mohit Gupta
   },
   {
@@ -98,7 +89,6 @@ export const users = [
     userName: "Pooja Rawat",
     password: "P@ssw0rd10",
     designation: "Software Engineer",
-    departmentId: 3,
     levelNumber: 3, // competency level for Pooja Rawat
   },
   {
@@ -108,7 +98,6 @@ export const users = [
     userName: "Anurag Sharma",
     password: "P@ssw0rd11",
     designation: "Software Engineer",
-    departmentId: 3,
     levelNumber: 2, // competency level for Anurag Sharma
   },
   {
@@ -118,7 +107,6 @@ export const users = [
     userName: "Meera Rani",
     password: "P@ssw0rd12",
     designation: "Software Engineer",
-    departmentId: 3,
     levelNumber: 2, // competency level for Meera Rani
   },
   {
@@ -128,7 +116,6 @@ export const users = [
     userName: "Vikas Patel",
     password: "P@ssw0rd13",
     designation: "Software Engineer",
-    departmentId: 4,
     levelNumber: 3, // competency level for Vikas Patel
   },
   {
@@ -138,7 +125,6 @@ export const users = [
     userName: "Divya Malik",
     password: "P@ssw0rd14",
     designation: "Software Engineer",
-    departmentId: 5,
     levelNumber: 2, // competency level for Divya Malik
   },
   {
@@ -148,7 +134,6 @@ export const users = [
     userName: "Rajiv Khanna",
     password: "P@ssw0rd15",
     designation: "Software Engineer",
-    departmentId: 3,
     levelNumber: 4, // competency level for Rajiv Khanna
   },
   {
@@ -158,7 +143,6 @@ export const users = [
     userName: "Swati Shah",
     password: "P@ssw0rd16",
     designation: "QA Engineer",
-    departmentId: 3,
     levelNumber: 3, // competency level for Swati Shah
   },
   {
@@ -168,7 +152,6 @@ export const users = [
     userName: "Manish Agrawal",
     password: "P@ssw0rd17",
     designation: "QA Engineer",
-    departmentId: 3,
     levelNumber: 4, // competency level for Manish Agrawal
   },
   {
@@ -178,7 +161,6 @@ export const users = [
     userName: "Pallavi Reddy",
     password: "P@ssw0rd18",
     designation: "QA Engineer",
-    departmentId: 3,
     levelNumber: 2, // competency level for Pallavi Reddy
   },
   {
@@ -188,7 +170,6 @@ export const users = [
     userName: "Deepak Mishra",
     password: "P@ssw0rd19",
     designation: "QA Engineer",
-    departmentId: 3,
     levelNumber: 4, // competency level for Deepak Mishra
   },
   {
@@ -198,7 +179,6 @@ export const users = [
     userName: "Komal Choudhary",
     password: "P@ssw0rd20",
     designation: "QA Engineer",
-    departmentId: 3,
     levelNumber: 2, // competency level for Komal Choudhary
   },
 ];

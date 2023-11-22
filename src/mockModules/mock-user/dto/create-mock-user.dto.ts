@@ -38,11 +38,6 @@ export class CreateMockUserDto {
   @IsNumber()
   levelNumber: number;
 
-  @IsOptional()
-  @IsNotEmpty()
-  @IsNumber()
-  departmentId: number;
-
   @IsNotEmpty()
   @IsString()
   designation: string;

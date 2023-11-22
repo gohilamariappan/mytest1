@@ -2,15 +2,19 @@ import { ApiProperty } from "@nestjs/swagger";
 import { SurveyStatusEnum } from "@prisma/client";
 import { JsonValue } from "@prisma/client/runtime/library";
 import { SurveyScoreResponse } from "src/survey-score/dto";
+import { ResponseSurveyConfigDto } from "../../survey-config/dto/response-survey-config.dto";
+import { ResponseTracker } from "../../response-tracker/dto";
 
 export class ResponseSurveyFormDto {
-  readonly id: number;
-  readonly userId: string;
-  readonly surveyCycleParameterId: number;
-  readonly status: SurveyStatusEnum;
-  readonly questionsJson: JsonValue;
-  readonly overallScore: number | null;
-  readonly sunbirdCredentialIds: string | null;
+  readonly id?: number;
+  readonly userId?: string;
+  readonly surveyConfigId?: number;
+  readonly SurveyConfig?: ResponseSurveyConfigDto;
+  readonly status?: SurveyStatusEnum;
+  readonly questionsJson?: JsonValue;
+  readonly overallScore?: number | null;
+  readonly sunbirdCredentialIds?: string | null;
+  readonly ResponseTracker?: ResponseTracker
 }
 
 export class SurveyFormResponse {

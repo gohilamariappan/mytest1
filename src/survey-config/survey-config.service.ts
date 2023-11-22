@@ -1,57 +1,170 @@
-import { Injectable, NotFoundException, Query, Res } from "@nestjs/common";
+import {
+  Inject,
+  Injectable,
+  NotAcceptableException,
+  NotFoundException,
+  forwardRef,
+} from "@nestjs/common";
+import { FileUploadService } from "../file-upload/file-upload.service";
+import { PrismaService } from "../prisma/prisma.service";
 import {
   CreateSurveyConfigDto,
   SurveyConfigFilterDto,
+  UserMappingFileUploadDto,
 } from "./dto/create-survey-config.dto";
 import { UpdateSurveyConfigDto } from "./dto/update-survey-config.dto";
-import { PrismaService } from "../prisma/prisma.service";
+import { UserMetadataService } from "../user-metadata/user-metadata.service";
+import { isDateInPast } from "../utils/utils";
+import { UserMappingDTO } from "./dto/response-survey-config.dto";
 
 @Injectable()
 export class SurveyConfigService {
-  constructor(private prisma: PrismaService) {}
-  async createSurveyConfig(createSurveyConfigDto: CreateSurveyConfigDto) {
-    // create new survey config
-    const newConfig = await this.prisma.surveyConfig.create({
-      data: createSurveyConfigDto,
-    });
+  constructor(
+    private prisma: PrismaService,
+    private fileUploadService: FileUploadService,
+    @Inject(forwardRef(() => UserMetadataService))
+    private userMetadataService: UserMetadataService
+  ) {}
+  async createSurveyConfig(
+    filepath,
+    createSurveyConfigDto: CreateSurveyConfigDto
+  ) {
+    let newConfig;
+    let userIdList: Set<string> = new Set();
+    try {
+      await this.prisma.$transaction(async (prismaClient) => {
+        newConfig = await prismaClient.surveyConfig.create({
+          data: {
+            surveyName: createSurveyConfigDto.surveyName,
+            endTime: createSurveyConfigDto.endTime,
+            startTime: createSurveyConfigDto.startTime,
+          },
+        });
+
+        const parsedData = await this.fileUploadService.parseCSV(filepath);
+
+        for (const obj of parsedData) {
+          obj.assessorIds = obj.assessorIds.replace(/\s/g, '').split(",");
+
+          const userMapping: UserMappingFileUploadDto = obj;
+
+          try {
+            userIdList = await this.userMetadataService.validateAndFetchUserIds(
+              prismaClient,
+              userIdList,
+              userMapping
+            );
+          } catch (error) {
+            throw error;
+          }
+
+          await prismaClient.userMapping.create({
+            data: {
+              surveyConfigId: newConfig.id,
+              assesseeId: userMapping.assesseeId,
+              assessorIds: userMapping.assessorIds,
+            },
+          });
+        }
+      });
+      await this.fileUploadService.deleteUploadedFile(filepath);
+    } catch (error) {
+      await this.fileUploadService.deleteUploadedFile(filepath);
+      throw error;
+    }
+
     return newConfig;
   }
 
   async getAllSurveyConfig(filter: SurveyConfigFilterDto) {
-    const { departmentId, startTime, endTime, limit = 10, offset = 0 } = filter;
+    const { configId, startTime, endTime, limit, offset } = filter;
     return await this.prisma.surveyConfig.findMany({
       where: {
-        departmentId: departmentId ?? undefined, // Optional departmentId filter
-        startTime: startTime ?? undefined, // Optional startTime filter
-        endTime: endTime ?? undefined, // Optional endTime filter
+        id: configId ?? undefined,
+        startTime: startTime ?? undefined,
+        endTime: endTime ?? undefined,
       },
-      skip: +offset,
-      take: +limit,
+      skip: offset ?? undefined,
+      take: limit ?? undefined,
     });
   }
 
   async updateSurveyConfigById(
     surveyConfigId: number,
-    updateSurveyConfig: UpdateSurveyConfigDto
+    updateSurveyConfig: UpdateSurveyConfigDto,
+    filepath = null
   ) {
-    // Check the document available for the given surveyId in database to update.
-    const findSurveyConfigId = await this.prisma.surveyConfig.findUnique({
+    let updatedConfig;
+    let userIdList: Set<string> = new Set();
+
+    const surveyConfig = await this.prisma.surveyConfig.findUnique({
       where: {
         id: surveyConfigId,
       },
     });
-    if (!findSurveyConfigId) {
+    if (!surveyConfig) {
       throw new NotFoundException(
-        `Survey config with ID ${findSurveyConfigId} not found.`
+        `Survey config with ID ${surveyConfigId} not found.`
       );
     }
-    // Update the survey config by the id
-    return await this.prisma.surveyConfig.update({
-      where: {
-        id: surveyConfigId,
-      },
-      data: updateSurveyConfig,
-    });
+    if (isDateInPast(new Date(surveyConfig.startTime), new Date())) {
+      throw new NotAcceptableException(
+        `Cannot update a survey config after the startTime has already passed.`
+      );
+    }
+
+    try {
+      await this.prisma.$transaction(async (prismaClient) => {
+        if (filepath != null) {
+          const parsedData = await this.fileUploadService.parseCSV(filepath);
+
+          await prismaClient.userMapping.deleteMany({
+            where:{
+              surveyConfigId
+            }
+          });
+
+          for (const obj of parsedData) {
+            obj.assessorIds = obj.assessorIds.replace(/\s/g, '').split(",");
+
+            const userMapping: UserMappingFileUploadDto = obj;
+
+            try {
+              userIdList = await this.userMetadataService.validateAndFetchUserIds(
+                prismaClient,
+                userIdList,
+                userMapping
+              );
+            } catch (error) {
+              throw error;
+            }
+
+            await prismaClient.userMapping.create({
+              data: {
+                surveyConfigId,
+                assesseeId: userMapping.assesseeId,
+                assessorIds: userMapping.assessorIds,
+              },
+            });
+          }
+
+          await this.fileUploadService.deleteUploadedFile(filepath);
+        }
+
+        updatedConfig = await this.prisma.surveyConfig.update({
+          where: {
+            id: surveyConfigId,
+          },
+          data: updateSurveyConfig,
+        });
+      });
+      return updatedConfig;
+    } catch (error) {
+      if (filepath) {
+        await this.fileUploadService.deleteUploadedFile(filepath);
+      }
+      throw error;
+    }
   }
 
   async deleteSurveyConfig(surveyConfigId: number) {
@@ -73,5 +186,22 @@ export class SurveyConfigService {
       },
     });
     return deletedSurveyConfig;
+  }
+
+  public async getUserMappingSampleForSurveyConfig(): Promise<UserMappingDTO[]> {
+    return [
+      {
+        assesseeId: "8a98a623-2ad4-40af-bfb3-1a53051e89e9",
+        assessorIds: "8e11986e-36d4-4f7d-bf5e-b436a25ee661, 53fc7f0c-8724-4cba-80b9-3f6040e3aeae",
+      },
+      {
+        assesseeId: "8e11986e-36d4-4f7d-bf5e-b436a25ee661",
+        assessorIds: "8a98a623-2ad4-40af-bfb3-1a53051e89e9, 53fc7f0c-8724-4cba-80b9-3f6040e3aeae",
+      },
+      {
+        assesseeId: "53fc7f0c-8724-4cba-80b9-3f6040e3aeae",
+        assessorIds: "8a98a623-2ad4-40af-bfb3-1a53051e89e9, 8e11986e-36d4-4f7d-bf5e-b436a25ee661",
+      },
+    ];
   }
 }

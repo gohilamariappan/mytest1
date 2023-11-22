@@ -28,7 +28,7 @@ export class CreateSurveyFormDto {
 
   @IsNumber()
   @IsNotEmpty()
-  surveyCycleParameterId: number;
+  surveyConfigId: number;
 
   @ApiProperty({ enum: SurveyStatusEnum, example: "CREATED" })
   @IsEnum(SurveyStatusEnum)

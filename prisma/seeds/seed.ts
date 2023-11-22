@@ -2,7 +2,6 @@ import { PrismaClient } from "@prisma/client";
 import { competencies } from "./data/mock-competencies.data";
 import { competenciesToCompetencyLevels } from "./data/mock-competenciesToCompetencyLevels.data";
 import { competencyLevels } from "./data/mock-competencyLevels.data";
-import { departments } from "./data/mock-departments.data";
 import { designations } from "./data/mock-designation.data";
 import { levels } from "./data/mock-levels.data";
 import { roles } from "./data/mock-roles.data";
@@ -13,10 +12,6 @@ const prisma = new PrismaClient();
 
 async function seed() {
   await prisma.$transaction([
-    prisma.department.createMany({
-      data: departments,
-    }),
-
     prisma.designation.createMany({
       data: designations,
     }),
