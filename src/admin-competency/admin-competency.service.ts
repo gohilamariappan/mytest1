@@ -5,9 +5,8 @@ import {
   forwardRef,
 } from "@nestjs/common";
 import _ from "lodash";
-import { PrismaService } from "../prisma/prisma.service";
 import { MockCompetencyService } from "../mockModules/mock-competency/mock-competency.service";
-import { UpdateAdminCompetencyDto } from "./dto";
+import { PrismaService } from "../prisma/prisma.service";
 
 @Injectable()
 export class AdminCompetencyService {
@@ -72,13 +71,12 @@ export class AdminCompetencyService {
     return adminCompetency;
   }
 
-
   public async findAllCompetencyNames() {
     const adminCompetencies = await this.prisma.adminCompetency.findMany({
-      select:{
+      select: {
         competencyId: true,
         name: true,
-      }
+      },
     });
     return adminCompetencies;
   }

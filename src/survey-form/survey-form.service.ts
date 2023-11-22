@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { SurveyStatusEnum } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
 import { CreateSurveyFormDto, SurveyScoresForUser } from "./dto";
+import _ from "lodash";
 
 @Injectable()
 export class SurveyFormService {
@@ -152,24 +153,25 @@ export class SurveyFormService {
   }
 
   async fetchLatestSurveyScoreByUserId(userId: string): Promise<number|null> {
-    const latestScore =  await this.prisma.surveyForm.findFirst({
+    const latestScore =  await this.prisma.surveyForm.findMany({
       where: {
         userId,
         status: SurveyStatusEnum.CLOSED,
         SurveyConfig: {
-          isActive: true,
+          isActive: false,
         },
       },
       orderBy:{
         createdAt: "desc"
       },
+      take: 1,
       select: {
         overallScore: true
       },
     });
-    if(!latestScore || (latestScore.overallScore != null && latestScore.overallScore<0)){
+    if(_.isEmpty(latestScore) || (latestScore[0].overallScore != null && latestScore[0].overallScore<0)){
       return null;
     }
-    return latestScore.overallScore;
+    return latestScore[0].overallScore;
   }
 }
