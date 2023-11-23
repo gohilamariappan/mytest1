@@ -67,7 +67,10 @@ export class MockUserService {
     userName: true,
     profilePicture: true,
     designation:true,
-    levelNumber: true,
+  //  Level: {
+  //     select: {
+  //       levelNumber : true
+  //     },
     createdAt: true,
     updatedAt: true,
   };

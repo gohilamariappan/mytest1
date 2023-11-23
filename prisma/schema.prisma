@@ -184,7 +184,7 @@ model User {
   updatedAt      DateTime      @updatedAt
   designation    String
   // Level          Level?        @relation(fields: [levelNumber], references: [levelNumber])
-  levelNumber    Int?
+  // levelNumber    Int?
   // Department     Department?   @relation(fields: [departmentId], references: [id])
   // departmentId   Int?
 
