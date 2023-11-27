@@ -37,7 +37,7 @@ export class MockRoleService {
         competencies: {
           select: {
             competency: true,
-            competencyId: true
+            competencyId: true,
           },
         },
       },
@@ -121,6 +121,17 @@ export class MockRoleService {
           },
         },
       },
+    });
+  }
+
+  public async getCompetenciesByRoleId(id: number) {
+    return this.prisma.roleToCompetency.findMany({
+      where: {
+        roleId: id,
+      },
+      select: {
+        competencyId: true,
+      }
     });
   }
 }

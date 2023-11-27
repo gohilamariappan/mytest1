@@ -13,6 +13,7 @@ import {
   ParseIntPipe,
   UseInterceptors,
   UploadedFile,
+  ParseUUIDPipe,
 } from "@nestjs/common";
 import { QuestionBankService } from "./question-bank.service";
 import {
@@ -241,7 +242,7 @@ export class QuestionBankController {
   })
   async getAllQuestionsForUser(
     @Res() res,
-    @Param("id") id: string
+    @Param("id", ParseUUIDPipe) id: string
   ): Promise<ResponseQuestionBankDto[]> {
     try {
       this.logger.log(

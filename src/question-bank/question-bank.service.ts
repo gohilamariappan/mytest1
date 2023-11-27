@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import _ from "lodash";
 import {
   CreateFileUploadDto,
@@ -50,13 +54,8 @@ export class QuestionBankService {
 
   async getAllQuestions(filter: QuestionBankFilterDto) {
     // Get all questions and filter using compentencyId and compentencyLevelId
-    const {
-      competencyId,
-      competencyLevelNumber,
-      limit,
-      offset,
-      orderBy,
-    } = filter;
+    const { competencyId, competencyLevelNumber, limit, offset, orderBy } =
+      filter;
     return this.prisma.questionBank.findMany({
       where: {
         competencyId: competencyId ?? undefined, // Optional compentencyId filter
@@ -258,58 +257,50 @@ export class QuestionBankService {
       await this.mockDesignationService.findAllRolesForDesignation(designation);
 
     // Get roleId of each role of the user
-    const roleIds = userRoles?.Roles.map((item) => {
-      return item.id;
+    const roles = userRoles?.Roles.map((item) => {
+      return {
+        id: item.id,
+        name: item.name,
+      };
     });
 
-    // unique competencyId associated with the roles of the user
-    const competencyIds: any = [];
-    if (roleIds?.length) {
-      for (let i = 0; i < roleIds.length; i++) {
-        const competency = (await this.mockRoleService.findRoleById(roleIds[i]))
-          .competencies;
-        competencyIds.push(
-          ...competency.filter((item) => {
-            if (!competencyIds.includes(item.competencyId)) {
-              competencyIds.push(item.competencyId);
-            }
-          })
+    const competenciesForRole = await Promise.all(
+      roles?.map(async (role) => {
+        const competency = await this.mockRoleService.getCompetenciesByRoleId(
+          role.id
         );
-      }
-    }
-
-    // Get competencyLevel for an user
-    let competencyLevelNumber = user.Level?.levelNumber;
+        return competency;
+      }) || []
+    );
+    
+    // Flatten the array and extract unique competencyIds
+    const uniqueCompetencyIds = Array.from(
+      new Set(competenciesForRole.flat().map((comp) => comp.competencyId))
+    );
 
     const questionLists: any = [];
-    if (competencyIds?.length && competencyLevelNumber) {
-      for (let i = 0; i < competencyIds.length; i++) {
-        while (competencyLevelNumber) {
-          const questions = await this.prisma.questionBank.findMany({
-            where: {
-              competencyId: competencyIds[i],
-              competencyLevelNumber,
-            },
-            select: {
-              id: true,
-              question: true,
-            },
-          });
+    if (uniqueCompetencyIds?.length) {
+      for (let i = 0; i < uniqueCompetencyIds.length; i++) {
+        const questions = await this.prisma.questionBank.findMany({
+          where: {
+            competencyId: uniqueCompetencyIds[i],
+          },
+          select: {
+            id: true,
+            question: true,
+          },
+        });
 
-          const mappedQuestions = _.map(questions, (data) => {
-            const { id, question } = data;
-            return {
-              question,
-              questionId: id,
-            };
-          });
-
-          questionLists.push(...mappedQuestions);
-          competencyLevelNumber--;
-        }
+        const mappedQuestions = _.map(questions, (data) => {
+          const { id, question } = data;
+          return {
+            question,
+            questionId: id,
+          };
+        });
+        questionLists.push(...mappedQuestions);
       }
-    }
-
+    }    
     if (!questionLists.length) {
       throw new NotFoundException(`No Question Found for user with #${userId}`);
     }
