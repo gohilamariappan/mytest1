@@ -16,7 +16,12 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true });
 
   // Enable Cross-Origin Resource Sharing (CORS)
-  app.enableCors();
+  app.enableCors({
+    origin: true,
+    methods: ["GET", "POST","PUT","PATCH", "DELETE"],
+    allowedHeaders: "*",
+    credentials:true
+  });
 
   // Enable using the container for class-validator
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
