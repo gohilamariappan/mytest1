@@ -68,6 +68,16 @@ model AdminCompetency {
 //   @@map("admin_department")
 // }
 
+model CredentialDid{
+  id                 Int           @id @default(autoincrement())
+  authorDid String
+  schemaDid String
+  schemaVersion String
+
+  @@unique([schemaDid, schemaVersion])
+  @@map("credential_did")
+}
+
 model SurveyConfig {
   id                 Int           @id @default(autoincrement())
   surveyName         String

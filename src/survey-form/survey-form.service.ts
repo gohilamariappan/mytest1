@@ -46,7 +46,7 @@ export class SurveyFormService {
     });
     if (!surveyForms || surveyForms.length == 0) {
       throw new NotFoundException(
-        `Survey Forms not found for SurveyCycleParameter with id #${configId}`
+        `Survey Forms not found for SurveyConfig with id #${configId}`
       );
     }
     return surveyForms;

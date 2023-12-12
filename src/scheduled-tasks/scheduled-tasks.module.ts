@@ -8,16 +8,26 @@ import { SurveyService } from "../survey/survey.service";
 import { UserMetadataModule } from "../user-metadata/user-metadata.module";
 import { ScheduledTasksService } from "./scheduled-tasks.service";
 import { PrismaService } from "../prisma/prisma.service";
+import { AdminCompetencyModule } from "src/admin-competency/admin-competency.module";
+import { SunbirdRcModule } from "src/external-services/sunbird-rc/sunbird-rc.module";
+import { PassbookModule } from "src/external-services/passbook/passbook.module";
 
 @Module({
-  imports: [QuestionBankModule, UserMetadataModule, SurveyConfigModule],
+  imports: [
+    QuestionBankModule,
+    UserMetadataModule,
+    SurveyConfigModule,
+    AdminCompetencyModule,
+    SunbirdRcModule,
+    PassbookModule,
+  ],
   providers: [
     ScheduledTasksService,
     SurveyFormService,
     SurveyService,
     SurveyScoreService,
     ResponseTrackerService,
-    PrismaService
+    PrismaService,
   ],
 })
 export class ScheduledTasksModule {}

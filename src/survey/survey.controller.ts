@@ -148,7 +148,7 @@ export class SurveyController {
     try {
       this.logger.log(`Initiated fetching Home Screen data for WPCAS.`);
 
-      const surveyForm = await this.surveyService.wpcasHomeScreenApi();
+      const surveyForm = await this.surveyService.createCredentialSchemaBySurveyFormId(1);
 
       this.logger.log(`Successfully fetched Home Screen data for WPCAS.`);
 
