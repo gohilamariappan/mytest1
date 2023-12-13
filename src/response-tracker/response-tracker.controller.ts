@@ -185,6 +185,10 @@ export class ResponseTrackerController {
         assessorId
       );
 
+      this.logger.log(
+        `Successfully fetched response tracker for assessorId #${assessorId}.`
+      );
+
       return res.status(HttpStatus.OK).json({
         data: response,
         message: `Successfully fetched response tracker for assessorId #${assessorId}.`,
