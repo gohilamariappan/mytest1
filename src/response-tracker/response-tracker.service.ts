@@ -58,14 +58,24 @@ export class ResponseTrackerService {
   public async findByAssessorId(
     assessorId: string
   ) {
+    const user = await this.prisma.userMetadata.findUnique({
+      where: { userId: assessorId },
+    });
+
+    if (!user) {
+      throw new NotFoundException(
+        `Assessor with user id #${assessorId} not found.`
+      );
+    }
+
     const response = await this.prisma.responseTracker.findMany({
-      where: { 
-        assessorId, 
+      where: {
+        assessorId,
         surveyForm: {
           SurveyConfig: {
             isActive: true,
-          }
-        } 
+          },
+        },
       },
       include: {
         Assessee: {
@@ -87,10 +97,6 @@ export class ResponseTrackerService {
       },
     });
 
-    if (!response || response.length === 0)
-      throw new NotFoundException(
-        `Response tracker with assessorId #${assessorId} not found`
-      );
     return response;
   }
 
