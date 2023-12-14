@@ -7,7 +7,7 @@ import { SurveyFormService } from "../survey-form/survey-form.service";
 import { SurveyScoreService } from "../survey-score/survey-score.service";
 import { SurveyService } from "../survey/survey.service";
 import { UserMetadataService } from "../user-metadata/user-metadata.service";
-import { isDayBeforeToday, isToday } from "../utils/utils";
+import { isDayBeforeToday, isToday, isTomorrow } from "../utils/utils";
 import { PassbookService } from "src/external-services/passbook/passbook.service";
 import { SunbirdRcService } from "src/external-services/sunbird-rc/sunbird-rc.service";
 
@@ -40,7 +40,7 @@ export class ScheduledTasksService {
         this.logger.log(`The survey #${surveyConfig.surveyName} is ACTIVE.`);
 
         if (isDayBeforeToday(surveyConfig.endTime)) {
-          // this.logger.log(`Survey will end tomorrow. Sending remainder notification to all survey participants.`);
+          this.logger.log(`Survey will end tomorrow. Sending remainder notification to all survey participants.`);
           //send notifications
         } else if (isToday(surveyConfig.endTime)) {
           this.logger.log(`Fetching all SurveyForms related to the survey.`);
@@ -52,30 +52,47 @@ export class ScheduledTasksService {
           this.logger.log(`Calculation scores for all "${surveyForms.length}" SurveyForms related to the survey.`);
           for (const surveyForm of surveyForms) {
 
-            this.logger.log(`Calculating the score for SurveyForm with id: "${surveyForm.id}" for user with id: "${surveyForm.userId}".`);
-            await this.surveyScoreService.calculateSurveyScoreBySurveyFormId(
-              surveyForm.id
-            );
-            this.logger.log(`Calculated the score for SurveyForm with id: "${surveyForm.id}" for user with id: "${surveyForm.userId}".`);
-
             this.logger.log(`Updating the surveyFrom's (id: "${surveyForm.id}") status to "CLOSED".`);
             await this.surveyFormService.updateSurveyFormStatus(
               surveyForm.id,
               SurveyStatusEnum.CLOSED
             );
 
-            this.logger.log(`Fetching the data to create a sunbirdRC certificate."`);
+            this.logger.log(`Calculating the score for SurveyForm with id: "${surveyForm.id}" for user with id: "${surveyForm.userId}".`);
+            await this.surveyScoreService.calculateSurveyScoreBySurveyFormId(
+              surveyForm.id
+            );
+            this.logger.log(`Calculated the score for SurveyForm with id: "${surveyForm.id}" for user with id: "${surveyForm.userId}".`);
+
+
+            this.logger.log(`Fetching the data to create a sunbirdRC certificate.`);
             const credData = await this.surveyService.createCredentialSchemaBySurveyFormId(surveyForm.id);
 
-            this.logger.log(`Issuing sunbirdRC credentials."`);
-            const sunbirdCred: any = await this.sunbirdRcService.issueCredential(credData);
+            this.logger.log(`Issuing sunbirdRC credentials.`);
+            let sunbirdCred : any;
+            try {
+              sunbirdCred = await this.sunbirdRcService.issueCredential(credData);
+            } catch (error) {
+              this.logger.error(error);
+            }
 
-            this.logger.log(`Credentials issued. Pushing credentials to passbook."`);
-            await this.passbookService.addFeedback({
-              ...credData,
-              certificateId: sunbirdCred.id
-            });
-            this.logger.log(`Added credentials to passbook."`);
+            if(sunbirdCred){
+              try {
+                this.logger.log(`Credentials issued. Pushing credentials to passbook.`);
+                await this.passbookService.addFeedback({
+                  ...credData,
+                  certificateId: sunbirdCred.id
+                });
+                this.logger.log(`Added credentials to passbook."`);
+
+              } catch (error) {
+                this.logger.error(error);
+              }
+
+              this.logger.log(`Updating credentials and overall score in the surveyFrom.`);
+              await this.surveyFormService.updateOverallScoreAndCredentialDid(surveyForm.id, credData.overallScore, sunbirdCred.id);
+
+            }
           }
 
           this.logger.log(`Deleting the userMapping for the survey as it will end today.`);
@@ -83,11 +100,14 @@ export class ScheduledTasksService {
             where: { surveyConfigId: surveyConfig.id },
           });
 
-          this.logger.log(`Deactivating the Survey as it will end today.`);
-          await this.surveyConfigService.updateSurveyConfigById(
-            surveyConfig.id,
-            { isActive: false }
+          this.logger.log(`Deactivating the Survey "${surveyConfig.surveyName}" as it will end today.`);
+          await this.surveyConfigService.deactivateSurveyConfig(
+            surveyConfig.id
           );
+          this.logger.log(`The Survey "${surveyConfig.surveyName}" ends today.`);
+
+        } else {
+          this.logger.log(`The survey #"${surveyConfig.surveyName}" with surveyConfigId: "${surveyConfig.id}" is ongoing.`);
         }
       } else {
         await this.startSurvey(surveyConfig);
@@ -97,7 +117,7 @@ export class ScheduledTasksService {
 
   async startSurvey(surveyConfig: SurveyConfig) {
     this.logger.log(`The survey with surveyConfigId: "${surveyConfig.id}" is not ACTIVE.`);
-    if (isDayBeforeToday(surveyConfig.startTime)) {
+    if (isTomorrow(surveyConfig.startTime)) {
       //update user data
       this.logger.log(`Fetching userIds of the users who are participating in the survey.`);
       const updateUsers = await this.surveyService.fetchUserIdsOfSurveyParticipants(
@@ -119,11 +139,14 @@ export class ScheduledTasksService {
       await this.surveyService.generateSurveyFormsForSurveyConfig(
         surveyConfig.id
       );
+      this.logger.log(`The Survey "${surveyConfig.surveyName}" with id: "${surveyConfig.id}" has been started.`);
 
       // send notifications for all survey participant
       // this.logger.log(
       //   `Sending notification to every user who is participating in the Survey "${surveyConfig.surveyName}" with id: "${surveyConfig.id}".`
       // );
+    } else {
+      this.logger.log(`The survey with surveyConfigId: "${surveyConfig.id}" is to be Activated in the future or a dead survey.`);
     }
   }
 }

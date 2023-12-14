@@ -232,7 +232,7 @@ export class SurveyService {
     const result= [] as CompetencyCredentailDto[];
   
     // Group scores by surveyFormId and competencyId
-    const groupedScores = _.groupBy(scores, 'surveyFormId');
+    const groupedScores = _.groupBy(scores, 'competencyId');
   
     // Iterate through competencies and transform the data
     competencies.forEach((competency) => {

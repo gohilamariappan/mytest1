@@ -17,6 +17,7 @@ import { ScheduleModule } from "@nestjs/schedule";
 import { SurveyModule } from './survey/survey.module';
 import { FileUploadModule } from './file-upload/file-upload.module';
 import { ExternalServicesModule } from "./external-services/external-services.module";
+import { CredentialDIDModule } from "./credential-did/credential-did.module";
 
 @Module({
   imports: [
@@ -36,7 +37,8 @@ import { ExternalServicesModule } from "./external-services/external-services.mo
     ScheduleModule.forRoot(),
     SurveyModule,
     FileUploadModule,
-    ExternalServicesModule
+    ExternalServicesModule,
+    CredentialDIDModule
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],

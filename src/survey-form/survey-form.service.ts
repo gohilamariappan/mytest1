@@ -174,4 +174,14 @@ export class SurveyFormService {
     }
     return latestScore[0].overallScore;
   }
+
+  async updateOverallScoreAndCredentialDid(surveyFormId: number, overallScore: number|null, sunbirdCredentialIds: string){
+    return await this.prisma.surveyForm.update({
+      where:{id: surveyFormId},
+      data:{
+        overallScore,
+        sunbirdCredentialIds
+      }
+    })
+  }
 }

@@ -191,6 +191,17 @@ export class SurveyConfigService {
     return deletedSurveyConfig;
   }
 
+  async deactivateSurveyConfig(surveyConfigId: number) {
+    return await this.prisma.surveyConfig.update({
+      where: {
+        id: surveyConfigId,
+      },
+      data: {
+        isActive: false
+      },
+    });
+  }
+
   public async getUserMappingSampleForSurveyConfig(): Promise<UserMappingDTO[]> {
     return [
       {

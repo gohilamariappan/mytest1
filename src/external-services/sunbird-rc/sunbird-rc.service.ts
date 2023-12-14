@@ -42,7 +42,7 @@ export class SunbirdRcService {
       return response.data;
     } catch (error) {
       // Handle errors
-      throw new Error("Failed to fetch data from the external API");
+      throw new Error("Failed to fetch data from the external API(fetchCredSchemaByIdAndVersion)");
     }
   }
 
@@ -50,6 +50,8 @@ export class SunbirdRcService {
     try {
 
       const dids = await this.credentialDID.findDIDs();
+      const creationDate = new Date();
+      const expirationDate = new Date(creationDate).setFullYear(creationDate.getFullYear() + 1);
       const response = await axios.post(
         `${this.sunbirdRcUrl}/credentials/issue`,
         {
@@ -61,12 +63,12 @@ export class SunbirdRcService {
               ],
               type: ["VerifiableCredential", "WPCASSurveyScoreCredential"],
               issuer: dids.authorDid,
-              expirationDate: "2023-02-08T11:56:27.259Z",
+              expirationDate: expirationDate,
               credentialSubject: {
                 ...credentialData
               },
               options: {
-                created: new Date(),
+                created: creationDate.toISOString(),
                 credentialStatus: {
                   type: "RevocationList2020Status",
                 },
@@ -93,7 +95,7 @@ export class SunbirdRcService {
       return response.data;
     } catch (error) {
       // Handle errors
-      throw new Error("Failed to fetch data from the external API");
+      throw new Error("Failed to fetch data from the external API(verifyCredentail)");
     }
   }
 
@@ -108,7 +110,7 @@ export class SunbirdRcService {
       return response.data;
     } catch (error) {
       // Handle errors
-      throw new Error("Failed to fetch data from the external API");
+      throw new Error("Failed to fetch data from the external API(resolveDid)");
     }
   }
 
@@ -128,7 +130,7 @@ export class SunbirdRcService {
       return response.data;
     } catch (error) {
       // Handle errors
-      throw new Error("Failed to fetch data from the external API");
+      throw new Error("Failed to fetch data from the external API(renderCredential)");
     }
   }
 
@@ -138,7 +140,7 @@ export class SunbirdRcService {
       return response.data;
     } catch (error) {
       // Handle errors
-      throw new Error("Failed to fetch data from the external API");
+      throw new Error("Failed to fetch data from the external API(getCredentailById)");
     }
   }
 }
