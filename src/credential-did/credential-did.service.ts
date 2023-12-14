@@ -20,15 +20,18 @@ export class CredentialDIDService {
     try {
       await this.sunbirdRc.resolveDid(createOrUpdateDID.authorDid);
       await this.sunbirdRc.fetchCredSchemaByIdAndVersion(createOrUpdateDID.schemaDid, createOrUpdateDID.schemaVersion);
-      const did = await this.prisma.credentialDid.findMany();
+      const did = await this.prisma.credentialDid.findFirst();
 
-      return await this.prisma.credentialDid.upsert({
-        where: {
-          id: did[0].id ?? 1,
-        },
-        update: createOrUpdateDID,
-        create: createOrUpdateDID,
-      });
+      if (!did) {
+        return await this.prisma.credentialDid.create({
+          data: createOrUpdateDID,
+        });
+      } else {
+        return await this.prisma.credentialDid.update({
+          where: { id: did.id },
+          data: createOrUpdateDID,
+        });
+      }
     } catch (error) {
       throw error;
     }
