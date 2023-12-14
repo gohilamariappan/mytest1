@@ -14,22 +14,22 @@ export class SunbirdRcService {
   // private identityUrl = "http://localhost:3332";
   private sunbirdRcUrl = "http://compass.samagra.io";
 
-  async addNewCredSchema(schema: any): Promise<any> {
-    try {
-      const response = await axios.post(
-        `${this.sunbirdRcUrl}/credential-schema`,
-        {
-          data: {
-            ...schema
-          },
-        }
-      );
-      return response.data;
-    } catch (error) {
-      // Handle errors
-      throw new Error("Failed to fetch data from the external API");
-    }
-  }
+  // async addNewCredSchema(schema: any): Promise<any> {
+  //   try {
+  //     const response = await axios.post(
+  //       `${this.sunbirdRcUrl}/credential-schema`,
+  //       {
+  //         data: {
+  //           ...schema
+  //         },
+  //       }
+  //     );
+  //     return response.data;
+  //   } catch (error) {
+  //     // Handle errors
+  //     throw new Error("Failed to fetch data from the external API");
+  //   }
+  // }
 
   async fetchCredSchemaByIdAndVersion(schemaDid: string, version: string): Promise<any> {
     try {
@@ -87,17 +87,17 @@ export class SunbirdRcService {
     }
   }
 
-  async verifyCredentail(did: string): Promise<any> {
-    try {
-      const response = await axios.post(
-        `${this.sunbirdRcUrl}/credentials/${did}/verify`
-      );
-      return response.data;
-    } catch (error) {
-      // Handle errors
-      throw new Error("Failed to fetch data from the external API(verifyCredentail)");
-    }
-  }
+  // async verifyCredentail(did: string): Promise<any> {
+  //   try {
+  //     const response = await axios.post(
+  //       `${this.sunbirdRcUrl}/credentials/${did}/verify`
+  //     );
+  //     return response.data;
+  //   } catch (error) {
+  //     // Handle errors
+  //     throw new Error("Failed to fetch data from the external API(verifyCredentail)");
+  //   }
+  // }
 
   async resolveDid(did: string): Promise<any> {
     try {
@@ -114,33 +114,13 @@ export class SunbirdRcService {
     }
   }
 
-  async renderCredential(credentialDID: string): Promise<any> {
-    try {
-      const response = await axios.post(
-        `${this.sunbirdRcUrl}/credentials/render`,
-        {
-          data: {
-            credentialId: credentialDID,
-            template:
-              '<html lang=\'en\'>   <head>     <meta charset=\'UTF-8\' />     <meta http-equiv=\'X-UA-Compatible\' content=\'IE=edge\' />     <meta name=\'viewport\' content=\'width=device-width, initial-scale=1.0\' />     <title>Certificate</title>   </head>   <body>   <div style="width:800px; height:600px; padding:20px; text-align:center; border: 10px solid #787878"> <div style="width:750px; height:550px; padding:20px; text-align:center; border: 5px solid #787878"> <span style="font-size:50px; font-weight:bold">Certificate of Completion</span> <br><br> <span style="font-size:25px"><i>This is to certify that</i></span> <br><br> <span style="font-size:30px"><b>{{name}}</b></span><br/><br/> <span style="font-size:25px"><i>has completed the course</i></span> <br/><br/> <span style="font-size:30px">{{programme}}</span> <br/><br/> <span style="font-size:20px">with score of <b>{{grade}}%</b></span> <br/><br/><br/><br/> <span style="font-size:25px"></span><br> <div> <img src={{qr}} > </div> </div>  </div>  </body>    </html>',
-            output: "PDF",
-          },
-        }
-      );
-      return response.data;
-    } catch (error) {
-      // Handle errors
-      throw new Error("Failed to fetch data from the external API(renderCredential)");
-    }
-  }
-
-  async getCredentailById(credentialDID: string): Promise<any> {
-    try {
-      const response = await axios.get(`${this.sunbirdRcUrl}/credentials/${credentialDID}`);
-      return response.data;
-    } catch (error) {
-      // Handle errors
-      throw new Error("Failed to fetch data from the external API(getCredentailById)");
-    }
-  }
+  // async getCredentailById(credentialDID: string): Promise<any> {
+  //   try {
+  //     const response = await axios.get(`${this.sunbirdRcUrl}/credentials/${credentialDID}`);
+  //     return response.data;
+  //   } catch (error) {
+  //     // Handle errors
+  //     throw new Error("Failed to fetch data from the external API(getCredentailById)");
+  //   }
+  // }
 }
