@@ -34,7 +34,7 @@ export class SurveyConfigService {
     let newConfig;
     let userIdList: Set<string> = new Set();
     try {
-      await this.credentialService.findDIDs();
+      // await this.credentialService.findDIDs();
       await this.prisma.$transaction(async (prismaClient) => {
         newConfig = await prismaClient.surveyConfig.create({
           data: {
