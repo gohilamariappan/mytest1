@@ -138,4 +138,14 @@ export class AdminCompetencyService {
     });
     return adminCompetency;
   }
+
+  // public async fetchCompetencyLevel(competencyId:number, competencyLevelNumber: number){
+  //   try {
+  //     const competency = await this.findOne(competencyId);
+  //     const competencyLevel = _.get(competency, "competencyLevels", []);
+  //     return _.find(competencyLevel, competencyLevelNumber);
+  //   } catch (error) {
+  //     throw error;
+  //   }
+  // }
 }

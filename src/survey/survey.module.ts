@@ -1,5 +1,7 @@
 import { Module, forwardRef } from "@nestjs/common";
+import { AdminCompetencyModule } from "src/admin-competency/admin-competency.module";
 import { SurveyFormService } from "src/survey-form/survey-form.service";
+import { SurveyScoreService } from "src/survey-score/survey-score.service";
 import { QuestionBankModule } from "../question-bank/question-bank.module";
 import { ResponseTrackerService } from "../response-tracker/response-tracker.service";
 import { SurveyConfigModule } from "../survey-config/survey-config.module";
@@ -13,9 +15,10 @@ import { SurveyService } from "./survey.service";
     QuestionBankModule,
     SurveyFormModule,
     forwardRef(() => UserMetadataModule),
-    forwardRef(() => SurveyConfigModule)
+    forwardRef(() => SurveyConfigModule),
+    AdminCompetencyModule
   ],
-  providers: [SurveyService, SurveyFormService, ResponseTrackerService],
+  providers: [SurveyService, SurveyFormService, ResponseTrackerService, SurveyScoreService],
   controllers: [SurveyController],
   exports: [SurveyService],
 })

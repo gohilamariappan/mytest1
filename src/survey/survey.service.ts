@@ -1,5 +1,11 @@
-import { Inject, Injectable, NotAcceptableException, NotFoundException, forwardRef } from "@nestjs/common";
-import { ResponseTrackerStatusEnum, SurveyStatusEnum } from "@prisma/client";
+import {
+  Inject,
+  Injectable,
+  NotAcceptableException,
+  NotFoundException,
+  forwardRef,
+} from "@nestjs/common";
+import { AdminCompetency, ResponseTrackerStatusEnum, SurveyStatusEnum } from "@prisma/client";
 import { PrismaService } from "src/prisma/prisma.service";
 import {
   CreateSurveyFormDto,
@@ -12,6 +18,9 @@ import { UserMetadataService } from "../user-metadata/user-metadata.service";
 import { ResponseTrackerService } from "../response-tracker/response-tracker.service";
 import { HomeScreenResponse } from "./dto";
 import { SurveyConfigService } from "../survey-config/survey-config.service";
+import { SurveyScoreService } from "src/survey-score/survey-score.service";
+import { CompetencyCredentailDto, SurveyScoreCredentailDto } from "src/external-services/sunbird-rc/dto";
+import { AdminCompetencyService } from "src/admin-competency/admin-competency.service";
 
 @Injectable()
 export class SurveyService {
@@ -19,10 +28,12 @@ export class SurveyService {
     private prisma: PrismaService,
     private surveyForm: SurveyFormService,
     private questionBank: QuestionBankService,
-    @Inject(forwardRef(()=>UserMetadataService))
+    @Inject(forwardRef(() => UserMetadataService))
     private userMetadata: UserMetadataService,
     private responseTracker: ResponseTrackerService,
-    private surveyConfig: SurveyConfigService
+    private surveyConfig: SurveyConfigService,
+    private surveyScore: SurveyScoreService,
+    private adminCompetency: AdminCompetencyService
   ) {}
 
   async getSurveysToBeFilledByUser(userId: string) {
@@ -106,10 +117,14 @@ export class SurveyService {
   async generateSurveyFormsForSurveyConfig(configId: number) {
     let surveyForms: ResponseSurveyFormDto[] = [];
 
-    const surveyConfig = await this.surveyConfig.getAllSurveyConfig({configId: configId});
+    const surveyConfig = await this.surveyConfig.getAllSurveyConfig({
+      configId: configId,
+    });
 
-    if(surveyConfig[0].isActive == false) {
-      throw new NotAcceptableException(`The survey with name: ${surveyConfig[0].surveyName} is not 'ACTIVE', thus cannot create the surveyForms.`);
+    if (surveyConfig[0].isActive == false) {
+      throw new NotAcceptableException(
+        `The survey with name: ${surveyConfig[0].surveyName} is not 'ACTIVE', thus cannot create the surveyForms.`
+      );
     }
 
     //logic to fetch user mapping
@@ -154,14 +169,18 @@ export class SurveyService {
     return surveyForms;
   }
 
-  public async fetchUserIdsOfSurveyParticipants(surveyConfigId: number): Promise<Set<string>> {
+  public async fetchUserIdsOfSurveyParticipants(
+    surveyConfigId: number
+  ): Promise<Set<string>> {
     try {
       let userIdList: Set<string> = new Set();
       const userMappings = await this.prisma.userMapping.findMany({
         where: { surveyConfigId },
       });
-      for(const userMapping of userMappings){
-        const userValidationArray = [...new Set([...userMapping.assessorIds, userMapping.assesseeId])];
+      for (const userMapping of userMappings) {
+        const userValidationArray = [
+          ...new Set([...userMapping.assessorIds, userMapping.assesseeId]),
+        ];
         userIdList = new Set([...userIdList, ...userValidationArray]);
       }
       return userIdList;
@@ -170,13 +189,90 @@ export class SurveyService {
     }
   }
 
-  public async wpcasHomeScreenApi(): Promise<HomeScreenResponse>{
+  public async wpcasHomeScreenApi(): Promise<HomeScreenResponse> {
     try {
       const users = await this.userMetadata.findManyUserMetadata({});
       const surveyData = await this.responseTracker.fetchActiveSurveyFormData();
-      return {users, surveyData};
+      return { users, surveyData };
     } catch (error) {
       throw error;
     }
+  }
+
+  public async createCredentialSchemaBySurveyFormId(surveyFormId: number) {
+    try {
+      let returnObj: SurveyScoreCredentailDto = {} as SurveyScoreCredentailDto;
+      let competencies: AdminCompetency[] = [] as AdminCompetency[];
+
+      const surveyForm = await this.surveyForm.findSurveyFormById(
+        surveyFormId
+      );
+      const surveyScores = await this.surveyScore.findBySurveyFormId(
+        surveyFormId
+      );
+
+      const distinctCompetencyIds = _.uniqBy(surveyScores, 'competencyId').map(obj => obj.competencyId);
+      for(const competencyId of distinctCompetencyIds){
+        const competency = await this.adminCompetency.findOne(competencyId);
+        competencies.push(competency);
+      }
+
+      returnObj.userId = surveyForm.userId;
+      returnObj.dateOfSurveyScore = surveyForm.createdAt.toISOString();
+      returnObj.overallScore = surveyForm.overallScore;
+      returnObj.competencies  =  await this.transformData(surveyScores, competencies);
+
+      return returnObj;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  public async transformData(scores, competencies) {
+    const result= [] as CompetencyCredentailDto[];
+  
+    // Group scores by surveyFormId and competencyId
+    const groupedScores = _.groupBy(scores, 'competencyId');
+  
+    // Iterate through competencies and transform the data
+    competencies.forEach((competency) => {
+      const competencyId = competency.id;
+      const competencyName = competency.name;
+  
+      const levels = competency.competencyLevels.map((level) => {
+        const levelNumber = level.competencyLevelNumber;
+        const levelName = level.competencyLevelName;
+  
+        // Find scores for the current competency and level
+        const competencyScores = groupedScores[competencyId] || [];
+        const matchingScore = competencyScores.find((score) => score.competencyLevelNumber === levelNumber);
+  
+        // Calculate score percentage
+        const scorePercentage = matchingScore ? matchingScore.score.toFixed(2) : 'N/A';
+        if(scorePercentage != 'N/A'){
+          return {
+            levelNumber,
+            name: levelName,
+            score: parseFloat(scorePercentage),
+          };
+        } else {
+          return null;
+        }
+      });
+
+      const filteredLevels = _.compact(levels);
+  
+      // Add the transformed data to the result array
+      result.push({
+        id: competencyId,
+        name: competencyName,
+        levels: filteredLevels,
+      } as CompetencyCredentailDto);
+    });
+  
+    // Sort result array by competency ID
+    const sortedResult = _.sortBy(result, 'id');
+  
+    return sortedResult;
   }
 }

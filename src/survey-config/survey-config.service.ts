@@ -16,6 +16,7 @@ import { UpdateSurveyConfigDto } from "./dto/update-survey-config.dto";
 import { UserMetadataService } from "../user-metadata/user-metadata.service";
 import { isDateInPast } from "../utils/utils";
 import { UserMappingDTO } from "./dto/response-survey-config.dto";
+import { CredentialDIDService } from "src/credential-did/credential-did.service";
 
 @Injectable()
 export class SurveyConfigService {
@@ -23,7 +24,8 @@ export class SurveyConfigService {
     private prisma: PrismaService,
     private fileUploadService: FileUploadService,
     @Inject(forwardRef(() => UserMetadataService))
-    private userMetadataService: UserMetadataService
+    private userMetadataService: UserMetadataService,
+    private credentialService: CredentialDIDService
   ) {}
   async createSurveyConfig(
     filepath,
@@ -32,6 +34,7 @@ export class SurveyConfigService {
     let newConfig;
     let userIdList: Set<string> = new Set();
     try {
+      await this.credentialService.findDIDs();
       await this.prisma.$transaction(async (prismaClient) => {
         newConfig = await prismaClient.surveyConfig.create({
           data: {
@@ -186,6 +189,17 @@ export class SurveyConfigService {
       },
     });
     return deletedSurveyConfig;
+  }
+
+  async deactivateSurveyConfig(surveyConfigId: number) {
+    return await this.prisma.surveyConfig.update({
+      where: {
+        id: surveyConfigId,
+      },
+      data: {
+        isActive: false
+      },
+    });
   }
 
   public async getUserMappingSampleForSurveyConfig(): Promise<UserMappingDTO[]> {

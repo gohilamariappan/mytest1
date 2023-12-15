@@ -46,7 +46,7 @@ export class SurveyFormService {
     });
     if (!surveyForms || surveyForms.length == 0) {
       throw new NotFoundException(
-        `Survey Forms not found for SurveyCycleParameter with id #${configId}`
+        `Survey Forms not found for SurveyConfig with id #${configId}`
       );
     }
     return surveyForms;
@@ -173,5 +173,15 @@ export class SurveyFormService {
       return null;
     }
     return latestScore[0].overallScore;
+  }
+
+  async updateOverallScoreAndCredentialDid(surveyFormId: number, overallScore: number|null, sunbirdCredentialIds: string){
+    return await this.prisma.surveyForm.update({
+      where:{id: surveyFormId},
+      data:{
+        overallScore,
+        sunbirdCredentialIds
+      }
+    })
   }
 }
