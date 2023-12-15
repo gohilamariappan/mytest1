@@ -12,7 +12,7 @@ export class SunbirdRcService {
   // private credentialUrl = "http://localhost:3000";
   // private credSchemaUrl = "http://localhost:3333";
   // private identityUrl = "http://localhost:3332";
-  private sunbirdRcUrl = "http://compass.samagra.io";
+  private sunbirdRcUrl = `${process.env.PASSBOOK_URL}`;
 
   // async addNewCredSchema(schema: any): Promise<any> {
   //   try {
