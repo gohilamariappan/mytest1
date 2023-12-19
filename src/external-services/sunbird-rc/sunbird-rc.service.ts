@@ -42,7 +42,7 @@ export class SunbirdRcService {
       return response.data;
     } catch (error) {
       // Handle errors
-      throw new Error("Failed to fetch data from the external API(fetchCredSchemaByIdAndVersion)");
+      throw new Error(`Failed to fetch data from the external API(fetchCredSchemaByIdAndVersion). Error: ${error.message}`);
     }
   }
 
@@ -63,8 +63,10 @@ export class SunbirdRcService {
               ],
               type: ["VerifiableCredential", "WPCASSurveyScoreCredential"],
               issuer: dids.authorDid,
+              issuanceDate: creationDate,
               expirationDate: expirationDate,
               credentialSubject: {
+                id: dids.authorDid,
                 ...credentialData
               },
               options: {
@@ -83,7 +85,7 @@ export class SunbirdRcService {
       return response.data;
     } catch (error) {
       // Handle errors
-      throw new Error(`Failed to issue credentials for user with id #${credentialData.userId}`);
+      throw new Error(`Failed to issue credentials for user with id #${credentialData.userId}. Error: ${error.message}`);
     }
   }
 
@@ -110,7 +112,7 @@ export class SunbirdRcService {
       return response.data;
     } catch (error) {
       // Handle errors
-      throw new Error("Failed to fetch data from the external API(resolveDid)");
+      throw new Error(`Failed to fetch data from the external API(resolveDid). Error: ${error.message}`);
     }
   }
 
