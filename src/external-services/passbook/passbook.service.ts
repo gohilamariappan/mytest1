@@ -4,7 +4,7 @@ import { AddFeedbackDto } from "./dto";
 
 @Injectable()
 export class PassbookService {
-  private apiUrl = "http://172.17.0.2:3000/api";
+  private apiUrl = process.env.PASSBOOK_SERVICE_URL;
 
   async getUser(userId: string): Promise<any> {
     try {
