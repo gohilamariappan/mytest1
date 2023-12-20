@@ -51,35 +51,35 @@ export class SunbirdRcService {
 
       const dids = await this.credentialDID.findDIDs();
       const creationDate = new Date();
-      const expirationDate = new Date(creationDate).setFullYear(creationDate.getFullYear() + 1);
+      const expirationDate = new Date();
+      expirationDate.setFullYear(creationDate.getFullYear() + 1);
+
       const response = await axios.post(
         `${this.sunbirdRcUrl}/credentials/issue`,
         {
-          data: {
-            credential: {
-              "@context": [
-                "https://www.w3.org/2018/credentials/v1",
-                "https://www.w3.org/2018/credentials/examples/v1",
-              ],
-              type: ["VerifiableCredential", "WPCASSurveyScoreCredential"],
-              issuer: dids.authorDid,
-              issuanceDate: creationDate,
-              expirationDate: expirationDate,
-              credentialSubject: {
-                id: dids.authorDid,
-                ...credentialData
-              },
-              options: {
-                created: creationDate.toISOString(),
-                credentialStatus: {
-                  type: "RevocationList2020Status",
-                },
+          credential: {
+            "@context": [
+              "https://www.w3.org/2018/credentials/v1",
+              "https://www.w3.org/2018/credentials/examples/v1",
+            ],
+            type: ["VerifiableCredential", "WPCASSurveyScoreCredential"],
+            issuer: dids.authorDid,
+            issuanceDate: creationDate,
+            expirationDate: expirationDate,
+            credentialSubject: {
+              id: dids.authorDid,
+              ...credentialData
+            },
+            options: {
+              created: creationDate.toISOString(),
+              credentialStatus: {
+                type: "RevocationList2020Status",
               },
             },
-            credentialSchemaId: dids.schemaDid,
-            credentialSchemaVersion: dids.schemaVersion,
-            tags: ["tag1", "tag2", "tag3"],
           },
+          credentialSchemaId: dids.schemaDid,
+          credentialSchemaVersion: dids.schemaVersion,
+          tags: ["tag1", "tag2", "tag3"],
         }
       );
       return response.data;
@@ -103,7 +103,7 @@ export class SunbirdRcService {
 
   async resolveDid(did: string): Promise<any> {
     try {
-      const response = await axios.post(
+      const response = await axios.get(
         `${this.sunbirdRcUrl}/did/resolve/${did}`
       );
       if(response.status != 200){

@@ -54,9 +54,9 @@ export function isTomorrow(inputDate: Date): boolean {
   const tomorrow = new Date(currentDate);
   tomorrow.setDate(currentDate.getDate() + 1);
 
-  tomorrow.setHours(0, 0, 0, 0);
+  tomorrow.setUTCHours(0, 0, 0, 0);
 
-  inputDate.setHours(0, 0, 0, 0);
+  inputDate.setUTCHours(0, 0, 0, 0);
 
   // Compare the input date with tomorrow
   return inputDate.getTime() === tomorrow.getTime();
@@ -64,7 +64,7 @@ export function isTomorrow(inputDate: Date): boolean {
 
 export function isDayBeforeToday(date) {
   const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  today.setUTCHours(0, 0, 0, 0);
 
   const yesterday = new Date(date);
   yesterday.setDate(yesterday.getDate() - 1);
@@ -74,10 +74,10 @@ export function isDayBeforeToday(date) {
 
 export function isToday(date) {
   const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  today.setUTCHours(0, 0, 0, 0);
 
   const givenDate = new Date(date);
-  givenDate.setHours(0, 0, 0, 0);
+  givenDate.setUTCHours(0, 0, 0, 0);
 
   return givenDate.getTime() === today.getTime();
 }
@@ -85,9 +85,9 @@ export function isToday(date) {
 export function isDateInPast(compareDate: Date, referenceDate: Date): boolean {
   // Convert both dates to UTC to ensure accurate comparison
   const compareDateUTC = new Date(compareDate.toUTCString());
-  compareDateUTC.setHours(0, 0, 0, 0);
+  compareDateUTC.setUTCHours(0, 0, 0, 0);
   const referenceDateUTC = new Date(referenceDate.toUTCString());
-  referenceDateUTC.setHours(0, 0, 0, 0);
+  referenceDateUTC.setUTCHours(0, 0, 0, 0);
 
   // Compare the dates
   return compareDateUTC < referenceDateUTC;
