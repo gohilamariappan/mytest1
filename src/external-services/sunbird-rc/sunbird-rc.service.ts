@@ -9,27 +9,7 @@ export class SunbirdRcService {
     @Inject(forwardRef(()=>CredentialDIDService))
     private credentialDID: CredentialDIDService
   ){}
-  // private credentialUrl = "http://localhost:3000";
-  // private credSchemaUrl = "http://localhost:3333";
-  // private identityUrl = "http://localhost:3332";
-  private sunbirdRcUrl = "http://compass.samagra.io";
-
-  // async addNewCredSchema(schema: any): Promise<any> {
-  //   try {
-  //     const response = await axios.post(
-  //       `${this.sunbirdRcUrl}/credential-schema`,
-  //       {
-  //         data: {
-  //           ...schema
-  //         },
-  //       }
-  //     );
-  //     return response.data;
-  //   } catch (error) {
-  //     // Handle errors
-  //     throw new Error("Failed to fetch data from the external API");
-  //   }
-  // }
+  private sunbirdRcUrl = process.env.SUNBIRD_SERVICE_URL;
 
   async fetchCredSchemaByIdAndVersion(schemaDid: string, version: string): Promise<any> {
     try {
