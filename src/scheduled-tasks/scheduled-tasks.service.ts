@@ -81,7 +81,7 @@ export class ScheduledTasksService {
                 this.logger.log(`Credentials issued. Pushing credentials to passbook.`);
                 await this.passbookService.addFeedback({
                   ...credData,
-                  certificateId: sunbirdCred.id
+                  certificateId: sunbirdCred["credentail"]["id"]
                 });
                 this.logger.log(`Added credentials to passbook."`);
 
@@ -90,7 +90,7 @@ export class ScheduledTasksService {
               }
 
               this.logger.log(`Updating credentials and overall score in the surveyFrom.`);
-              await this.surveyFormService.updateOverallScoreAndCredentialDid(surveyForm.id, credData.overallScore, sunbirdCred.id);
+              await this.surveyFormService.updateOverallScoreAndCredentialDid(surveyForm.id, credData.overallScore, sunbirdCred["credentail"]["id"]);
 
             }
           }

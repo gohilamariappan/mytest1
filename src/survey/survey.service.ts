@@ -248,12 +248,12 @@ export class SurveyService {
         const matchingScore = competencyScores.find((score) => score.competencyLevelNumber === levelNumber);
   
         // Calculate score percentage
-        const scorePercentage = matchingScore ? matchingScore.score.toFixed(2) : 'N/A';
+        const scorePercentage = matchingScore ? matchingScore.score.toFixed(2) : null;
         if(scorePercentage != 'N/A'){
           return {
             levelNumber,
             name: levelName,
-            score: parseFloat(scorePercentage),
+            score: scorePercentage == -1 ? null : parseFloat(scorePercentage),
           };
         } else {
           return null;
